@@ -142,6 +142,7 @@ ASFormatter::~ASFormatter()
  */
 void ASFormatter::init(ASSourceIterator* si)
 {
+        printf("init()\n");
 	buildLanguageVectors();
 	fixOptionVariableConflicts();
 	ASBeautifier::init(si);
@@ -1925,6 +1926,7 @@ string ASFormatter::nextLine()
 		isInBeautifySQL = isInExecSQL;					// used by ASEnhancer
 	}
 
+        printf("beautified line: %s\n", &beautifiedLine[0]);
 	prependEmptyLine = false;
 	assert(computeChecksumOut(beautifiedLine));
 	return beautifiedLine;
@@ -2934,6 +2936,7 @@ void ASFormatter::appendSpaceAfter()
  */
 void ASFormatter::breakLine(bool isSplitLine /*false*/)
 {
+        printf("breakLine()\n");
 	isLineReady = true;
 	isInLineBreak = false;
 	spacePadNum = nextLineSpacePadNum;
@@ -3912,6 +3915,8 @@ void ASFormatter::adjustComments()
 	assert(spacePadNum != 0);
 	assert(isSequenceReached("//") || isSequenceReached("/*"));
 
+printf("currentLine : %s\n", &currentLine[0]);
+
 	// block comment must be closed on this line with nothing after it
 	if (isSequenceReached("/*"))
 	{
@@ -3958,6 +3963,7 @@ void ASFormatter::adjustComments()
  */
 void ASFormatter::appendCharInsideComments()
 {
+        printf("appendCharInsideComments()\n");
 	if (formattedLineCommentNum == string::npos     // does the comment start on the previous line?
 	        || formattedLineCommentNum == 0)
 	{
@@ -5311,6 +5317,7 @@ void ASFormatter::formatArrayBraces(BraceType braceType, bool isOpeningArrayBrac
  */
 void ASFormatter::formatRunIn()
 {
+        printf("formatRunIn()\n");
 	assert(braceFormatMode == RUN_IN_MODE || braceFormatMode == NONE_MODE);
 
 	// keep one line blocks returns true without indenting the run-in
@@ -5573,6 +5580,7 @@ bool ASFormatter::isSharpStyleWithParen(const string* header) const
  */
 const string* ASFormatter::checkForHeaderFollowingComment(const string& firstLine) const
 {
+        printf("checkForHeaderFollowingComment()\n");
 	assert(isInComment || isInLineComment);
 	assert(shouldBreakElseIfs || shouldBreakBlocks || isInSwitchStatement());
 	// look ahead to find the next non-comment text
@@ -5626,6 +5634,7 @@ void ASFormatter::processPreprocessor()
  */
 bool ASFormatter::commentAndHeaderFollows()
 {
+        printf("commentAndHeaderFollows()\n");
 	// called ONLY IF shouldDeleteEmptyLines and shouldBreakBlocks are TRUE.
 	assert(shouldDeleteEmptyLines && shouldBreakBlocks);
 
@@ -5775,6 +5784,7 @@ bool ASFormatter::isCurrentBraceBroken() const
 void ASFormatter::formatCommentBody()
 {
 	assert(isInComment);
+        printf("formatCommentBody()\n");
 
 	// append the comment
 	while (charNum < (int) currentLine.length())
@@ -5782,6 +5792,7 @@ void ASFormatter::formatCommentBody()
 		currentChar = currentLine[charNum];
 		if (isSequenceReached("*/"))
 		{
+                        printf("== current line %s\n",&currentLine[0]);
 			formatCommentCloser();
 			break;
 		}
@@ -5803,6 +5814,7 @@ void ASFormatter::formatCommentOpener()
 {
 	assert(isSequenceReached("/*"));
 
+        printf("formatCommentOpener()\n");
 	isInComment = isInCommentStartLine = true;
 	isImmediatelyPostLineComment = false;
 	if (previousNonWSChar == '}')
@@ -5899,11 +5911,13 @@ void ASFormatter::formatCommentOpener()
 void ASFormatter::formatCommentCloser()
 {
 	assert(isSequenceReached("*/"));
+        printf("formatCommentCloser()\n");
 	isInComment = false;
 	noTrimCommentContinuation = false;
 	isImmediatelyPostComment = true;
 	appendSequence(AS_CLOSE_COMMENT);
 	goForward(1);
+        printf("== current line %s\n",&currentLine[0]);
 	if (doesLineStartComment
 	        && (currentLine.find_first_not_of(" \t", charNum + 1) == string::npos))
 		lineEndsInCommentOnly = true;
@@ -5926,6 +5940,7 @@ void ASFormatter::formatLineCommentBody()
 {
 	assert(isInLineComment);
 
+        printf("formatLineCommentBody()\n");
 	// append the comment
 	while (charNum < (int) currentLine.length())
 //	        && !isLineReady	// commented out in release 2.04, unnecessary
@@ -5945,6 +5960,7 @@ void ASFormatter::formatLineCommentBody()
 		isImmediatelyPostLineComment = true;
 		currentChar = 0;  //make sure it is a neutral char.
 	}
+        printf("== current line %s\n",&currentLine[0]);
 }
 
 /**
@@ -5955,6 +5971,7 @@ void ASFormatter::formatLineCommentBody()
 void ASFormatter::formatLineCommentOpener()
 {
 	assert(isSequenceReached("//"));
+        printf("formatLineCommentOpener()\n");
 
 	if ((int) currentLine.length() > charNum + 2
 	        && currentLine[charNum + 2] == '\xf2')     // check for windows line marker
@@ -6059,6 +6076,7 @@ void ASFormatter::formatLineCommentOpener()
 	// if tabbed input don't convert the immediately following tabs to spaces
 	if (getIndentString() == "\t" && lineCommentNoIndent)
 	{
+                printf("== current line %s\n",&currentLine[0]);
 		while (charNum + 1 < (int) currentLine.length()
 		        && currentLine[charNum + 1] == '\t')
 		{
@@ -6084,6 +6102,7 @@ void ASFormatter::formatLineCommentOpener()
 void ASFormatter::formatQuoteBody()
 {
 	assert(isInQuote);
+        printf("formatQuoteBody()\n");
 
 	if (isSpecialChar)
 	{
@@ -6156,6 +6175,7 @@ void ASFormatter::formatQuoteOpener()
 	assert(currentChar == '"'
 	       || (currentChar == '\'' && !isDigitSeparator(currentLine, charNum)));
 
+        printf("formatQuoteOpener()\n");
 	isInQuote = true;
 	quoteChar = currentChar;
 	if (isCStyle() && previousChar == 'R')
@@ -6210,6 +6230,7 @@ void ASFormatter::formatQuoteOpener()
 int ASFormatter::getNextLineCommentAdjustment()
 {
 	assert(foundClosingHeader && previousNonWSChar == '}');
+        printf("getNextLineCommentAdjustment()\n");
 	if (charNum < 1)			// "else" is in column 1
 		return 0;
 	size_t lastBrace = currentLine.rfind('}', charNum - 1);
@@ -6234,6 +6255,7 @@ LineEndFormat ASFormatter::getLineEndFormat() const
 int ASFormatter::getCurrentLineCommentAdjustment()
 {
 	assert(foundClosingHeader && previousNonWSChar == '}');
+        printf("getCurrentLineCommentAdjustment()\n");
 	if (charNum < 1)
 		return 2;
 	size_t lastBrace = currentLine.rfind('}', charNum - 1);
@@ -8155,6 +8177,7 @@ void ASFormatter::padObjCMethodColon()
 // Remove the leading '*' from a comment line and indent to the next tab.
 void ASFormatter::stripCommentPrefix()
 {
+        printf("stripCommentPrefix()\n");
 	int firstChar = formattedLine.find_first_not_of(" \t");
 	if (firstChar < 0)
 		return;

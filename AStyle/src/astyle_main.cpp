@@ -3382,7 +3382,7 @@ void ASOptions::parseOption(const string& arg, const string& errorInfo)
 	{
 		formatter.setRemoveBracesMode(true);
 	}
-	else if (isOption(arg, "Y", "indent-col1-comments"))
+	else if (isOption(arg, " ", "indent-col1-comments"))
 	{
 		formatter.setIndentCol1CommentsMode(true);
 	}
@@ -3672,7 +3672,7 @@ bool ASOptions::parseOptionContinued(const string& arg, const string& errorInfo)
 	{
 		console.setIgnoreExcludeErrorsAndDisplay(true);
 	}
-	else if (isOption(arg, "X", "errors-to-stdout"))
+	else if (isOption(arg, " ", "errors-to-stdout"))
 	{
 		console.setErrorStream(&cout);
 	}
