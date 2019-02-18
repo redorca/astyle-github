@@ -27,7 +27,7 @@ endif
 
 # set prefix if not defined on the command line
 ifndef prefix
-    prefix=/usr
+    prefix=$(HOME)
 endif
 SYSCONF_PATH=$(prefix)/share/doc/astyle
 
