@@ -1,5 +1,8 @@
 # Make file for GCC compiler on Linux or compatible OS
 
+RM  = rm -f
+CP  = cp -p
+
 # list of source files for astyle
 SRC = astyle_main.cpp \
       ASBeautifier.cpp \
@@ -191,6 +194,9 @@ clean:
 
 cleanobj:
 	rm -f $(objdir)/*.o
+
+clobber: clean
+	@$(RM) -r $(objdir) $(bindir)
 
 install:
 	$(INSTALL) -m 755 -d $(ipath)
