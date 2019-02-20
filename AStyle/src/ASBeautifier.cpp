@@ -31,6 +31,7 @@ static int g_preprocessorCppExternCBrace;
  */
 ASBeautifier::ASBeautifier()
 {
+	MARK_ENTRY(__FUNCTION__);
 	waitingBeautifierStack = nullptr;
 	activeBeautifierStack = nullptr;
 	waitingBeautifierStackLengthStack = nullptr;
@@ -80,6 +81,7 @@ ASBeautifier::ASBeautifier()
 	preBlockStatements = new vector<const string*>;
 	preCommandHeaders = new vector<const string*>;
 	indentableHeaders = new vector<const string*>;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -93,6 +95,7 @@ ASBeautifier::ASBeautifier()
  */
 ASBeautifier::ASBeautifier(const ASBeautifier& other) : ASBase(other)
 {
+	MARK_ENTRY(__FUNCTION__);
 	// these don't need to copy the stack
 	waitingBeautifierStack = nullptr;
 	activeBeautifierStack = nullptr;
@@ -261,6 +264,7 @@ ASBeautifier::ASBeautifier(const ASBeautifier& other) : ASBase(other)
 	currentNonSpaceCh = other.currentNonSpaceCh;
 	currentNonLegalCh = other.currentNonLegalCh;
 	prevNonLegalCh = other.prevNonLegalCh;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -268,6 +272,7 @@ ASBeautifier::ASBeautifier(const ASBeautifier& other) : ASBase(other)
  */
 ASBeautifier::~ASBeautifier()
 {
+	MARK_ENTRY(__FUNCTION__);
 	deleteBeautifierContainer(waitingBeautifierStack);
 	deleteBeautifierContainer(activeBeautifierStack);
 	deleteContainer(waitingBeautifierStackLengthStack);
@@ -282,6 +287,7 @@ ASBeautifier::~ASBeautifier()
 	deleteContainer(continuationIndentStackSizeStack);
 	deleteContainer(parenIndentStack);
 	deleteContainer(preprocIndentStack);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -297,6 +303,7 @@ ASBeautifier::~ASBeautifier()
  */
 void ASBeautifier::init(ASSourceIterator* iter)
 {
+	MARK_ENTRY(__FUNCTION__);
 	sourceIterator = iter;
 	initVectors();
 	ASBase::init(getFileType());
@@ -414,6 +421,7 @@ void ASBeautifier::init(ASSourceIterator* iter)
 	runInIndentContinuation = 0;
 	nonInStatementBrace = 0;
 	objCColonAlignSubsequent = 0;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /*
@@ -421,6 +429,7 @@ void ASBeautifier::init(ASSourceIterator* iter)
  */
 void ASBeautifier::initVectors()
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (fileType == beautifierFileType)    // don't build unless necessary
 		return;
 
@@ -441,6 +450,7 @@ void ASBeautifier::initVectors()
 	ASResource::buildPreBlockStatements(preBlockStatements, fileType);
 	ASResource::buildPreCommandHeaders(preCommandHeaders, fileType);
 	ASResource::buildIndentableHeaders(indentableHeaders);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -453,6 +463,7 @@ void ASBeautifier::initVectors()
  */
 string ASBeautifier::beautify(const string& originalLine)
 {
+	MARK_ENTRY(__FUNCTION__);
 	string line;
 	bool isInQuoteContinuation = isInVerbatimQuote || haveLineContinuationChar;
 
@@ -798,6 +809,7 @@ string ASBeautifier::beautify(const string& originalLine)
 		isIndentModeOff = false;
 
 	return indentedLine;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -805,7 +817,9 @@ string ASBeautifier::beautify(const string& originalLine)
  */
 void ASBeautifier::setCStyle()
 {
+	MARK_ENTRY(__FUNCTION__);
 	fileType = C_TYPE;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -813,7 +827,9 @@ void ASBeautifier::setCStyle()
  */
 void ASBeautifier::setJavaStyle()
 {
+	MARK_ENTRY(__FUNCTION__);
 	fileType = JAVA_TYPE;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -821,7 +837,9 @@ void ASBeautifier::setJavaStyle()
  */
 void ASBeautifier::setSharpStyle()
 {
+	MARK_ENTRY(__FUNCTION__);
 	fileType = SHARP_TYPE;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -829,7 +847,9 @@ void ASBeautifier::setSharpStyle()
  */
 void ASBeautifier::setModeManuallySet(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	isModeManuallySet = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -840,7 +860,9 @@ void ASBeautifier::setModeManuallySet(bool state)
  */
 void ASBeautifier::setDefaultTabLength()
 {
+	MARK_ENTRY(__FUNCTION__);
 	tabLength = indentLength;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -850,10 +872,12 @@ void ASBeautifier::setDefaultTabLength()
  */
 void ASBeautifier::setForceTabXIndentation(int length)
 {
+	MARK_ENTRY(__FUNCTION__);
 	// set tabLength instead of indentLength
 	indentString = "\t";
 	tabLength = length;
 	shouldForceTabIndentation = true;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -861,9 +885,11 @@ void ASBeautifier::setForceTabXIndentation(int length)
  */
 void ASBeautifier::setTabIndentation(int length, bool forceTabs)
 {
+	MARK_ENTRY(__FUNCTION__);
 	indentString = "\t";
 	indentLength = length;
 	shouldForceTabIndentation = forceTabs;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -873,8 +899,10 @@ void ASBeautifier::setTabIndentation(int length, bool forceTabs)
  */
 void ASBeautifier::setSpaceIndentation(int length)
 {
+	MARK_ENTRY(__FUNCTION__);
 	indentString = string(length, ' ');
 	indentLength = length;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -884,7 +912,9 @@ void ASBeautifier::setSpaceIndentation(int length)
 */
 void ASBeautifier::setContinuationIndentation(int indent)
 {
+	MARK_ENTRY(__FUNCTION__);
 	continuationIndent = indent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -894,7 +924,9 @@ void ASBeautifier::setContinuationIndentation(int indent)
  */
 void ASBeautifier::setMaxContinuationIndentLength(int max)
 {
+	MARK_ENTRY(__FUNCTION__);
 	maxContinuationIndent = max;
+	MARK_EXIT(__FUNCTION__);
 }
 
 // retained for compatibility with release 2.06
@@ -902,7 +934,9 @@ void ASBeautifier::setMaxContinuationIndentLength(int max)
 // it is referenced only by the old "MaxInStatementIndent" options
 void ASBeautifier::setMaxInStatementIndentLength(int max)
 {
+	MARK_ENTRY(__FUNCTION__);
 	setMaxContinuationIndentLength(max);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -912,7 +946,9 @@ void ASBeautifier::setMaxInStatementIndentLength(int max)
  */
 void ASBeautifier::setMinConditionalIndentOption(int min)
 {
+	MARK_ENTRY(__FUNCTION__);
 	minConditionalOption = min;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -920,6 +956,7 @@ void ASBeautifier::setMinConditionalIndentOption(int min)
  */
 void ASBeautifier::setMinConditionalIndentLength()
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (minConditionalOption == MINCOND_ZERO)
 		minConditionalIndent = 0;
 	else if (minConditionalOption == MINCOND_ONE)
@@ -929,6 +966,7 @@ void ASBeautifier::setMinConditionalIndentLength()
 	// minConditionalOption = INDENT_TWO
 	else
 		minConditionalIndent = indentLength * 2;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -939,7 +977,9 @@ void ASBeautifier::setMinConditionalIndentLength()
  */
 void ASBeautifier::setBraceIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	braceIndent = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -950,9 +990,11 @@ void ASBeautifier::setBraceIndent(bool state)
 */
 void ASBeautifier::setBraceIndentVtk(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	// need to set both of these
 	setBraceIndent(state);
 	braceIndentVtk = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -963,7 +1005,9 @@ void ASBeautifier::setBraceIndentVtk(bool state)
  */
 void ASBeautifier::setBlockIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	blockIndent = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -974,7 +1018,9 @@ void ASBeautifier::setBlockIndent(bool state)
  */
 void ASBeautifier::setClassIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	classIndent = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -985,7 +1031,9 @@ void ASBeautifier::setClassIndent(bool state)
  */
 void ASBeautifier::setModifierIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	modifierIndent = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -996,7 +1044,9 @@ void ASBeautifier::setModifierIndent(bool state)
  */
 void ASBeautifier::setSwitchIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	switchIndent = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1007,7 +1057,9 @@ void ASBeautifier::setSwitchIndent(bool state)
  */
 void ASBeautifier::setCaseIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	caseIndent = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1019,7 +1071,9 @@ void ASBeautifier::setCaseIndent(bool state)
  */
 void ASBeautifier::setNamespaceIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	namespaceIndent = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1029,7 +1083,9 @@ void ASBeautifier::setNamespaceIndent(bool state)
 */
 void ASBeautifier::setAfterParenIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	shouldIndentAfterParen = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1043,7 +1099,9 @@ void ASBeautifier::setAfterParenIndent(bool state)
  */
 void ASBeautifier::setLabelIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	labelIndent = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1054,12 +1112,16 @@ void ASBeautifier::setLabelIndent(bool state)
  */
 void ASBeautifier::setPreprocDefineIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	shouldIndentPreprocDefine = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 void ASBeautifier::setPreprocConditionalIndent(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	shouldIndentPreprocConditional = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1072,12 +1134,16 @@ void ASBeautifier::setPreprocConditionalIndent(bool state)
  */
 void ASBeautifier::setEmptyLineFill(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	emptyLineFill = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 void ASBeautifier::setAlignMethodColon(bool state)
 {
+	MARK_ENTRY(__FUNCTION__);
 	shouldAlignMethodColon = state;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1085,7 +1151,9 @@ void ASBeautifier::setAlignMethodColon(bool state)
  */
 int ASBeautifier::getFileType() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return fileType;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1095,7 +1163,9 @@ int ASBeautifier::getFileType() const
  */
 int ASBeautifier::getIndentLength() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return indentLength;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1105,7 +1175,9 @@ int ASBeautifier::getIndentLength() const
  */
 string ASBeautifier::getIndentString() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return indentString;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1113,7 +1185,9 @@ string ASBeautifier::getIndentString() const
  */
 bool ASBeautifier::getModeManuallySet() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return isModeManuallySet;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1123,7 +1197,9 @@ bool ASBeautifier::getModeManuallySet() const
  */
 bool ASBeautifier::getForceTabIndentation() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return shouldForceTabIndentation;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1133,7 +1209,9 @@ bool ASBeautifier::getForceTabIndentation() const
 */
 bool ASBeautifier::getAlignMethodColon() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return shouldAlignMethodColon;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1143,7 +1221,9 @@ bool ASBeautifier::getAlignMethodColon() const
  */
 bool ASBeautifier::getBlockIndent() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return blockIndent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1153,7 +1233,9 @@ bool ASBeautifier::getBlockIndent() const
  */
 bool ASBeautifier::getBraceIndent() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return braceIndent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1164,7 +1246,9 @@ bool ASBeautifier::getBraceIndent() const
 */
 bool ASBeautifier::getNamespaceIndent() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return namespaceIndent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1175,7 +1259,9 @@ bool ASBeautifier::getNamespaceIndent() const
  */
 bool ASBeautifier::getClassIndent() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return classIndent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1186,7 +1272,9 @@ bool ASBeautifier::getClassIndent() const
  */
 bool ASBeautifier::getModifierIndent() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return modifierIndent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1197,7 +1285,9 @@ bool ASBeautifier::getModifierIndent() const
  */
 bool ASBeautifier::getSwitchIndent() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return switchIndent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1208,7 +1298,9 @@ bool ASBeautifier::getSwitchIndent() const
  */
 bool ASBeautifier::getCaseIndent() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return caseIndent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1221,7 +1313,9 @@ bool ASBeautifier::getCaseIndent() const
  */
 bool ASBeautifier::getEmptyLineFill() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return emptyLineFill;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1233,7 +1327,9 @@ bool ASBeautifier::getEmptyLineFill() const
  */
 bool ASBeautifier::getPreprocDefineIndent() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return shouldIndentPreprocDefine;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1243,18 +1339,23 @@ bool ASBeautifier::getPreprocDefineIndent() const
  */
 int ASBeautifier::getTabLength() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return tabLength;
+	MARK_EXIT(__FUNCTION__);
 }
 
 const string& ASBeautifier::getIndentedLineReturn(const string& newLine, const string& originalLine) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (isIndentModeOff)
 		return originalLine;
 	return newLine;
+	MARK_EXIT(__FUNCTION__);
 }
 
 string ASBeautifier::preLineWS(int lineIndentCount, int lineSpaceIndentCount) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (shouldForceTabIndentation)
 	{
 		if (tabLength != indentLength)
@@ -1278,6 +1379,7 @@ string ASBeautifier::preLineWS(int lineIndentCount, int lineSpaceIndentCount) co
 	while ((lineSpaceIndentCount--) > 0)
 		ws += string(" ");
 	return ws;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1286,6 +1388,7 @@ string ASBeautifier::preLineWS(int lineIndentCount, int lineSpaceIndentCount) co
 void ASBeautifier::registerContinuationIndent(const string& line, int i, int spaceIndentCount_,
                                               int tabIncrementIn, int minIndent, bool updateParenStack)
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(i >= -1);
 	int remainingCharNum = line.length() - i;
 	int nextNonWSChar = getNextProgramCharDistance(line, i);
@@ -1346,6 +1449,7 @@ void ASBeautifier::registerContinuationIndent(const string& line, int i, int spa
 		continuationIndentCount = 0;
 
 	continuationIndentStack->emplace_back(continuationIndentCount);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1353,6 +1457,7 @@ void ASBeautifier::registerContinuationIndent(const string& line, int i, int spa
 */
 void ASBeautifier::registerContinuationIndentColon(const string& line, int i, int tabIncrementIn)
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(line[i] == ':');
 	assert(isInClassInitializer || isInClassHeaderTab);
 
@@ -1368,6 +1473,7 @@ void ASBeautifier::registerContinuationIndentColon(const string& line, int i, in
 			isContinuation = true;
 		}
 	}
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1377,6 +1483,7 @@ void ASBeautifier::registerContinuationIndentColon(const string& line, int i, in
  */
 pair<int, int> ASBeautifier::computePreprocessorIndent()
 {
+	MARK_ENTRY(__FUNCTION__);
 	computePreliminaryIndentation();
 	pair<int, int> entry(indentCount, spaceIndentCount);
 	if (!headerStack->empty()
@@ -1387,6 +1494,7 @@ pair<int, int> ASBeautifier::computePreprocessorIndent()
 	            || headerStack->back() == &AS_WHILE))
 		--entry.first;
 	return entry;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1395,6 +1503,7 @@ pair<int, int> ASBeautifier::computePreprocessorIndent()
  */
 int ASBeautifier::getNextProgramCharDistance(const string& line, int i) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	bool inComment = false;
 	int  remainingCharNum = line.length() - i;
 	int  charDistance;
@@ -1429,6 +1538,7 @@ int ASBeautifier::getNextProgramCharDistance(const string& line, int i) const
 	}
 
 	return charDistance;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1440,12 +1550,14 @@ int ASBeautifier::getNextProgramCharDistance(const string& line, int i) const
  */
 int ASBeautifier::indexOf(const vector<const string*>& container, const string* element) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	vector<const string*>::const_iterator where;
 
 	where = find(container.begin(), container.end(), element);
 	if (where == container.end())
 		return -1;
 	return (int) (where - container.begin());
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1456,8 +1568,10 @@ int ASBeautifier::indexOf(const vector<const string*>& container, const string* 
  */
 int ASBeautifier::convertTabToSpaces(int i, int tabIncrementIn) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	int tabToSpacesAdjustment = indentLength - 1 - ((tabIncrementIn + i) % indentLength);
 	return tabToSpacesAdjustment;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1468,6 +1582,7 @@ int ASBeautifier::convertTabToSpaces(int i, int tabIncrementIn) const
  */
 string ASBeautifier::trim(const string& str) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	int start = 0;
 	int end = str.length() - 1;
 
@@ -1483,6 +1598,7 @@ string ASBeautifier::trim(const string& str) const
 
 	string returnStr(str, start, end + 1 - start);
 	return returnStr;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1493,6 +1609,7 @@ string ASBeautifier::trim(const string& str) const
  */
 string ASBeautifier::rtrim(const string& str) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	size_t len = str.length();
 	size_t end = str.find_last_not_of(" \t");
 	if (end == string::npos
@@ -1500,6 +1617,7 @@ string ASBeautifier::rtrim(const string& str) const
 		return str;
 	string returnStr(str, 0, end + 1);
 	return returnStr;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1508,6 +1626,7 @@ string ASBeautifier::rtrim(const string& str) const
  */
 vector<vector<const string*>*>* ASBeautifier::copyTempStacks(const ASBeautifier& other) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	vector<vector<const string*>*>* tempStacksNew = new vector<vector<const string*>*>;
 	vector<vector<const string*>*>::iterator iter;
 	for (iter = other.tempStacks->begin();
@@ -1519,6 +1638,7 @@ vector<vector<const string*>*>* ASBeautifier::copyTempStacks(const ASBeautifier&
 		tempStacksNew->emplace_back(newVec);
 	}
 	return tempStacksNew;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1526,6 +1646,7 @@ vector<vector<const string*>*>* ASBeautifier::copyTempStacks(const ASBeautifier&
  */
 void ASBeautifier::deleteBeautifierVectors()
 {
+	MARK_ENTRY(__FUNCTION__);
 	beautifierFileType = 9;		// reset to an invalid type
 	delete headers;
 	delete nonParenHeaders;
@@ -1534,6 +1655,7 @@ void ASBeautifier::deleteBeautifierVectors()
 	delete assignmentOperators;
 	delete nonAssignmentOperators;
 	delete indentableHeaders;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1544,12 +1666,14 @@ void ASBeautifier::deleteBeautifierVectors()
 template<typename T>
 void ASBeautifier::deleteContainer(T& container)
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (container != nullptr)
 	{
 		container->clear();
 		delete (container);
 		container = nullptr;
 	}
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1560,6 +1684,7 @@ void ASBeautifier::deleteContainer(T& container)
  */
 void ASBeautifier::deleteBeautifierContainer(vector<ASBeautifier*>*& container)
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (container != nullptr)
 	{
 		vector<ASBeautifier*>::iterator iter = container->begin();
@@ -1572,6 +1697,7 @@ void ASBeautifier::deleteBeautifierContainer(vector<ASBeautifier*>*& container)
 		delete (container);
 		container = nullptr;
 	}
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1581,6 +1707,7 @@ void ASBeautifier::deleteBeautifierContainer(vector<ASBeautifier*>*& container)
  */
 void ASBeautifier::deleteTempStacksContainer(vector<vector<const string*>*>*& container)
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (container != nullptr)
 	{
 		vector<vector<const string*>*>::iterator iter = container->begin();
@@ -1593,6 +1720,7 @@ void ASBeautifier::deleteTempStacksContainer(vector<vector<const string*>*>*& co
 		delete (container);
 		container = nullptr;
 	}
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1602,11 +1730,13 @@ void ASBeautifier::deleteTempStacksContainer(vector<vector<const string*>*>*& co
 template<typename T>
 void ASBeautifier::initContainer(T& container, T value)
 {
+	MARK_ENTRY(__FUNCTION__);
 	// since the ASFormatter object is never deleted,
 	// the existing vectors must be deleted before creating new ones
 	if (container != nullptr)
 		deleteContainer(container);
 	container = value;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1617,9 +1747,11 @@ void ASBeautifier::initContainer(T& container, T value)
 void ASBeautifier::initTempStacksContainer(vector<vector<const string*>*>*& container,
                                            vector<vector<const string*>*>* value)
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (container != nullptr)
 		deleteTempStacksContainer(container);
 	container = value;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1631,6 +1763,7 @@ void ASBeautifier::initTempStacksContainer(vector<vector<const string*>*>*& cont
  */
 bool ASBeautifier::statementEndsWithComma(const string& line, int index) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(line[index] == '=');
 
 	bool isInComment_ = false;
@@ -1703,6 +1836,7 @@ bool ASBeautifier::statementEndsWithComma(const string& line, int index) const
 		return false;
 
 	return true;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1712,6 +1846,7 @@ bool ASBeautifier::statementEndsWithComma(const string& line, int index) const
  */
 bool ASBeautifier::isLineEndComment(const string& line, int startPos) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(line.compare(startPos, 2, "/*") == 0);
 
 	// comment must be closed on this line with nothing after it
@@ -1723,6 +1858,7 @@ bool ASBeautifier::isLineEndComment(const string& line, int startPos) const
 			return true;
 	}
 	return false;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1732,6 +1868,7 @@ bool ASBeautifier::isLineEndComment(const string& line, int startPos) const
  */
 int ASBeautifier::getContinuationIndentAssign(const string& line, size_t currPos) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(line[currPos] == '=');
 
 	if (currPos == 0)
@@ -1751,6 +1888,7 @@ int ASBeautifier::getContinuationIndentAssign(const string& line, size_t currPos
 	start++;
 
 	return start;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1760,6 +1898,7 @@ int ASBeautifier::getContinuationIndentAssign(const string& line, size_t currPos
  */
 int ASBeautifier::getContinuationIndentComma(const string& line, size_t currPos) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(line[currPos] == ',');
 
 	// get first word on a line
@@ -1783,6 +1922,7 @@ int ASBeautifier::getContinuationIndentComma(const string& line, size_t currPos)
 		return 0;
 
 	return indent;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1793,6 +1933,7 @@ int ASBeautifier::getContinuationIndentComma(const string& line, size_t currPos)
  */
 string ASBeautifier::getNextWord(const string& line, size_t currPos) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	size_t lineLength = line.length();
 	// get the last legal word (may be a number)
 	if (currPos == lineLength - 1)
@@ -1810,6 +1951,7 @@ string ASBeautifier::getNextWord(const string& line, size_t currPos) const
 	}
 
 	return line.substr(start, end - start);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1821,6 +1963,7 @@ string ASBeautifier::getNextWord(const string& line, size_t currPos) const
  */
 bool ASBeautifier::isIndentedPreprocessor(const string& line, size_t currPos) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(line[0] == '#');
 	string nextWord = getNextWord(line, currPos);
 	if (nextWord == "region" || nextWord == "endregion")
@@ -1858,6 +2001,7 @@ bool ASBeautifier::isIndentedPreprocessor(const string& line, size_t currPos) co
 			return true;
 	}
 	return false;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1867,6 +2011,7 @@ bool ASBeautifier::isIndentedPreprocessor(const string& line, size_t currPos) co
  */
 bool ASBeautifier::isPreprocessorConditionalCplusplus(const string& line) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	string preproc = trim(line.substr(1));
 	if (preproc.compare(0, 5, "ifdef") == 0 && getNextWord(preproc, 4) == "__cplusplus")
 		return true;
@@ -1889,6 +2034,7 @@ bool ASBeautifier::isPreprocessorConditionalCplusplus(const string& line) const
 		}
 	}
 	return false;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -1899,6 +2045,7 @@ bool ASBeautifier::isPreprocessorConditionalCplusplus(const string& line) const
  */
 bool ASBeautifier::isInPreprocessorUnterminatedComment(const string& line)
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (!isInPreprocessorComment)
 	{
 		size_t startPos = line.find("/*");
@@ -1913,16 +2060,19 @@ bool ASBeautifier::isInPreprocessorUnterminatedComment(const string& line)
 	}
 	isInPreprocessorComment = true;
 	return true;
+	MARK_EXIT(__FUNCTION__);
 }
 
 void ASBeautifier::popLastContinuationIndent()
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(!continuationIndentStackSizeStack->empty());
 	int previousIndentStackSize = continuationIndentStackSizeStack->back();
 	if (continuationIndentStackSizeStack->size() > 1)
 		continuationIndentStackSizeStack->pop_back();
 	while (previousIndentStackSize < (int) continuationIndentStack->size())
 		continuationIndentStack->pop_back();
+	MARK_EXIT(__FUNCTION__);
 }
 
 // for unit testing
@@ -1934,6 +2084,7 @@ int ASBeautifier::getBeautifierFileType() const
  */
 void ASBeautifier::processPreprocessor(const string& preproc, const string& line)
 {
+	MARK_ENTRY(__FUNCTION__);
 	// When finding a multi-lined #define statement, the original beautifier
 	// 1. sets its isInDefineDefinition flag
 	// 2. clones a new beautifier that will be used for the actual indentation
@@ -2017,6 +2168,7 @@ void ASBeautifier::processPreprocessor(const string& preproc, const string& line
 			}
 		}
 	}
+	MARK_EXIT(__FUNCTION__);
 }
 
 // Compute the preliminary indentation based on data in the headerStack
@@ -2024,6 +2176,7 @@ void ASBeautifier::processPreprocessor(const string& preproc, const string& line
 // Update the class variable indentCount.
 void ASBeautifier::computePreliminaryIndentation()
 {
+	MARK_ENTRY(__FUNCTION__);
 	indentCount = 0;
 	spaceIndentCount = 0;
 	isInClassHeaderTab = false;
@@ -2151,10 +2304,12 @@ void ASBeautifier::computePreliminaryIndentation()
 		--indentCount;
 	if (g_preprocessorCppExternCBrace >= 4)
 		--indentCount;
+	MARK_EXIT(__FUNCTION__);
 }
 
 void ASBeautifier::adjustParsedLineIndentation(size_t iPrelim, bool isInExtraHeaderIndent)
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (lineStartsInComment)
 		return;
 
@@ -2237,6 +2392,7 @@ void ASBeautifier::adjustParsedLineIndentation(size_t iPrelim, bool isInExtraHea
 				++indentCount;
 		}
 	}
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -2246,6 +2402,7 @@ void ASBeautifier::adjustParsedLineIndentation(size_t iPrelim, bool isInExtraHea
  */
 int ASBeautifier::adjustIndentCountForBreakElseIfComments() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(isElseHeaderIndent && !tempStacks->empty());
 	int indentCountIncrement = 0;
 	vector<const string*>* lastTempStack = tempStacks->back();
@@ -2258,6 +2415,7 @@ int ASBeautifier::adjustIndentCountForBreakElseIfComments() const
 		}
 	}
 	return indentCountIncrement;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -2266,6 +2424,7 @@ int ASBeautifier::adjustIndentCountForBreakElseIfComments() const
  */
 string ASBeautifier::extractPreprocessorStatement(const string& line) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	string preproc;
 	size_t start = line.find_first_not_of("#/ \t");
 	if (start == string::npos)
@@ -2275,10 +2434,12 @@ string ASBeautifier::extractPreprocessorStatement(const string& line) const
 		end = line.length();
 	preproc = line.substr(start, end - start);
 	return preproc;
+	MARK_EXIT(__FUNCTION__);
 }
 
 void ASBeautifier::adjustObjCMethodDefinitionIndentation(const string& line_)
 {
+	MARK_ENTRY(__FUNCTION__);
 	// register indent for Objective-C continuation line
 	if (line_.length() > 0
 	        && (line_[0] == '-' || line_[0] == '+'))
@@ -2306,10 +2467,12 @@ void ASBeautifier::adjustObjCMethodDefinitionIndentation(const string& line_)
 		else if (continuationIndentStack->empty())
 			spaceIndentCount = spaceIndentObjCMethodAlignment;
 	}
+	MARK_EXIT(__FUNCTION__);
 }
 
 void ASBeautifier::adjustObjCMethodCallIndentation(const string& line_)
 {
+	MARK_ENTRY(__FUNCTION__);
 	static int keywordIndentObjCMethodAlignment = 0;
 	if (shouldAlignMethodColon && objCColonAlignSubsequent != -1)
 	{
@@ -2364,6 +2527,7 @@ void ASBeautifier::adjustObjCMethodCallIndentation(const string& line_)
 				spaceIndentCount += keywordIndentObjCMethodAlignment;
 		}
 	}
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -2371,6 +2535,7 @@ void ASBeautifier::adjustObjCMethodCallIndentation(const string& line_)
  */
 void ASBeautifier::clearObjCMethodDefinitionAlignment()
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(isImmediatelyPostObjCMethodDefinition);
 	spaceIndentCount = 0;
 	spaceIndentObjCMethodAlignment = 0;
@@ -2379,6 +2544,7 @@ void ASBeautifier::clearObjCMethodDefinitionAlignment()
 	isImmediatelyPostObjCMethodDefinition = false;
 	if (!continuationIndentStack->empty())
 		continuationIndentStack->pop_back();
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -2387,6 +2553,7 @@ void ASBeautifier::clearObjCMethodDefinitionAlignment()
  */
 int ASBeautifier::findObjCColonAlignment(const string& line) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	bool haveTernary = false;
 	for (size_t i = 0; i < line.length(); i++)
 	{
@@ -2407,6 +2574,7 @@ int ASBeautifier::findObjCColonAlignment(const string& line) const
 		return i;
 	}
 	return -1;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -2417,10 +2585,12 @@ int ASBeautifier::findObjCColonAlignment(const string& line) const
  */
 int ASBeautifier::computeObjCColonAlignment(const string& line, int colonAlignPosition) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	int colonPosition = findObjCColonAlignment(line);
 	if (colonPosition < 0 || colonPosition > colonAlignPosition)
 		return indentLength;
 	return (colonAlignPosition - colonPosition);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /*
@@ -2431,6 +2601,7 @@ int ASBeautifier::computeObjCColonAlignment(const string& line, int colonAlignPo
  */
 int ASBeautifier::getObjCFollowingKeyword(const string& line, int bracePos) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(line[bracePos] == '[');
 	size_t firstText = line.find_first_not_of(" \t", bracePos + 1);
 	if (firstText == string::npos)
@@ -2461,6 +2632,7 @@ int ASBeautifier::getObjCFollowingKeyword(const string& line, int bracePos) cons
 	if (keyPos == string::npos)
 		return 0;
 	return keyPos - firstText;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -2470,6 +2642,7 @@ int ASBeautifier::getObjCFollowingKeyword(const string& line, int bracePos) cons
  */
 string ASBeautifier::getIndentedSpaceEquivalent(const string& line_) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	string spaceIndent;
 	spaceIndent.append(spaceIndentCount, ' ');
 	string convertedLine = spaceIndent + line_;
@@ -2483,6 +2656,7 @@ string ASBeautifier::getIndentedSpaceEquivalent(const string& line_) const
 		}
 	}
 	return convertedLine;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -2490,6 +2664,7 @@ string ASBeautifier::getIndentedSpaceEquivalent(const string& line_) const
  */
 bool ASBeautifier::isTopLevel() const
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (headerStack->empty())
 		return true;
 	if (headerStack->back() == &AS_OPEN_BRACE
@@ -2511,6 +2686,7 @@ bool ASBeautifier::isTopLevel() const
 	        || headerStack->back() == &AS_UNION)
 		return true;
 	return false;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -2518,6 +2694,7 @@ bool ASBeautifier::isTopLevel() const
  */
 void ASBeautifier::parseCurrentLine(const string& line)
 {
+	MARK_ENTRY(__FUNCTION__);
 	bool isInLineComment = false;
 	bool isInOperator = false;
 	bool isSpecialChar = false;
@@ -3736,6 +3913,7 @@ void ASBeautifier::parseCurrentLine(const string& line)
 			}
 		}
 	}	// end of for loop * end of for loop * end of for loop * end of for loop * end of for loop *
+	MARK_EXIT(__FUNCTION__);
 }
 
 }   // end namespace astyle

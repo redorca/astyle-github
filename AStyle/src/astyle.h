@@ -22,6 +22,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include "markdefs.h"
 
 #ifdef __GNUC__
 	#include <cstring>              // need both string and cstring for GCC

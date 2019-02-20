@@ -164,7 +164,9 @@ const string ASResource::AS_SEMICOLON = string(";");
  */
 bool sortOnLength(const string* a, const string* b)
 {
+	MARK_ENTRY(__FUNCTION__);
 	return (*a).length() > (*b).length();
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -175,7 +177,9 @@ bool sortOnLength(const string* a, const string* b)
  */
 bool sortOnName(const string* a, const string* b)
 {
+	MARK_ENTRY(__FUNCTION__);
 	return *a < *b;
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -186,6 +190,7 @@ bool sortOnName(const string* a, const string* b)
  */
 void ASResource::buildAssignmentOperators(vector<const string*>* assignmentOperators)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 15;
 	assignmentOperators->reserve(elements);
 
@@ -209,6 +214,7 @@ void ASResource::buildAssignmentOperators(vector<const string*>* assignmentOpera
 
 	assert(assignmentOperators->size() < elements);
 	sort(assignmentOperators->begin(), assignmentOperators->end(), sortOnLength);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -219,6 +225,7 @@ void ASResource::buildAssignmentOperators(vector<const string*>* assignmentOpera
  */
 void ASResource::buildCastOperators(vector<const string*>* castOperators)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 5;
 	castOperators->reserve(elements);
 
@@ -229,6 +236,7 @@ void ASResource::buildCastOperators(vector<const string*>* castOperators)
 
 	assert(castOperators->size() < elements);
 	sort(castOperators->begin(), castOperators->end(), sortOnName);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -239,6 +247,7 @@ void ASResource::buildCastOperators(vector<const string*>* castOperators)
  */
 void ASResource::buildHeaders(vector<const string*>* headers, int fileType, bool beautifier)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 25;
 	headers->reserve(elements);
 
@@ -296,6 +305,7 @@ void ASResource::buildHeaders(vector<const string*>* headers, int fileType, bool
 
 	assert(headers->size() < elements);
 	sort(headers->begin(), headers->end(), sortOnName);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -306,9 +316,11 @@ void ASResource::buildHeaders(vector<const string*>* headers, int fileType, bool
  */
 void ASResource::buildIndentableHeaders(vector<const string*>* indentableHeaders)
 {
+	MARK_ENTRY(__FUNCTION__);
 	indentableHeaders->emplace_back(&AS_RETURN);
 
 //	sort(indentableHeaders->begin(), indentableHeaders->end(), sortOnName);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -319,6 +331,7 @@ void ASResource::buildIndentableHeaders(vector<const string*>* indentableHeaders
 */
 void ASResource::buildIndentableMacros(vector<const pair<const string, const string>* >* indentableMacros)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 10;
 	indentableMacros->reserve(elements);
 
@@ -341,6 +354,7 @@ void ASResource::buildIndentableMacros(vector<const pair<const string, const str
 		indentableMacros->emplace_back(&macros[i]);
 
 	assert(indentableMacros->size() < elements);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -351,6 +365,7 @@ void ASResource::buildIndentableMacros(vector<const pair<const string, const str
  */
 void ASResource::buildNonAssignmentOperators(vector<const string*>* nonAssignmentOperators)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 15;
 	nonAssignmentOperators->reserve(elements);
 
@@ -371,6 +386,7 @@ void ASResource::buildNonAssignmentOperators(vector<const string*>* nonAssignmen
 
 	assert(nonAssignmentOperators->size() < elements);
 	sort(nonAssignmentOperators->begin(), nonAssignmentOperators->end(), sortOnLength);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -382,6 +398,7 @@ void ASResource::buildNonAssignmentOperators(vector<const string*>* nonAssignmen
  */
 void ASResource::buildNonParenHeaders(vector<const string*>* nonParenHeaders, int fileType, bool beautifier)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 20;
 	nonParenHeaders->reserve(elements);
 
@@ -427,6 +444,7 @@ void ASResource::buildNonParenHeaders(vector<const string*>* nonParenHeaders, in
 
 	assert(nonParenHeaders->size() < elements);
 	sort(nonParenHeaders->begin(), nonParenHeaders->end(), sortOnName);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -437,6 +455,7 @@ void ASResource::buildNonParenHeaders(vector<const string*>* nonParenHeaders, in
  */
 void ASResource::buildOperators(vector<const string*>* operators, int fileType)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 50;
 	operators->reserve(elements);
 
@@ -491,6 +510,7 @@ void ASResource::buildOperators(vector<const string*>* operators, int fileType)
 
 	assert(operators->size() < elements);
 	sort(operators->begin(), operators->end(), sortOnLength);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -502,6 +522,7 @@ void ASResource::buildOperators(vector<const string*>* operators, int fileType)
  */
 void ASResource::buildPreBlockStatements(vector<const string*>* preBlockStatements, int fileType)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 10;
 	preBlockStatements->reserve(elements);
 
@@ -529,6 +550,7 @@ void ASResource::buildPreBlockStatements(vector<const string*>* preBlockStatemen
 
 	assert(preBlockStatements->size() < elements);
 	sort(preBlockStatements->begin(), preBlockStatements->end(), sortOnName);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -542,6 +564,7 @@ void ASResource::buildPreBlockStatements(vector<const string*>* preBlockStatemen
  */
 void ASResource::buildPreCommandHeaders(vector<const string*>* preCommandHeaders, int fileType)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 10;
 	preCommandHeaders->reserve(elements);
 
@@ -569,6 +592,7 @@ void ASResource::buildPreCommandHeaders(vector<const string*>* preCommandHeaders
 
 	assert(preCommandHeaders->size() < elements);
 	sort(preCommandHeaders->begin(), preCommandHeaders->end(), sortOnName);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /**
@@ -581,6 +605,7 @@ void ASResource::buildPreCommandHeaders(vector<const string*>* preCommandHeaders
  */
 void ASResource::buildPreDefinitionHeaders(vector<const string*>* preDefinitionHeaders, int fileType)
 {
+	MARK_ENTRY(__FUNCTION__);
 	const size_t elements = 10;
 	preDefinitionHeaders->reserve(elements);
 
@@ -606,6 +631,7 @@ void ASResource::buildPreDefinitionHeaders(vector<const string*>* preDefinitionH
 
 	assert(preDefinitionHeaders->size() < elements);
 	sort(preDefinitionHeaders->begin(), preDefinitionHeaders->end(), sortOnName);
+	MARK_EXIT(__FUNCTION__);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -616,6 +642,7 @@ void ASResource::buildPreDefinitionHeaders(vector<const string*>* preDefinitionH
 const string* ASBase::findHeader(const string& line, int i,
                                  const vector<const string*>* possibleHeaders) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(isCharPotentialHeader(line, i));
 	// check the word
 	size_t maxHeaders = possibleHeaders->size();
@@ -650,11 +677,13 @@ const string* ASBase::findHeader(const string& line, int i,
 		return header;
 	}
 	return nullptr;
+	MARK_EXIT(__FUNCTION__);
 }
 
 // check if a specific line position contains a keyword.
 bool ASBase::findKeyword(const string& line, int i, const string& keyword) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(isCharPotentialHeader(line, i));
 	// check the word
 	const size_t keywordLength = keyword.length();
@@ -673,12 +702,14 @@ bool ASBase::findKeyword(const string& line, int i, const string& keyword) const
 	if (peekChar == ',' || peekChar == ')')
 		return false;
 	return true;
+	MARK_EXIT(__FUNCTION__);
 }
 
 // check if a specific line position contains an operator.
 const string* ASBase::findOperator(const string& line, int i,
                                    const vector<const string*>* possibleOperators) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(isCharPotentialOperator(line[i]));
 	// find the operator in the vector
 	// the vector contains the LONGEST operators first
@@ -693,12 +724,14 @@ const string* ASBase::findOperator(const string& line, int i,
 			return (*possibleOperators)[p];
 	}
 	return nullptr;
+	MARK_EXIT(__FUNCTION__);
 }
 
 // get the current word on a line
 // index must point to the beginning of the word
 string ASBase::getCurrentWord(const string& line, size_t index) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(isCharPotentialHeader(line, index));
 	size_t lineLength = line.length();
 	size_t i;
@@ -708,11 +741,13 @@ string ASBase::getCurrentWord(const string& line, size_t index) const
 			break;
 	}
 	return line.substr(index, i - index);
+	MARK_EXIT(__FUNCTION__);
 }
 
 // check if a specific character can be used in a legal variable/method/class name
 bool ASBase::isLegalNameChar(char ch) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	if (isWhiteSpace(ch))
 		return false;
 	if ((unsigned char) ch > 127)
@@ -721,11 +756,13 @@ bool ASBase::isLegalNameChar(char ch) const
 	        || ch == '.' || ch == '_'
 	        || (isJavaStyle() && ch == '$')
 	        || (isSharpStyle() && ch == '@'));  // may be used as a prefix
+	MARK_EXIT(__FUNCTION__);
 }
 
 // check if a specific character can be part of a header
 bool ASBase::isCharPotentialHeader(const string& line, size_t i) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(!isWhiteSpace(line[i]));
 	char prevCh = ' ';
 	if (i > 0)
@@ -735,11 +772,13 @@ bool ASBase::isCharPotentialHeader(const string& line, size_t i) const
 	if (!isLegalNameChar(prevCh) && isLegalNameChar(line[i]))
 		return true;
 	return false;
+	MARK_EXIT(__FUNCTION__);
 }
 
 // check if a specific character can be part of an operator
 bool ASBase::isCharPotentialOperator(char ch) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(!isWhiteSpace(ch));
 	if ((unsigned) ch > 127)
 		return false;
@@ -750,18 +789,22 @@ bool ASBase::isCharPotentialOperator(char ch) const
 	        && ch != ';' && ch != ','
 	        && ch != '#' && ch != '\\'
 	        && ch != '\'' && ch != '\"');
+	MARK_EXIT(__FUNCTION__);
 }
 
 // check if a specific character is a digit
 // NOTE: Visual C isdigit() gives assert error if char > 256
 bool ASBase::isDigit(char ch) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	return (ch >= '0' && ch <= '9');
+	MARK_EXIT(__FUNCTION__);
 }
 
 // check if a specific character is a digit separator
 bool ASBase::isDigitSeparator(const string& line, int i) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	assert(line[i] == '\'');
 	// casting to (unsigned char) eliminates negative characters
 	// will get a "Debug Assertion Failed" if not cast
@@ -770,17 +813,20 @@ bool ASBase::isDigitSeparator(const string& line, int i) const
 	                           && i < (int) line.length() - 1
 	                           && isxdigit((unsigned char) line[i + 1]);
 	return foundDigitSeparator;
+	MARK_EXIT(__FUNCTION__);
 }
 
 // peek at the next unread character.
 char ASBase::peekNextChar(const string& line, int i) const
 {
+	MARK_ENTRY(__FUNCTION__);
 	char ch = ' ';
 	size_t peekNum = line.find_first_not_of(" \t", i + 1);
 	if (peekNum == string::npos)
 		return ch;
 	ch = line[peekNum];
 	return ch;
+	MARK_EXIT(__FUNCTION__);
 }
 
 }   // end namespace astyle
