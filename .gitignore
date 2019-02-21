@@ -1,6 +1,6 @@
-*.o
-*.d
-*.swp
-obj/
 bin/
+obj/
+*.swp
+*.o
+*.orig
 
