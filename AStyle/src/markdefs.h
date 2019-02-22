@@ -14,8 +14,9 @@ static  void MARK_ENTRY(const char *caller) {  const char *tmp; tmp = caller;}
 
 extern char spaces[];
 extern int spacing;
+
 #if defined(GEN1)
-#define MARK_EXIT() { printf("^^^====%s%s\n", &spaces[spacing], __FUNCTION__); spacing--; }
+#define MARK_EXIT()  { printf("^^^====%s%s\n", &spaces[spacing], __FUNCTION__); spacing--; }
 #define MARK_ENTRY() { spacing++; printf("vvv====%s%s\n", &spaces[spacing], __FUNCTION__); }
 
 #endif /* GEN1 */
