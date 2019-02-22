@@ -85,7 +85,7 @@ namespace astyle {
 ASLocalizer::ASLocalizer()
 // Set the locale information.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	// set language default values to english (ascii)
 	// this will be used if a locale or a language cannot be found
 	m_localeName = "UNKNOWN";
@@ -109,15 +109,15 @@ ASLocalizer::ASLocalizer()
 #else
 	setLanguageFromName(localeName);
 #endif
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 ASLocalizer::~ASLocalizer()
 // Delete dynamically allocated memory.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	delete m_translationClass;
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 #ifdef _WIN32
@@ -163,7 +163,7 @@ void ASLocalizer::setLanguageFromLCID(size_t lcid)
 //       But it needs Windows Vista or higher.
 //       Same with LCIDToLocaleName().
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	m_lcid = lcid;
 	m_langID = "en";	// default to english
 
@@ -187,7 +187,7 @@ void ASLocalizer::setLanguageFromLCID(size_t lcid)
 			m_subLangID = "CHT";	// default
 	}
 	setTranslationClass();
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 #endif	// _WIN32
@@ -195,18 +195,18 @@ void ASLocalizer::setLanguageFromLCID(size_t lcid)
 string ASLocalizer::getLanguageID() const
 // Returns the language ID in m_langID.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	return m_langID;
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 const Translation* ASLocalizer::getTranslationClass() const
 // Returns the name of the translation class in m_translation.  Used for testing.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	assert(m_translationClass);
 	return m_translationClass;
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 void ASLocalizer::setLanguageFromName(const char* langID)
@@ -229,7 +229,7 @@ void ASLocalizer::setLanguageFromName(const char* langID)
 //      de_DE@euro
 //      de_DE.iso88591@euro
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	// the constants describing the format of lang_LANG locale string
 	m_lcid = 0;
 	string langStr = langID;
@@ -245,17 +245,17 @@ void ASLocalizer::setLanguageFromName(const char* langID)
 			m_subLangID = "CHT";	// default
 	}
 	setTranslationClass();
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 const char* ASLocalizer::settext(const char* textIn) const
 // Call the settext class and return the value.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	assert(m_translationClass);
 	const string stringIn = textIn;
 	return m_translationClass->translate(stringIn).c_str();
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 void ASLocalizer::setTranslationClass()
@@ -263,7 +263,7 @@ void ASLocalizer::setTranslationClass()
 // Sets the class variable m_translationClass from the value of m_langID.
 // Get the language ID at http://msdn.microsoft.com/en-us/library/ee797784%28v=cs.20%29.aspx
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	assert(m_langID.length());
 	// delete previously set (--ascii option)
 	if (m_translationClass != nullptr)
@@ -319,7 +319,7 @@ void ASLocalizer::setTranslationClass()
 		m_translationClass = new Ukrainian;
 	else	// default
 		m_translationClass = new English;
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 //----------------------------------------------------------------------------
@@ -328,26 +328,26 @@ void ASLocalizer::setTranslationClass()
 
 Translation::Translation()
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	m_translationVector.reserve(translationElements);
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 void Translation::addPair(const string& english, const wstring& translated)
 // Add a string pair to the translation vector.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	pair<string, wstring> entry(english, translated);
 	m_translationVector.emplace_back(entry);
 	assert(m_translationVector.size() <= translationElements);
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 string Translation::convertToMultiByte(const wstring& wideStr) const
 // Convert wchar_t to a multibyte string using the currently assigned locale.
 // Return an empty string if an error occurs.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	static bool msgDisplayed = false;
 	// get length of the output excluding the nullptr and validate the parameters
 	size_t mbLen = wcstombs(nullptr, wideStr.c_str(), 0);
@@ -376,31 +376,31 @@ string Translation::convertToMultiByte(const wstring& wideStr) const
 	string mbTranslation = mbStr;
 	delete[] mbStr;
 	return mbTranslation;
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 string Translation::getTranslationString(size_t i) const
 // Return the translation ascii value. Used for testing.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	if (i >= m_translationVector.size())
 		return string();
 	return m_translationVector[i].first;
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 size_t Translation::getTranslationVectorSize() const
 // Return the translation vector size.  Used for testing.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	return m_translationVector.size();
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 bool Translation::getWideTranslation(const string& stringIn, wstring& wideOut) const
 // Get the wide translation string. Used for testing.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	for (size_t i = 0; i < m_translationVector.size(); i++)
 	{
 		if (m_translationVector.at(i).first == stringIn)
@@ -412,7 +412,7 @@ bool Translation::getWideTranslation(const string& stringIn, wstring& wideOut) c
 	// not found
 	wideOut = L"";
 	return false;
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 string& Translation::translate(const string& stringIn) const
@@ -420,7 +420,7 @@ string& Translation::translate(const string& stringIn) const
 // Return a mutable string so the method can have a "const" designation.
 // This allows "settext" to be called from a "const" method.
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	m_mbTranslation.clear();
 	for (size_t i = 0; i < m_translationVector.size(); i++)
 	{
@@ -434,7 +434,7 @@ string& Translation::translate(const string& stringIn) const
 	if (m_mbTranslation.empty())
 		m_mbTranslation = stringIn;
 	return m_mbTranslation;
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 //----------------------------------------------------------------------------
@@ -445,7 +445,7 @@ string& Translation::translate(const string& stringIn) const
 Bulgarian::Bulgarian()	// български
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Форматиран  %s\n");		// should align with unchanged
 	addPair("Unchanged  %s\n", L"Непроменен  %s\n");		// should align with formatted
 	addPair("Directory  %s\n", L"директория  %s\n");
@@ -475,13 +475,13 @@ Bulgarian::Bulgarian()	// български
 	addPair("Did you intend to use --recursive", L"Знаете ли възнамерявате да използвате --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Не може да са UTF-32 кодиране");
 	addPair("Artistic Style has terminated\n", L"Artistic Style е прекратено\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 ChineseSimplified::ChineseSimplified()	// 中文（简体）
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"格式化  %s\n");		// should align with unchanged
 	addPair("Unchanged  %s\n", L"未改变  %s\n");		// should align with formatted
 	addPair("Directory  %s\n", L"目录  %s\n");
@@ -511,13 +511,13 @@ ChineseSimplified::ChineseSimplified()	// 中文（简体）
 	addPair("Did you intend to use --recursive", L"你打算使用 --recursive");
 	addPair("Cannot process UTF-32 encoding", L"不能处理UTF-32编码");
 	addPair("Artistic Style has terminated\n", L"Artistic Style 已经终止运行\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 ChineseTraditional::ChineseTraditional()	// 中文（繁體）
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"格式化  %s\n");		// should align with unchanged
 	addPair("Unchanged  %s\n", L"未改變  %s\n");		// should align with formatted
 	addPair("Directory  %s\n", L"目錄  %s\n");
@@ -547,13 +547,13 @@ ChineseTraditional::ChineseTraditional()	// 中文（繁體）
 	addPair("Did you intend to use --recursive", L"你打算使用 --recursive");
 	addPair("Cannot process UTF-32 encoding", L"不能處理UTF-32編碼");
 	addPair("Artistic Style has terminated\n", L"Artistic Style 已經終止運行\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Dutch::Dutch()	// Nederlandse
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Geformatteerd  %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Onveranderd    %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Directory  %s\n");
@@ -583,7 +583,7 @@ Dutch::Dutch()	// Nederlandse
 	addPair("Did you intend to use --recursive", L"Hebt u van plan bent te gebruiken --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Kan niet verwerken UTF-32 codering");
 	addPair("Artistic Style has terminated\n", L"Artistic Style heeft beëindigd\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 English::English() = default;
@@ -592,7 +592,7 @@ English::English() = default;
 Estonian::Estonian()	// Eesti
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formaadis  %s\n");		// should align with unchanged
 	addPair("Unchanged  %s\n", L"Muutumatu  %s\n");		// should align with formatted
 	addPair("Directory  %s\n", L"Kataloog  %s\n");
@@ -622,13 +622,13 @@ Estonian::Estonian()	// Eesti
 	addPair("Did you intend to use --recursive", L"Kas te kavatsete kasutada --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Ei saa töödelda UTF-32 kodeeringus");
 	addPair("Artistic Style has terminated\n", L"Artistic Style on lõpetatud\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Finnish::Finnish()	// Suomeksi
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Muotoiltu  %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Ennallaan  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Directory  %s\n");
@@ -658,13 +658,13 @@ Finnish::Finnish()	// Suomeksi
 	addPair("Did you intend to use --recursive", L"Oliko aiot käyttää --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Ei voi käsitellä UTF-32 koodausta");
 	addPair("Artistic Style has terminated\n", L"Artistic Style on päättynyt\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 French::French()	// Française
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formaté    %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Inchangée  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Répertoire  %s\n");
@@ -694,13 +694,13 @@ French::French()	// Française
 	addPair("Did you intend to use --recursive", L"Avez-vous l'intention d'utiliser --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Impossible de traiter codage UTF-32");
 	addPair("Artistic Style has terminated\n", L"Artistic Style a mis fin\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 German::German()	// Deutsch
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formatiert   %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Unverändert  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Verzeichnis  %s\n");
@@ -730,13 +730,13 @@ German::German()	// Deutsch
 	addPair("Did you intend to use --recursive", L"Haben Sie verwenden möchten --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Nicht verarbeiten kann UTF-32 Codierung");
 	addPair("Artistic Style has terminated\n", L"Artistic Style ist beendet\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Greek::Greek()	// ελληνικά
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Διαμορφωμένη  %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Αμετάβλητος   %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Κατάλογος  %s\n");
@@ -766,13 +766,13 @@ Greek::Greek()	// ελληνικά
 	addPair("Did you intend to use --recursive", L"Μήπως σκοπεύετε να χρησιμοποιήσετε --recursive");
 	addPair("Cannot process UTF-32 encoding", L"δεν μπορεί να επεξεργαστεί UTF-32 κωδικοποίηση");
 	addPair("Artistic Style has terminated\n", L"Artistic Style έχει λήξει\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Hindi::Hindi()	// हिन्दी
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	// NOTE: Scintilla based editors (CodeBlocks) cannot always edit Hindi.
 	//       Use Visual Studio instead.
 	addPair("Formatted  %s\n", L"स्वरूपित किया  %s\n");	// should align with unchanged
@@ -804,13 +804,13 @@ Hindi::Hindi()	// हिन्दी
 	addPair("Did you intend to use --recursive", L"क्या आप उपयोग करना चाहते हैं --recursive");
 	addPair("Cannot process UTF-32 encoding", L"UTF-32 कूटबन्धन प्रक्रिया नहीं कर सकते");
 	addPair("Artistic Style has terminated\n", L"Artistic Style समाप्त किया है\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Hungarian::Hungarian()	// Magyar
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formázott    %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Változatlan  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Címjegyzék  %s\n");
@@ -840,13 +840,13 @@ Hungarian::Hungarian()	// Magyar
 	addPair("Did you intend to use --recursive", L"Esetleg a használni kívánt --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Nem tudja feldolgozni UTF-32 kódolással");
 	addPair("Artistic Style has terminated\n", L"Artistic Style megszűnt\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Italian::Italian()	// Italiano
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formattata  %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Immutato    %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Elenco  %s\n");
@@ -876,13 +876,13 @@ Italian::Italian()	// Italiano
 	addPair("Did you intend to use --recursive", L"Hai intenzione di utilizzare --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Non è possibile processo di codifica UTF-32");
 	addPair("Artistic Style has terminated\n", L"Artistic Style ha terminato\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Japanese::Japanese()	// 日本語
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"フォーマット済みの  %s\n");		// should align with unchanged
 	addPair("Unchanged  %s\n", L"変わりません        %s\n");		// should align with formatted
 	addPair("Directory  %s\n", L"ディレクトリ  %s\n");
@@ -912,13 +912,13 @@ Japanese::Japanese()	// 日本語
 	addPair("Did you intend to use --recursive", L"あなたは--recursive使用するつもりでした");
 	addPair("Cannot process UTF-32 encoding", L"UTF - 32エンコーディングを処理できません");
 	addPair("Artistic Style has terminated\n", L"Artistic Style 終了しました\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Korean::Korean()	// 한국의
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"수정됨    %s\n");		// should align with unchanged
 	addPair("Unchanged  %s\n", L"변경없음  %s\n");		// should align with formatted
 	addPair("Directory  %s\n", L"디렉토리  %s\n");
@@ -948,13 +948,13 @@ Korean::Korean()	// 한국의
 	addPair("Did you intend to use --recursive", L"--recursive 를 사용하고자 하십니까");
 	addPair("Cannot process UTF-32 encoding", L"UTF-32 인코딩을 처리할 수 없습니다");
 	addPair("Artistic Style has terminated\n", L"Artistic Style를 종료합니다\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Norwegian::Norwegian()	// Norsk
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formatert  %s\n");		// should align with unchanged
 	addPair("Unchanged  %s\n", L"Uendret    %s\n");		// should align with formatted
 	addPair("Directory  %s\n", L"Katalog  %s\n");
@@ -984,13 +984,13 @@ Norwegian::Norwegian()	// Norsk
 	addPair("Did you intend to use --recursive", L"Har du tenkt å bruke --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Kan ikke behandle UTF-32 koding");
 	addPair("Artistic Style has terminated\n", L"Artistic Style har avsluttet\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Polish::Polish()	// Polski
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Sformatowany  %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Niezmienione  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Katalog  %s\n");
@@ -1020,13 +1020,13 @@ Polish::Polish()	// Polski
 	addPair("Did you intend to use --recursive", L"Czy masz zamiar używać --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Nie można procesu kodowania UTF-32");
 	addPair("Artistic Style has terminated\n", L"Artistic Style został zakończony\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Portuguese::Portuguese()	// Português
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formatado   %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Inalterado  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Diretório  %s\n");
@@ -1056,13 +1056,13 @@ Portuguese::Portuguese()	// Português
 	addPair("Did you intend to use --recursive", L"Será que você pretende usar --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Não pode processar a codificação UTF-32");
 	addPair("Artistic Style has terminated\n", L"Artistic Style terminou\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Romanian::Romanian()	// Română
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formatat    %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Neschimbat  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Director  %s\n");
@@ -1092,13 +1092,13 @@ Romanian::Romanian()	// Română
 	addPair("Did you intend to use --recursive", L"V-ați intenționați să utilizați --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Nu se poate procesa codificarea UTF-32");
 	addPair("Artistic Style has terminated\n", L"Artistic Style a terminat\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Russian::Russian()	// русский
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Форматированный  %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"без изменений    %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"каталог  %s\n");
@@ -1128,13 +1128,13 @@ Russian::Russian()	// русский
 	addPair("Did you intend to use --recursive", L"Неужели вы собираетесь использовать --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Не удается обработать UTF-32 кодировке");
 	addPair("Artistic Style has terminated\n", L"Artistic Style прекратил\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Spanish::Spanish()	// Español
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formato     %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Inalterado  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Directorio  %s\n");
@@ -1164,13 +1164,13 @@ Spanish::Spanish()	// Español
 	addPair("Did you intend to use --recursive", L"Se va a utilizar --recursive");
 	addPair("Cannot process UTF-32 encoding", L"No se puede procesar la codificación UTF-32");
 	addPair("Artistic Style has terminated\n", L"Artistic Style ha terminado\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Swedish::Swedish()	// Svenska
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"Formaterade  %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"Oförändrade  %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Katalog  %s\n");
@@ -1200,13 +1200,13 @@ Swedish::Swedish()	// Svenska
 	addPair("Did you intend to use --recursive", L"Har du för avsikt att använda --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Kan inte hantera UTF-32 kodning");
 	addPair("Artistic Style has terminated\n", L"Artistic Style har upphört\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 Ukrainian::Ukrainian()	// Український
 // build the translation vector in the Translation base class
 {
-	MARK_ENTRY(__FUNCTION__);
+	MARK_ENTRY();
 	addPair("Formatted  %s\n", L"форматований  %s\n");	// should align with unchanged
 	addPair("Unchanged  %s\n", L"без змін      %s\n");	// should align with formatted
 	addPair("Directory  %s\n", L"Каталог  %s\n");
@@ -1236,7 +1236,7 @@ Ukrainian::Ukrainian()	// Український
 	addPair("Did you intend to use --recursive", L"Невже ви збираєтеся використовувати --recursive");
 	addPair("Cannot process UTF-32 encoding", L"Не вдається обробити UTF-32 кодуванні");
 	addPair("Artistic Style has terminated\n", L"Artistic Style припинив\n");
-	MARK_EXIT(__FUNCTION__);
+	MARK_EXIT();
 }
 
 
