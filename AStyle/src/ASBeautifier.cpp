@@ -8,6 +8,7 @@
 //-----------------------------------------------------------------------------
 
 #include "astyle.h"
+#include "markdefs.h"
 
 #include <algorithm>
 

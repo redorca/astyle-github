@@ -12,12 +12,13 @@ static  void MARK_ENTRY(const char *caller) {  const char *tmp; tmp = caller;}
 #endif
 #endif /* GEN0 */
 
-extern char spaces[];
-extern int spacing;
+extern char depth_indent[];
+extern int depth;
+#define MAX_INDENT 40
 
 #if defined(GEN1)
-#define MARK_EXIT()  { printf("^^^====%s%s\n", &spaces[spacing], __FUNCTION__); spacing--; }
-#define MARK_ENTRY() { spacing++; printf("vvv====%s%s\n", &spaces[spacing], __FUNCTION__); }
+#define MARK_EXIT()  { printf("^^^====%s%s\n", &depth_indent[(MAX_INDENT - depth) % MAX_INDENT], __FUNCTION__); depth %= depth - 4; }
+#define MARK_ENTRY() { depth %= depth + 4; printf("vvv====%s%s\n", &depth_indent[(MAX_INDENT - depth) % MAX_INDENT], __FUNCTION__); }
 
 #endif /* GEN1 */
 
