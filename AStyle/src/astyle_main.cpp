@@ -71,7 +71,7 @@
 #endif
 
 int  depth = 0;
-char depth_indent[MAX_INDENT] = "                           ";
+char depth_indent[MAX_INDENT + 1] = "                                                            ";
 
 //----------------------------------------------------------------------------
 // astyle namespace

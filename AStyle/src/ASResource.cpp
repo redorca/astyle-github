@@ -164,9 +164,8 @@ const string ASResource::AS_SEMICOLON = string(";");
  */
 bool sortOnLength(const string* a, const string* b)
 {
-	MARK_ENTRY();
+	LABEL("...");
 	return (*a).length() > (*b).length();
-	MARK_EXIT();
 }
 
 /**
@@ -177,9 +176,8 @@ bool sortOnLength(const string* a, const string* b)
  */
 bool sortOnName(const string* a, const string* b)
 {
-	MARK_ENTRY();
+	LABEL("...");
 	return *a < *b;
-	MARK_EXIT();
 }
 
 /**
@@ -659,6 +657,7 @@ const string* ASBase::findHeader(const string& line, int i,
 			break;
 		// check that this is not part of a longer word
 		if (wordEnd == line.length())
+	                MARK_EXIT();
 			return header;
 		if (isLegalNameChar(line[wordEnd]))
 			continue;
@@ -674,6 +673,7 @@ const string* ASBase::findHeader(const string& line, int i,
 		        || header == &AS_DEFAULT)
 		        && (peekChar == ';' || peekChar == '(' || peekChar == '='))
 			break;
+	        MARK_EXIT();
 		return header;
 	}
 	return nullptr;
@@ -689,20 +689,35 @@ bool ASBase::findKeyword(const string& line, int i, const string& keyword) const
 	const size_t keywordLength = keyword.length();
 	const size_t wordEnd = i + keywordLength;
 	if (wordEnd > line.length())
+          {
+	        MARK_EXIT();
 		return false;
+          }
 	if (line.compare(i, keywordLength, keyword) != 0)
+          {
+	        MARK_EXIT();
 		return false;
+          }
 	// check that this is not part of a longer word
 	if (wordEnd == line.length())
+          {
+	        MARK_EXIT();
 		return true;
+          }
 	if (isLegalNameChar(line[wordEnd]))
+          {
+	        MARK_EXIT();
 		return false;
+          }
 	// is not a keyword if part of a definition
 	const char peekChar = peekNextChar(line, (int) wordEnd - 1);
 	if (peekChar == ',' || peekChar == ')')
+          {
+	        MARK_EXIT();
 		return false;
-	return true;
+          }
 	MARK_EXIT();
+	return true;
 }
 
 // check if a specific line position contains an operator.
@@ -721,10 +736,13 @@ const string* ASBase::findOperator(const string& line, int i,
 		if (wordEnd > line.length())
 			continue;
 		if (line.compare(i, (*(*possibleOperators)[p]).length(), *(*possibleOperators)[p]) == 0)
+                  {
+	                MARK_EXIT();
 			return (*possibleOperators)[p];
+	          }
 	}
-	return nullptr;
 	MARK_EXIT();
+	return nullptr;
 }
 
 // get the current word on a line
@@ -740,8 +758,8 @@ string ASBase::getCurrentWord(const string& line, size_t index) const
 		if (!isLegalNameChar(line[i]))
 			break;
 	}
-	return line.substr(index, i - index);
 	MARK_EXIT();
+	return line.substr(index, i - index);
 }
 
 // check if a specific character can be used in a legal variable/method/class name
@@ -751,12 +769,15 @@ bool ASBase::isLegalNameChar(char ch) const
 	if (isWhiteSpace(ch))
 		return false;
 	if ((unsigned char) ch > 127)
+          {
+	        MARK_EXIT();
 		return false;
+          }
+	MARK_EXIT();
 	return (isalnum((unsigned char) ch)
 	        || ch == '.' || ch == '_'
 	        || (isJavaStyle() && ch == '$')
 	        || (isSharpStyle() && ch == '@'));  // may be used as a prefix
-	MARK_EXIT();
 }
 
 // check if a specific character can be part of a header
@@ -770,9 +791,12 @@ bool ASBase::isCharPotentialHeader(const string& line, size_t i) const
 	if (i > 1 && line[i - 2] == '\\')
 		prevCh = ' ';
 	if (!isLegalNameChar(prevCh) && isLegalNameChar(line[i]))
+          {
+	        MARK_EXIT();
 		return true;
-	return false;
+          }
 	MARK_EXIT();
+	return false;
 }
 
 // check if a specific character can be part of an operator
@@ -781,7 +805,11 @@ bool ASBase::isCharPotentialOperator(char ch) const
 	MARK_ENTRY();
 	assert(!isWhiteSpace(ch));
 	if ((unsigned) ch > 127)
+          {
+	        MARK_EXIT();
 		return false;
+          }
+	MARK_EXIT();
 	return (ispunct((unsigned char) ch)
 	        && ch != '{' && ch != '}'
 	        && ch != '(' && ch != ')'
@@ -789,7 +817,6 @@ bool ASBase::isCharPotentialOperator(char ch) const
 	        && ch != ';' && ch != ','
 	        && ch != '#' && ch != '\\'
 	        && ch != '\'' && ch != '\"');
-	MARK_EXIT();
 }
 
 // check if a specific character is a digit
@@ -812,8 +839,8 @@ bool ASBase::isDigitSeparator(const string& line, int i) const
 	                           && isxdigit((unsigned char) line[i - 1])
 	                           && i < (int) line.length() - 1
 	                           && isxdigit((unsigned char) line[i + 1]);
-	return foundDigitSeparator;
 	MARK_EXIT();
+	return foundDigitSeparator;
 }
 
 // peek at the next unread character.
@@ -823,10 +850,13 @@ char ASBase::peekNextChar(const string& line, int i) const
 	char ch = ' ';
 	size_t peekNum = line.find_first_not_of(" \t", i + 1);
 	if (peekNum == string::npos)
+          {
+	        MARK_EXIT();
 		return ch;
+          }
 	ch = line[peekNum];
-	return ch;
 	MARK_EXIT();
+	return ch;
 }
 
 }   // end namespace astyle

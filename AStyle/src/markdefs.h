@@ -14,21 +14,35 @@ static  void MARK_ENTRY(const char *caller) {  const char *tmp; tmp = caller;}
 
 extern char depth_indent[];
 extern int depth;
-#define MAX_INDENT 40
+#define MAX_INDENT 60
 
 #if defined(GEN1)
-#define DEPTH   (depth % MAX_INDENT)
+#define DEPTH   (MAX_INDENT - (depth % MAX_INDENT))
 #define NEW_DEPTH(a)    depth += a
 #define EXIT    "^^^"
 #define ENTER   "vvv"
 
 #define LABEL(a)                         \
                 {                                                                                       \
-                        printf("%s::%d ====%s%s\n", # a, DEPTH, &depth_indent[DEPTH], __FUNCTION__);    \
+                        printf("%s::%d ==== %s%s\n", a, DEPTH, &depth_indent[DEPTH], __FUNCTION__);    \
                 }
+#define STEP  2
 
+#if !defined(OLD_MARKERS)
+#define MARK_EXIT()    \
+                {                       \
+                        LABEL(EXIT)     \
+                        NEW_DEPTH(-STEP);  \
+                }
+#define MARK_ENTRY()    \
+                {                       \
+                        NEW_DEPTH(STEP);   \
+                        LABEL(ENTER)    \
+                }
+#else
 #define MARK_EXIT()     LABEL(EXIT)
 #define MARK_ENTRY()    LABEL(ENTER)
+#endif
 
 #if defined(OLD_MARKERS)
 #define MARK_EXIT()                     \
