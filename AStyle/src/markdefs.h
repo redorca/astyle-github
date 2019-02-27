@@ -17,8 +17,29 @@ extern int depth;
 #define MAX_INDENT 40
 
 #if defined(GEN1)
-#define MARK_EXIT()  { printf("^^^====%s%s\n", &depth_indent[(MAX_INDENT - depth) % MAX_INDENT], __FUNCTION__); depth %= depth - 4; }
-#define MARK_ENTRY() { depth %= depth + 4; printf("vvv====%s%s\n", &depth_indent[(MAX_INDENT - depth) % MAX_INDENT], __FUNCTION__); }
+#define DEPTH   ((depth % MAX_INDENT)
+#define NEW_DEPTH(a)    depth += a
+#define EXIT    "^^^"
+#define ENTER   "vvv"
+#define MARK(a)                         \
+                {                                                                                       \
+                        printf("%s::%d ====%s%s\n", a, DEPTH, &depth_indent[DEPTH], __FUNCTION__);   \
+                }
+#define MARK_EXIT       MARK(EXIT)
+#define MARK_ENTRY      MARK(ENTER)
+
+#if defined(OLD_MARKERS)
+#define MARK_EXIT()                     \
+                {                                                                                       \
+                        printf("^^^::%d ====%s%s\n", DEPTH, &depth_indent[DEPTH], __FUNCTION__);        \
+                        NEW_DEPTH;                                                                      \
+                }
+#define MARK_ENTRY() \
+                {
+                        printf("vvv::%d ====%s%s\n", DEPTH, &depth_indent[DEPTH], __FUNCTION__);        \
+                        NEW_DEPTH;                                                                      \
+                }
+#endif /* OLD_MARKERS */
 
 #endif /* GEN1 */
 

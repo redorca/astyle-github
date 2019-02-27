@@ -70,8 +70,7 @@
 	int _CRT_glob = 0;
 #endif
 
-// #define MAX_INDENT 40
-int  depth = 35;
+int  depth = 0;
 char depth_indent[MAX_INDENT] = "                           ";
 
 //----------------------------------------------------------------------------
