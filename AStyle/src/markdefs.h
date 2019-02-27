@@ -17,16 +17,18 @@ extern int depth;
 #define MAX_INDENT 40
 
 #if defined(GEN1)
-#define DEPTH   ((depth % MAX_INDENT)
+#define DEPTH   (depth % MAX_INDENT)
 #define NEW_DEPTH(a)    depth += a
 #define EXIT    "^^^"
 #define ENTER   "vvv"
-#define MARK(a)                         \
+
+#define LABEL(a)                         \
                 {                                                                                       \
-                        printf("%s::%d ====%s%s\n", a, DEPTH, &depth_indent[DEPTH], __FUNCTION__);   \
+                        printf("%s::%d ====%s%s\n", # a, DEPTH, &depth_indent[DEPTH], __FUNCTION__);    \
                 }
-#define MARK_EXIT       MARK(EXIT)
-#define MARK_ENTRY      MARK(ENTER)
+
+#define MARK_EXIT()     LABEL(EXIT)
+#define MARK_ENTRY()    LABEL(ENTER)
 
 #if defined(OLD_MARKERS)
 #define MARK_EXIT()                     \
