@@ -432,7 +432,7 @@ void ASBeautifier::initVectors()
 {
 	MARK_ENTRY();
 	if (fileType == beautifierFileType)    // don't build unless necessary
-		return;
+		RETURN();
 
 	beautifierFileType = fileType;
 
@@ -589,13 +589,13 @@ string ASBeautifier::beautify(const string& originalLine)
 		if (emptyLineFill && !isInQuoteContinuation)
 		{
 			if (isInIndentablePreprocBlock)
-				return preLineWS(preprocBlockIndent, 0);
+				RETURN(preLineWS(preprocBlockIndent, 0));
 			if (!headerStack->empty() || isInEnum)
-				return preLineWS(prevFinalLineIndentCount, prevFinalLineSpaceIndentCount);
+				RETURN(preLineWS(prevFinalLineIndentCount, prevFinalLineSpaceIndentCount));
 			// must fall thru here
 		}
 		else
-			return line;
+			RETURN(line);
 	}
 
 	// handle preprocessor commands
@@ -609,10 +609,10 @@ string ASBeautifier::beautify(const string& originalLine)
 			// parsing is turned off in ASFormatter by indent-off
 			// the originalLine will probably never be returned here
 			indentedLine = preLineWS(prevFinalLineIndentCount, prevFinalLineSpaceIndentCount) + line;
-			return getIndentedLineReturn(indentedLine, originalLine);
+			RETURN(getIndentedLineReturn(indentedLine, originalLine));
 		}
 		indentedLine = preLineWS(preprocBlockIndent, 0) + line;
-		return getIndentedLineReturn(indentedLine, originalLine);
+		RETURN(getIndentedLineReturn(indentedLine, originalLine));
 	}
 
 	if (!isInComment
@@ -647,7 +647,7 @@ string ASBeautifier::beautify(const string& originalLine)
 				}
 				else
 					indentedLine = preLineWS(preprocBlockIndent, 0) + line;
-				return getIndentedLineReturn(indentedLine, originalLine);
+				RETURN(getIndentedLineReturn(indentedLine, originalLine));
 			}
 			if (shouldIndentPreprocConditional && preproc.length() > 0)
 			{
@@ -662,7 +662,7 @@ string ASBeautifier::beautify(const string& originalLine)
 					preprocIndentStack->emplace_back(entry);
 					indentedLine = preLineWS(preprocIndentStack->back().first,
 					                         preprocIndentStack->back().second) + line;
-					return getIndentedLineReturn(indentedLine, originalLine);
+					RETURN(getIndentedLineReturn(indentedLine, originalLine));
 				}
 				if (preproc == "else" || preproc == "elif")
 				{
@@ -670,7 +670,7 @@ string ASBeautifier::beautify(const string& originalLine)
 					{
 						indentedLine = preLineWS(preprocIndentStack->back().first,
 						                         preprocIndentStack->back().second) + line;
-						return getIndentedLineReturn(indentedLine, originalLine);
+						RETURN(getIndentedLineReturn(indentedLine, originalLine));
 					}
 				}
 				else if (preproc == "endif")
@@ -680,7 +680,7 @@ string ASBeautifier::beautify(const string& originalLine)
 						indentedLine = preLineWS(preprocIndentStack->back().first,
 						                         preprocIndentStack->back().second) + line;
 						preprocIndentStack->pop_back();
-						return getIndentedLineReturn(indentedLine, originalLine);
+						RETURN(getIndentedLineReturn(indentedLine, originalLine));
 					}
 				}
 			}
@@ -701,18 +701,18 @@ string ASBeautifier::beautify(const string& originalLine)
 			isInDefineDefinition = false;
 			// this could happen with invalid input
 			if (activeBeautifierStack->empty())
-				return originalLine;
+				RETURN(originalLine);
 			ASBeautifier* defineBeautifier = activeBeautifierStack->back();
 			activeBeautifierStack->pop_back();
 
 			string indentedLine = defineBeautifier->beautify(line);
 			delete defineBeautifier;
-			return getIndentedLineReturn(indentedLine, originalLine);
+			RETURN(getIndentedLineReturn(indentedLine, originalLine));
 		}
 
 		// unless this is a multi-line #define, return this precompiler line as is.
 		if (!isInDefine && !isInDefineDefinition)
-			return originalLine;
+			RETURN(originalLine);
 	}
 
 	// if there exists any worker beautifier in the activeBeautifierStack,
@@ -735,7 +735,7 @@ string ASBeautifier::beautify(const string& originalLine)
 		activeBeautifierStack->back()->isInIndentableStruct = isInIndentableStruct;
 		activeBeautifierStack->back()->isInIndentablePreproc = isInIndentablePreproc;
 		// must return originalLine not the trimmed line
-		return activeBeautifierStack->back()->beautify(originalLine);
+		RETURN(activeBeautifierStack->back()->beautify(originalLine));
 	}
 
 	// Flag an indented header in case this line is a one-line block.
@@ -809,8 +809,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	        && line.find("*INDENT-ON*", 0) != string::npos)
 		isIndentModeOff = false;
 
-	return indentedLine;
-	MARK_EXIT();
+	RETURN(indentedLine);
 }
 
 /**
@@ -1153,8 +1152,7 @@ void ASBeautifier::setAlignMethodColon(bool state)
 int ASBeautifier::getFileType() const
 {
 	MARK_ENTRY();
-	return fileType;
-	MARK_EXIT();
+	RETURN(fileType);
 }
 
 /**
@@ -1165,8 +1163,7 @@ int ASBeautifier::getFileType() const
 int ASBeautifier::getIndentLength() const
 {
 	MARK_ENTRY();
-	return indentLength;
-	MARK_EXIT();
+	RETURN(indentLength);
 }
 
 /**
@@ -1177,8 +1174,7 @@ int ASBeautifier::getIndentLength() const
 string ASBeautifier::getIndentString() const
 {
 	MARK_ENTRY();
-	return indentString;
-	MARK_EXIT();
+	RETURN(indentString);
 }
 
 /**
@@ -1187,8 +1183,7 @@ string ASBeautifier::getIndentString() const
 bool ASBeautifier::getModeManuallySet() const
 {
 	MARK_ENTRY();
-	return isModeManuallySet;
-	MARK_EXIT();
+	RETURN(isModeManuallySet);
 }
 
 /**
@@ -1199,8 +1194,7 @@ bool ASBeautifier::getModeManuallySet() const
 bool ASBeautifier::getForceTabIndentation() const
 {
 	MARK_ENTRY();
-	return shouldForceTabIndentation;
-	MARK_EXIT();
+	RETURN(shouldForceTabIndentation);
 }
 
 /**
@@ -1211,8 +1205,7 @@ bool ASBeautifier::getForceTabIndentation() const
 bool ASBeautifier::getAlignMethodColon() const
 {
 	MARK_ENTRY();
-	return shouldAlignMethodColon;
-	MARK_EXIT();
+	RETURN(shouldAlignMethodColon);
 }
 
 /**
@@ -1223,8 +1216,7 @@ bool ASBeautifier::getAlignMethodColon() const
 bool ASBeautifier::getBlockIndent() const
 {
 	MARK_ENTRY();
-	return blockIndent;
-	MARK_EXIT();
+	RETURN(blockIndent);
 }
 
 /**
@@ -1235,8 +1227,7 @@ bool ASBeautifier::getBlockIndent() const
 bool ASBeautifier::getBraceIndent() const
 {
 	MARK_ENTRY();
-	return braceIndent;
-	MARK_EXIT();
+	RETURN(braceIndent);
 }
 
 /**
@@ -1248,8 +1239,7 @@ bool ASBeautifier::getBraceIndent() const
 bool ASBeautifier::getNamespaceIndent() const
 {
 	MARK_ENTRY();
-	return namespaceIndent;
-	MARK_EXIT();
+	RETURN(namespaceIndent);
 }
 
 /**
@@ -1261,8 +1251,7 @@ bool ASBeautifier::getNamespaceIndent() const
 bool ASBeautifier::getClassIndent() const
 {
 	MARK_ENTRY();
-	return classIndent;
-	MARK_EXIT();
+	RETURN(classIndent);
 }
 
 /**
@@ -1274,8 +1263,7 @@ bool ASBeautifier::getClassIndent() const
 bool ASBeautifier::getModifierIndent() const
 {
 	MARK_ENTRY();
-	return modifierIndent;
-	MARK_EXIT();
+	RETURN(modifierIndent);
 }
 
 /**
@@ -1287,8 +1275,7 @@ bool ASBeautifier::getModifierIndent() const
 bool ASBeautifier::getSwitchIndent() const
 {
 	MARK_ENTRY();
-	return switchIndent;
-	MARK_EXIT();
+	RETURN(switchIndent);
 }
 
 /**
@@ -1300,8 +1287,7 @@ bool ASBeautifier::getSwitchIndent() const
 bool ASBeautifier::getCaseIndent() const
 {
 	MARK_ENTRY();
-	return caseIndent;
-	MARK_EXIT();
+	RETURN(caseIndent);
 }
 
 /**
@@ -1315,8 +1301,7 @@ bool ASBeautifier::getCaseIndent() const
 bool ASBeautifier::getEmptyLineFill() const
 {
 	MARK_ENTRY();
-	return emptyLineFill;
-	MARK_EXIT();
+	RETURN(emptyLineFill);
 }
 
 /**
@@ -1329,8 +1314,7 @@ bool ASBeautifier::getEmptyLineFill() const
 bool ASBeautifier::getPreprocDefineIndent() const
 {
 	MARK_ENTRY();
-	return shouldIndentPreprocDefine;
-	MARK_EXIT();
+	RETURN(shouldIndentPreprocDefine);
 }
 
 /**
@@ -1341,17 +1325,15 @@ bool ASBeautifier::getPreprocDefineIndent() const
 int ASBeautifier::getTabLength() const
 {
 	MARK_ENTRY();
-	return tabLength;
-	MARK_EXIT();
+	RETURN(tabLength);
 }
 
 const string& ASBeautifier::getIndentedLineReturn(const string& newLine, const string& originalLine) const
 {
 	MARK_ENTRY();
 	if (isIndentModeOff)
-		return originalLine;
-	return newLine;
-	MARK_EXIT();
+		RETURN(originalLine);
+	RETURN(newLine);
 }
 
 string ASBeautifier::preLineWS(int lineIndentCount, int lineSpaceIndentCount) const
@@ -1379,8 +1361,7 @@ string ASBeautifier::preLineWS(int lineIndentCount, int lineSpaceIndentCount) co
 		ws += indentString;
 	while ((lineSpaceIndentCount--) > 0)
 		ws += string(" ");
-	return ws;
-	MARK_EXIT();
+	RETURN(ws);
 }
 
 /**
@@ -1407,7 +1388,7 @@ void ASBeautifier::registerContinuationIndent(const string& line, int i, int spa
 		continuationIndentStack->emplace_back(currIndent);
 		if (updateParenStack)
 			parenIndentStack->emplace_back(previousIndent);
-		return;
+		RETURN();
 	}
 
 	if (updateParenStack)
@@ -1494,8 +1475,7 @@ pair<int, int> ASBeautifier::computePreprocessorIndent()
 	            || headerStack->back() == &AS_FOR
 	            || headerStack->back() == &AS_WHILE))
 		--entry.first;
-	return entry;
-	MARK_EXIT();
+	RETURN(entry);
 }
 
 /**
@@ -1527,7 +1507,7 @@ int ASBeautifier::getNextProgramCharDistance(const string& line, int i) const
 		if (ch == '/')
 		{
 			if (line.compare(i + charDistance, 2, "//") == 0)
-				return remainingCharNum;
+				RETURN(remainingCharNum);
 			if (line.compare(i + charDistance, 2, "/*") == 0)
 			{
 				charDistance++;
@@ -1535,11 +1515,10 @@ int ASBeautifier::getNextProgramCharDistance(const string& line, int i) const
 			}
 		}
 		else
-			return charDistance;
+			RETURN(charDistance);
 	}
 
-	return charDistance;
-	MARK_EXIT();
+	RETURN(charDistance);
 }
 
 /**
@@ -1556,9 +1535,8 @@ int ASBeautifier::indexOf(const vector<const string*>& container, const string* 
 
 	where = find(container.begin(), container.end(), element);
 	if (where == container.end())
-		return -1;
-	return (int) (where - container.begin());
-	MARK_EXIT();
+		RETURN(-1);
+	RETURN((int) (where - container.begin()));
 }
 
 /**
@@ -1571,8 +1549,7 @@ int ASBeautifier::convertTabToSpaces(int i, int tabIncrementIn) const
 {
 	MARK_ENTRY();
 	int tabToSpacesAdjustment = indentLength - 1 - ((tabIncrementIn + i) % indentLength);
-	return tabToSpacesAdjustment;
-	MARK_EXIT();
+	RETURN(tabToSpacesAdjustment);
 }
 
 /**
@@ -1598,8 +1575,7 @@ string ASBeautifier::trim(const string& str) const
 		end = str.length() - 1;
 
 	string returnStr(str, start, end + 1 - start);
-	return returnStr;
-	MARK_EXIT();
+	RETURN(returnStr);
 }
 
 /**
@@ -1615,10 +1591,9 @@ string ASBeautifier::rtrim(const string& str) const
 	size_t end = str.find_last_not_of(" \t");
 	if (end == string::npos
 	        || end == len - 1)
-		return str;
+		RETURN(str);
 	string returnStr(str, 0, end + 1);
-	return returnStr;
-	MARK_EXIT();
+	RETURN(returnStr);
 }
 
 /**
@@ -1638,8 +1613,7 @@ vector<vector<const string*>*>* ASBeautifier::copyTempStacks(const ASBeautifier&
 		*newVec = **iter;
 		tempStacksNew->emplace_back(newVec);
 	}
-	return tempStacksNew;
-	MARK_EXIT();
+	RETURN(tempStacksNew);
 }
 
 /**
@@ -1829,15 +1803,14 @@ bool ASBeautifier::statementEndsWithComma(const string& line, int index) const
 	if (isInComment_
 	        || isInQuote_
 	        || parenCount > 0)
-		return false;
+		RETURN(false);
 
 	size_t lastChar = line.find_last_not_of(" \t", i - 1);
 
 	if (lastChar == string::npos || line[lastChar] != ',')
-		return false;
+		RETURN(false);
 
-	return true;
-	MARK_EXIT();
+	RETURN(true);
 }
 
 /**
@@ -1856,10 +1829,9 @@ bool ASBeautifier::isLineEndComment(const string& line, int startPos) const
 	{
 		size_t nextChar = line.find_first_not_of(" \t", endNum + 2);
 		if (nextChar == string::npos)
-			return true;
+			RETURN(true);
 	}
-	return false;
-	MARK_EXIT();
+	RETURN(false);
 }
 
 /**
@@ -1873,12 +1845,12 @@ int ASBeautifier::getContinuationIndentAssign(const string& line, size_t currPos
 	assert(line[currPos] == '=');
 
 	if (currPos == 0)
-		return 0;
+		RETURN(0);
 
 	// get the last legal word (may be a number)
 	size_t end = line.find_last_not_of(" \t", currPos - 1);
 	if (end == string::npos || !isLegalNameChar(line[end]))
-		return 0;
+		RETURN(0);
 
 	int start;          // start of the previous word
 	for (start = end; start > -1; start--)
@@ -1888,8 +1860,7 @@ int ASBeautifier::getContinuationIndentAssign(const string& line, size_t currPos
 	}
 	start++;
 
-	return start;
-	MARK_EXIT();
+	RETURN(start);
 }
 
 /**
@@ -1905,7 +1876,7 @@ int ASBeautifier::getContinuationIndentComma(const string& line, size_t currPos)
 	// get first word on a line
 	size_t indent = line.find_first_not_of(" \t");
 	if (indent == string::npos || !isLegalNameChar(line[indent]))
-		return 0;
+		RETURN(0);
 
 	// bypass first word
 	for (; indent < currPos; indent++)
@@ -1915,15 +1886,14 @@ int ASBeautifier::getContinuationIndentComma(const string& line, size_t currPos)
 	}
 	indent++;
 	if (indent >= currPos || indent < 4)
-		return 0;
+		RETURN(0);
 
 	// point to second word or assignment operator
 	indent = line.find_first_not_of(" \t", indent);
 	if (indent == string::npos || indent >= currPos)
-		return 0;
+		RETURN(0);
 
-	return indent;
-	MARK_EXIT();
+	RETURN(indent);
 }
 
 /**
@@ -1938,11 +1908,11 @@ string ASBeautifier::getNextWord(const string& line, size_t currPos) const
 	size_t lineLength = line.length();
 	// get the last legal word (may be a number)
 	if (currPos == lineLength - 1)
-		return string();
+		RETURN(string());
 
 	size_t start = line.find_first_not_of(" \t", currPos + 1);
 	if (start == string::npos || !isLegalNameChar(line[start]))
-		return string();
+		RETURN(string());
 
 	size_t end;			// end of the current word
 	for (end = start + 1; end <= lineLength; end++)
@@ -1951,8 +1921,7 @@ string ASBeautifier::getNextWord(const string& line, size_t currPos) const
 			break;
 	}
 
-	return line.substr(start, end - start);
-	MARK_EXIT();
+	RETURN(line.substr(start, end - start));
 }
 
 /**
@@ -1968,14 +1937,14 @@ bool ASBeautifier::isIndentedPreprocessor(const string& line, size_t currPos) co
 	assert(line[0] == '#');
 	string nextWord = getNextWord(line, currPos);
 	if (nextWord == "region" || nextWord == "endregion")
-		return true;
+		RETURN(true);
 	// is it #pragma omp
 	if (nextWord == "pragma")
 	{
 		// find pragma
 		size_t start = line.find("pragma");
 		if (start == string::npos || !isLegalNameChar(line[start]))
-			return false;
+			RETURN(false);
 		// bypass pragma
 		for (; start < line.length(); start++)
 		{
@@ -1984,11 +1953,11 @@ bool ASBeautifier::isIndentedPreprocessor(const string& line, size_t currPos) co
 		}
 		start++;
 		if (start >= line.length())
-			return false;
+			RETURN(false);
 		// point to start of second word
 		start = line.find_first_not_of(" \t", start);
 		if (start == string::npos)
-			return false;
+			RETURN(false);
 		// point to end of second word
 		size_t end;
 		for (end = start; end < line.length(); end++)
@@ -1999,10 +1968,9 @@ bool ASBeautifier::isIndentedPreprocessor(const string& line, size_t currPos) co
 		// check for "pragma omp"
 		string word = line.substr(start, end - start);
 		if (word == "omp" || word == "region" || word == "endregion")
-			return true;
+			RETURN(true);
 	}
-	return false;
-	MARK_EXIT();
+	RETURN(false);
 }
 
 /**
@@ -2015,7 +1983,7 @@ bool ASBeautifier::isPreprocessorConditionalCplusplus(const string& line) const
 	MARK_ENTRY();
 	string preproc = trim(line.substr(1));
 	if (preproc.compare(0, 5, "ifdef") == 0 && getNextWord(preproc, 4) == "__cplusplus")
-		return true;
+		RETURN(true);
 	if (preproc.compare(0, 2, "if") == 0)
 	{
 		// check for " #if defined(__cplusplus)"
@@ -2030,12 +1998,11 @@ bool ASBeautifier::isPreprocessorConditionalCplusplus(const string& line) const
 				++charNum;
 				charNum = preproc.find_first_not_of(" \t", charNum);
 				if (charNum != string::npos && preproc.compare(charNum, 11, "__cplusplus") == 0)
-					return true;
+					RETURN(true);
 			}
 		}
 	}
-	return false;
-	MARK_EXIT();
+	RETURN(false);
 }
 
 /**
@@ -2051,17 +2018,16 @@ bool ASBeautifier::isInPreprocessorUnterminatedComment(const string& line)
 	{
 		size_t startPos = line.find("/*");
 		if (startPos == string::npos)
-			return false;
+			RETURN(false);
 	}
 	size_t endNum = line.find("*/");
 	if (endNum != string::npos)
 	{
 		isInPreprocessorComment = false;
-		return false;
+		RETURN(false);
 	}
 	isInPreprocessorComment = true;
-	return true;
-	MARK_EXIT();
+	RETURN(true);
 }
 
 void ASBeautifier::popLastContinuationIndent()
@@ -2078,7 +2044,7 @@ void ASBeautifier::popLastContinuationIndent()
 
 // for unit testing
 int ASBeautifier::getBeautifierFileType() const
-{ return beautifierFileType; }
+{ RETURN(beautifierFileType); }
 
 /**
  * Process preprocessor statements and update the beautifier stacks.
@@ -2312,7 +2278,7 @@ void ASBeautifier::adjustParsedLineIndentation(size_t iPrelim, bool isInExtraHea
 {
 	MARK_ENTRY();
 	if (lineStartsInComment)
-		return;
+		RETURN();
 
 	// unindent a one-line statement in a header indent
 	if (!blockIndent
@@ -2415,8 +2381,7 @@ int ASBeautifier::adjustIndentCountForBreakElseIfComments() const
 				indentCountIncrement++;
 		}
 	}
-	return indentCountIncrement;
-	MARK_EXIT();
+	RETURN(indentCountIncrement);
 }
 
 /**
@@ -2429,13 +2394,12 @@ string ASBeautifier::extractPreprocessorStatement(const string& line) const
 	string preproc;
 	size_t start = line.find_first_not_of("#/ \t");
 	if (start == string::npos)
-		return preproc;
+		RETURN(preproc);
 	size_t end = line.find_first_of("/ \t", start);
 	if (end == string::npos)
 		end = line.length();
 	preproc = line.substr(start, end - start);
-	return preproc;
-	MARK_EXIT();
+	RETURN(preproc);
 }
 
 void ASBeautifier::adjustObjCMethodDefinitionIndentation(const string& line_)
@@ -2572,10 +2536,9 @@ int ASBeautifier::findObjCColonAlignment(const string& line) const
 			haveTernary = false;
 			continue;
 		}
-		return i;
+		RETURN(i);
 	}
-	return -1;
-	MARK_EXIT();
+	RETURN(-1);
 }
 
 /**
@@ -2589,9 +2552,8 @@ int ASBeautifier::computeObjCColonAlignment(const string& line, int colonAlignPo
 	MARK_ENTRY();
 	int colonPosition = findObjCColonAlignment(line);
 	if (colonPosition < 0 || colonPosition > colonAlignPosition)
-		return indentLength;
-	return (colonAlignPosition - colonPosition);
-	MARK_EXIT();
+		RETURN(indentLength);
+	RETURN((colonAlignPosition - colonPosition));
 }
 
 /*
@@ -2606,14 +2568,14 @@ int ASBeautifier::getObjCFollowingKeyword(const string& line, int bracePos) cons
 	assert(line[bracePos] == '[');
 	size_t firstText = line.find_first_not_of(" \t", bracePos + 1);
 	if (firstText == string::npos)
-		return -(indentCount * indentLength - 1);
+		RETURN(-(indentCount * indentLength - 1));
 	size_t searchBeg = firstText;
 	size_t objectEnd = 0;	// end of object text
 	if (line[searchBeg] == '[')
 	{
 		objectEnd = line.find(']', searchBeg + 1);
 		if (objectEnd == string::npos)
-			return 0;
+			RETURN(0);
 	}
 	else
 	{
@@ -2621,19 +2583,18 @@ int ASBeautifier::getObjCFollowingKeyword(const string& line, int bracePos) cons
 		{
 			searchBeg = line.find(')', searchBeg + 1);
 			if (searchBeg == string::npos)
-				return 0;
+				RETURN(0);
 		}
 		// bypass the object name
 		objectEnd = line.find_first_of(" \t", searchBeg + 1);
 		if (objectEnd == string::npos)
-			return 0;
+			RETURN(0);
 		--objectEnd;
 	}
 	size_t keyPos = line.find_first_not_of(" \t", objectEnd + 1);
 	if (keyPos == string::npos)
-		return 0;
-	return keyPos - firstText;
-	MARK_EXIT();
+		RETURN(0);
+	RETURN(keyPos - firstText);
 }
 
 /**
@@ -2656,8 +2617,7 @@ string ASBeautifier::getIndentedSpaceEquivalent(const string& line_) const
 			i += indentLength - 1;
 		}
 	}
-	return convertedLine;
-	MARK_EXIT();
+	RETURN(convertedLine);
 }
 
 /**
@@ -2667,7 +2627,7 @@ bool ASBeautifier::isTopLevel() const
 {
 	MARK_ENTRY();
 	if (headerStack->empty())
-		return true;
+		RETURN(true);
 	if (headerStack->back() == &AS_OPEN_BRACE
 	        && headerStack->size() >= 2)
 	{
@@ -2677,7 +2637,7 @@ bool ASBeautifier::isTopLevel() const
 		        || (*headerStack)[headerStack->size() - 2] == &AS_INTERFACE
 		        || (*headerStack)[headerStack->size() - 2] == &AS_STRUCT
 		        || (*headerStack)[headerStack->size() - 2] == &AS_UNION)
-			return true;
+			RETURN(true);
 	}
 	if (headerStack->back() == &AS_NAMESPACE
 	        || headerStack->back() == &AS_MODULE
@@ -2685,9 +2645,8 @@ bool ASBeautifier::isTopLevel() const
 	        || headerStack->back() == &AS_INTERFACE
 	        || headerStack->back() == &AS_STRUCT
 	        || headerStack->back() == &AS_UNION)
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 /**

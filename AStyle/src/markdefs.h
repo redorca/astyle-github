@@ -26,3 +26,10 @@ extern int depth;
                         LABEL(ENTER)            \
                 }
 
+#define RETURN(args ...)   \
+        {                       \
+                MARK_EXIT();    \
+                return args;    \
+        }
+
+

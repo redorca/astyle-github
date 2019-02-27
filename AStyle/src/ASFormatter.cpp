@@ -1940,8 +1940,7 @@ string ASFormatter::nextLine()
         printf("beautified line: %s\n", &beautifiedLine[0]);
 	prependEmptyLine = false;
 	assert(computeChecksumOut(beautifiedLine));
-	return beautifiedLine;
-	MARK_EXIT();
+	RETURN(beautifiedLine);
 }
 
 /**
@@ -1952,8 +1951,7 @@ string ASFormatter::nextLine()
 bool ASFormatter::hasMoreLines() const
 {
 	MARK_ENTRY();
-	return !endOfCodeReached;
-	MARK_EXIT();
+	RETURN(!endOfCodeReached);
 }
 
 /**
@@ -1963,9 +1961,8 @@ bool ASFormatter::isBraceType(BraceType a, BraceType b) const
 {
 	MARK_ENTRY();
 	if (a == NULL_TYPE || b == NULL_TYPE)
-		return (a == b);
-	return ((a & b) == b);
-	MARK_EXIT();
+		RETURN(a == b);
+	RETURN((a & b) == b);
 }
 
 /**
@@ -2594,12 +2591,11 @@ char ASFormatter::peekNextChar() const
 	size_t peekNum = currentLine.find_first_not_of(" \t", charNum + 1);
 
 	if (peekNum == string::npos)
-		return ch;
+		RETURN(ch);
 
 	ch = currentLine[peekNum];
 
-	return ch;
-	MARK_EXIT();
+	RETURN(ch);
 }
 
 /**
@@ -2614,12 +2610,11 @@ bool ASFormatter::isBeforeComment() const
 	size_t peekNum = currentLine.find_first_not_of(" \t", charNum + 1);
 
 	if (peekNum == string::npos)
-		return foundComment;
+	        RETURN(foundComment);
 
 	foundComment = (currentLine.compare(peekNum, 2, "/*") == 0);
 
-	return foundComment;
-	MARK_EXIT();
+	RETURN(foundComment);
 }
 
 /**
@@ -2634,13 +2629,12 @@ bool ASFormatter::isBeforeAnyComment() const
 	size_t peekNum = currentLine.find_first_not_of(" \t", charNum + 1);
 
 	if (peekNum == string::npos)
-		return foundComment;
+		RETURN(foundComment);
 
 	foundComment = (currentLine.compare(peekNum, 2, "/*") == 0
 	                || currentLine.compare(peekNum, 2, "//") == 0);
 
-	return foundComment;
-	MARK_EXIT();
+	RETURN(foundComment);
 }
 
 /**
@@ -2671,8 +2665,7 @@ bool ASFormatter::isBeforeAnyLineEndComment(int startPos) const
 			}
 		}
 	}
-	return foundLineEndComment;
-	MARK_EXIT();
+	RETURN(foundLineEndComment);
 }
 
 /**
@@ -2701,8 +2694,7 @@ bool ASFormatter::isBeforeMultipleLineEndComments(int startPos) const
 			}
 		}
 	}
-	return foundMultipleLineEndComment;
-	MARK_EXIT();
+	RETURN(foundMultipleLineEndComment);
 }
 
 /**
@@ -2737,12 +2729,11 @@ bool ASFormatter::getNextChar()
 		if (currentChar == '\t' && shouldConvertTabs)
 			convertTabToSpaces();
 
-		return true;
+		RETURN(true);
 	}
 
 	// end of line has been reached
-	return getNextLine();
-	MARK_EXIT();
+	RETURN(getNextLine());
 }
 
 /**
@@ -2757,7 +2748,7 @@ bool ASFormatter::getNextLine(bool emptyLineWasDeleted /*false*/)
 	if (!sourceIterator->hasMoreLines())
 	{
 		endOfCodeReached = true;
-		return false;
+		RETURN(false);
 	}
 	if (appendOpeningBrace)
 		currentLine = "{";		// append brace that was removed from the previous line
@@ -2831,11 +2822,10 @@ bool ASFormatter::getNextLine(bool emptyLineWasDeleted /*false*/)
 		{
 			isInPreprocessor = isImmediatelyPostPreprocessor;		// restore
 			lineIsEmpty = false;
-			return getNextLine(true);
+			RETURN(getNextLine(true));
 		}
 	}
-	return true;
-	MARK_EXIT();
+	RETURN(true);
 }
 
 /**
@@ -3207,8 +3197,7 @@ BraceType ASFormatter::getBraceType()
 			returnVal = (BraceType)(returnVal | INIT_TYPE);
 	}
 
-	return returnVal;
-	MARK_EXIT();
+	RETURN(returnVal);
 }
 
 bool ASFormatter::isNumericVariable(const string& word) const
@@ -3238,9 +3227,8 @@ bool ASFormatter::isNumericVariable(const string& word) const
 	        || word == "LPVOID"
 	        || word == "wxFontEncoding"
 	   )
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 /**
@@ -3277,8 +3265,7 @@ bool ASFormatter::isClassInitializer() const
 		// found a 'class' c'tor initializer
 		foundClassInitializer = true;
 	}
-	return foundClassInitializer;
-	MARK_EXIT();
+	RETURN(foundClassInitializer);
 }
 
 /**
@@ -3289,8 +3276,7 @@ bool ASFormatter::isClassInitializer() const
 bool ASFormatter::isEmptyLine(const string& line) const
 {
 	MARK_ENTRY();
-	return line.find_first_not_of(" \t") == string::npos;
-	MARK_EXIT();
+	RETURN(line.find_first_not_of(" \t") == string::npos);
 }
 
 /**
@@ -3305,14 +3291,13 @@ bool ASFormatter::isExternC() const
 	assert(!isWhiteSpace(currentLine[charNum]));
 	size_t startQuote = currentLine.find_first_of(" \t\"", charNum);
 	if (startQuote == string::npos)
-		return false;
+		RETURN(false);
 	startQuote = currentLine.find_first_not_of(" \t", startQuote);
 	if (startQuote == string::npos)
-		return false;
+		RETURN(false);
 	if (currentLine.compare(startQuote, 3, "\"C\"") != 0)
-		return false;
-	return true;
-	MARK_EXIT();
+		RETURN(false);
+	RETURN(true);
 }
 
 /**
@@ -3330,10 +3315,10 @@ bool ASFormatter::isPointerOrReference() const
 	assert(currentChar == '*' || currentChar == '&' || currentChar == '^');
 
 	if (isJavaStyle())
-		return false;
+		RETURN(false);
 
 	if (isCharImmediatelyPostOperator)
-		return false;
+		RETURN(false);
 
 	// get the last legal word (may be a number)
 	string lastWord = getPreviousWord(currentLine, charNum);
@@ -3348,18 +3333,18 @@ bool ASFormatter::isPointerOrReference() const
 	        || isDigit(nextText[0])
 	        || nextText[0] == '!'
 	        || nextText[0] == '~')
-		return false;
+		RETURN(false);
 
 	// check for multiply then a dereference (a * *b)
 	char nextChar = peekNextChar();
 	if (currentChar == '*'
 	        && nextChar == '*'
 	        && !isPointerToPointer(currentLine, charNum))
-		return false;
+		RETURN(false);
 
 	if ((foundCastOperator && nextChar == '>')
 	        || isPointerOrReferenceVariable(lastWord))
-		return true;
+		RETURN(true);
 
 	if (isInClassInitializer
 	        && previousNonWSChar != '('
@@ -3367,25 +3352,25 @@ bool ASFormatter::isPointerOrReference() const
 	        && previousCommandChar != ','
 	        && nextChar != ')'
 	        && nextChar != '}')
-		return false;
+		RETURN(false);
 
 	//check for rvalue reference
 	if (currentChar == '&' && nextChar == '&')
 	{
 		if (lastWord == AS_AUTO)
-			return true;
+			RETURN(true);
 		if (previousNonWSChar == '>')
-			return true;
+			RETURN(true);
 		string followingText;
 		if ((int) currentLine.length() > charNum + 2)
 			followingText = peekNextText(currentLine.substr(charNum + 2));
 		if (followingText.length() > 0 && followingText[0] == ')')
-			return true;
+			RETURN(true);
 		if (currentHeader != nullptr || isInPotentialCalculation)
-			return false;
+		        RETURN(false);
 		if (parenStack->back() > 0 && isBraceType(braceTypeStack->back(), COMMAND_TYPE))
-			return false;
-		return true;
+		        RETURN(false);
+		RETURN(true);
 	}
 	if (nextChar == '*'
 	        || previousNonWSChar == '='
@@ -3397,7 +3382,7 @@ bool ASFormatter::isPointerOrReference() const
 	        || currentHeader == &AS_CATCH
 	        || currentHeader == &AS_FOREACH
 	        || currentHeader == &AS_QFOREACH)
-		return true;
+		RETURN(true);
 
 	if (isBraceType(braceTypeStack->back(), ARRAY_TYPE)
 	        && isLegalNameChar(lastWord[0])
@@ -3405,7 +3390,7 @@ bool ASFormatter::isPointerOrReference() const
 	        && previousNonWSChar != ')')
 	{
 		if (isArrayOperator())
-			return false;
+		        RETURN(false);
 	}
 
 	// checks on operators in parens
@@ -3421,14 +3406,14 @@ bool ASFormatter::isPointerOrReference() const
 		        && followingOperator != &AS_BIT_AND)
 		{
 			if (followingOperator == &AS_ASSIGN || followingOperator == &AS_COLON)
-				return true;
-			return false;
+				RETURN(true);
+		        RETURN(false);
 		}
 
 		if (isBraceType(braceTypeStack->back(), COMMAND_TYPE)
 		        || squareBracketCount > 0)
-			return false;
-		return true;
+		        RETURN(false);
+		RETURN(true);
 	}
 
 	// checks on operators in parens with following '('
@@ -3440,7 +3425,7 @@ bool ASFormatter::isPointerOrReference() const
 	        && previousNonWSChar != '&'
 	        && previousNonWSChar != '*'
 	        && previousNonWSChar != '|')
-		return false;
+		RETURN(false);
 
 	if (nextChar == '-'
 	        || nextChar == '+')
@@ -3450,7 +3435,7 @@ bool ASFormatter::isPointerOrReference() const
 		{
 			if (currentLine.compare(nextNum, 2, "++") != 0
 			        && currentLine.compare(nextNum, 2, "--") != 0)
-				return false;
+		                RETURN(false);
 		}
 	}
 
@@ -3466,8 +3451,7 @@ bool ASFormatter::isPointerOrReference() const
 	                 && !isLegalNameChar(nextChar))
 	            );
 
-	return isPR;
-	MARK_EXIT();
+	RETURN(isPR);
 }
 
 /**
@@ -3484,7 +3468,7 @@ bool ASFormatter::isDereferenceOrAddressOf() const
 	assert(currentChar == '*' || currentChar == '&' || currentChar == '^');
 
 	if (isCharImmediatelyPostTemplate)
-		return false;
+		RETURN(false);
 
 	if (previousNonWSChar == '='
 	        || previousNonWSChar == ','
@@ -3496,65 +3480,64 @@ bool ASFormatter::isDereferenceOrAddressOf() const
 	        || isCharImmediatelyPostLineComment
 	        || isCharImmediatelyPostComment
 	        || isCharImmediatelyPostReturn)
-		return true;
+		RETURN(true);
 
 	char nextChar = peekNextChar();
 	if (currentChar == '*' && nextChar == '*')
 	{
 		if (previousNonWSChar == '(')
-			return true;
+			RETURN(true);
 		if ((int) currentLine.length() < charNum + 2)
-			return true;
-		return false;
+			RETURN(true);
+		RETURN(false);
 	}
 	if (currentChar == '&' && nextChar == '&')
 	{
 		if (previousNonWSChar == '(' || isInTemplate)
-			return true;
+			RETURN(true);
 		if ((int) currentLine.length() < charNum + 2)
-			return true;
-		return false;
+			RETURN(true);
+		RETURN(false);
 	}
 
 	// check first char on the line
 	if (charNum == (int) currentLine.find_first_not_of(" \t")
 	        && (isBraceType(braceTypeStack->back(), COMMAND_TYPE)
 	            || parenStack->back() != 0))
-		return true;
+		RETURN(true);
 
 	string nextText = peekNextText(currentLine.substr(charNum + 1));
 	if (nextText.length() > 0)
 	{
 		if (nextText[0] == ')' || nextText[0] == '>'
 		        || nextText[0] == ',' || nextText[0] == '=')
-			return false;
+		        RETURN(false);
 		if (nextText[0] == ';')
-			return true;
+			RETURN(true);
 	}
 
 	// check for reference to a pointer *&
 	if ((currentChar == '*' && nextChar == '&')
 	        || (previousNonWSChar == '*' && currentChar == '&'))
-		return false;
+		RETURN(false);
 
 	if (!isBraceType(braceTypeStack->back(), COMMAND_TYPE)
 	        && parenStack->back() == 0)
-		return false;
+		RETURN(false);
 
 	string lastWord = getPreviousWord(currentLine, charNum);
 	if (lastWord == "else" || lastWord == "delete")
-		return true;
+		RETURN(true);
 
 	if (isPointerOrReferenceVariable(lastWord))
-		return false;
+		RETURN(false);
 
 	bool isDA = (!(isLegalNameChar(previousNonWSChar) || previousNonWSChar == '>')
 	             || (nextText.length() > 0 && !isLegalNameChar(nextText[0]) && nextText[0] != '/')
 	             || (ispunct((unsigned char)previousNonWSChar) && previousNonWSChar != '.')
 	             || isCharImmediatelyPostReturn);
 
-	return isDA;
-	MARK_EXIT();
+	RETURN(isDA);
 }
 
 /**
@@ -3575,17 +3558,17 @@ bool ASFormatter::isPointerOrReferenceCentered() const
 
 	// check for end of line
 	if (peekNextChar() == ' ')
-		return false;
+		RETURN(false);
 
 	// check space before
 	if (prNum < 1
 	        || currentLine[prNum - 1] != ' ')
-		return false;
+		RETURN(false);
 
 	// check no space before that
 	if (prNum < 2
 	        || currentLine[prNum - 2] == ' ')
-		return false;
+		RETURN(false);
 
 	// check for ** or &&
 	if (prNum + 1 < lineLength
@@ -3595,14 +3578,14 @@ bool ASFormatter::isPointerOrReferenceCentered() const
 	// check space after
 	if (prNum + 1 <= lineLength
 	        && currentLine[prNum + 1] != ' ')
-		return false;
+		RETURN(false);
 
 	// check no space after that
 	if (prNum + 2 < lineLength
 	        && currentLine[prNum + 2] == ' ')
-		return false;
+		RETURN(false);
 
-	return true;
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -3614,7 +3597,7 @@ bool ASFormatter::isPointerOrReferenceCentered() const
 bool ASFormatter::isPointerOrReferenceVariable(const string& word) const
 {
 	MARK_ENTRY();
-	return (word == "char"
+	RETURN((word == "char"
 	        || word == "string"
 	        || word == "NSString"
 	        || word == "int"
@@ -3622,8 +3605,7 @@ bool ASFormatter::isPointerOrReferenceVariable(const string& word) const
 	        || (word.length() >= 6     // check end of word for _t
 	            && word.compare(word.length() - 2, 2, "_t") == 0)
 	        || word == "INT"
-	        || word == "VOID");
-	MARK_EXIT();
+	        || word == "VOID"));
 }
 
 /**
@@ -3636,17 +3618,16 @@ bool ASFormatter::isPointerToPointer(const string& line, int currPos) const
 	MARK_ENTRY();
 	assert(line[currPos] == '*' && peekNextChar() == '*');
 	if ((int) line.length() > currPos + 1 && line[currPos + 1] == '*')
-		return true;
+		RETURN(true);
 	size_t nextText = line.find_first_not_of(" \t", currPos + 1);
 	if (nextText == string::npos || line[nextText] != '*')
-		return false;
+		RETURN(false);
 	size_t nextText2 = line.find_first_not_of(" \t", nextText + 1);
 	if (nextText == string::npos)
-		return false;
+		RETURN(false);
 	if (line[nextText2] == ')' || line[nextText2] == '*')
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 /**
@@ -3665,29 +3646,28 @@ bool ASFormatter::isUnaryOperator() const
 	if (previousCommandChar == ')')
 	{
 		if (!isdigit(peekNextChar()))
-			return false;
+	                RETURN(false);
 		size_t end = currentLine.rfind(')', charNum);
 		if (end == string::npos)
-			return false;
+	                RETURN(false);
 		size_t lastChar = currentLine.find_last_not_of(" \t", end - 1);
 		if (lastChar == string::npos)
-			return false;
+	                RETURN(false);
 		if (currentLine[lastChar] == '*')
 			end = lastChar;
 		string prevWord = getPreviousWord(currentLine, end);
 		if (prevWord.empty())
-			return false;
+	                RETURN(false);
 		if (!isNumericVariable(prevWord))
-			return false;
-		return true;
+	                RETURN(false);
+		RETURN(true);
 	}
 
-	return ((isCharImmediatelyPostReturn || !isLegalNameChar(previousCommandChar))
+	RETURN(((isCharImmediatelyPostReturn || !isLegalNameChar(previousCommandChar))
 	        && previousCommandChar != '.'
 	        && previousCommandChar != '\"'
 	        && previousCommandChar != '\''
-	        && previousCommandChar != ']');
-	MARK_EXIT();
+	        && previousCommandChar != ']'));
 }
 
 /**
@@ -3702,9 +3682,8 @@ bool ASFormatter::isInSwitchStatement() const
 	if (!preBraceHeaderStack->empty())
 		for (size_t i = 1; i < preBraceHeaderStack->size(); i++)
 			if (preBraceHeaderStack->at(i) == &AS_SWITCH)
-				return true;
-	return false;
-	MARK_EXIT();
+				RETURN(true);
+	RETURN(false);
 }
 
 /**
@@ -3722,11 +3701,10 @@ bool ASFormatter::isInExponent() const
 	{
 		char prevPrevFormattedChar = currentLine[charNum - 2];
 		char prevFormattedChar = currentLine[charNum - 1];
-		return ((prevFormattedChar == 'e' || prevFormattedChar == 'E')
-		        && (prevPrevFormattedChar == '.' || isDigit(prevPrevFormattedChar)));
+		RETURN(((prevFormattedChar == 'e' || prevFormattedChar == 'E')
+		        && (prevPrevFormattedChar == '.' || isDigit(prevPrevFormattedChar))));
 	}
-	return false;
-	MARK_EXIT();
+	RETURN(false);
 }
 
 /**
@@ -3754,8 +3732,7 @@ bool ASFormatter::isNonInStatementArrayBrace() const
 	if (isJavaStyle() && previousNonWSChar == ']')
 		returnVal = false;
 
-	return returnVal;
-	MARK_EXIT();
+	RETURN(returnVal);
 }
 
 /**
@@ -3838,11 +3815,11 @@ int ASFormatter::isOneLineBlockReached(const string& line, int startChar) const
 				{
 					size_t peekNum = line.find_first_not_of(" \t", i + 1);
 					if (peekNum != string::npos && line[peekNum] == ',')
-						return 2;
+						RETURN(2);
 				}
 				if (!hasText)
-					return 3;	// is an empty block
-				return 1;
+					RETURN(3);	// is an empty block
+				RETURN(1);
 			}
 		}
 		if (ch == ';')
@@ -3854,8 +3831,7 @@ int ASFormatter::isOneLineBlockReached(const string& line, int startChar) const
 		}
 	}
 
-	return 0;
-	MARK_EXIT();
+	RETURN(0);
 }
 
 /**
@@ -3871,16 +3847,15 @@ bool ASFormatter::isNextWordSharpNonParenHeader(int startChar) const
 	// look ahead to find the next non-comment text
 	string nextText = peekNextText(currentLine.substr(startChar));
 	if (nextText.length() == 0)
-		return false;
+	        RETURN(false);
 	if (nextText[0] == '[')
-		return true;
+		RETURN(true);
 	if (!isCharPotentialHeader(nextText, 0))
-		return false;
+	        RETURN(false);
 	if (findKeyword(nextText, 0, AS_GET) || findKeyword(nextText, 0, AS_SET)
 	        || findKeyword(nextText, 0, AS_ADD) || findKeyword(nextText, 0, AS_REMOVE))
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 /**
@@ -3899,8 +3874,7 @@ bool ASFormatter::isNextCharOpeningBrace(int startChar) const
 	if (nextText.length() > 0
 	        && nextText.compare(0, 1, "{") == 0)
 		retVal = true;
-	return retVal;
-	MARK_EXIT();
+	RETURN(retVal);
 }
 
 /**
@@ -3925,12 +3899,12 @@ bool ASFormatter::isOperatorPaddingDisabled() const
 		}
 	}
 	if (commentStart == string::npos)
-		return false;
+	        RETURN(false);
 	size_t noPadStart = currentLine.find("*NOPAD*", commentStart);
 	if (noPadStart == string::npos)
-		return false;
-	return true;
+	        RETURN(false);
 	MARK_EXIT();
+	RETURN(true);
 }
 
 /**
@@ -3945,10 +3919,9 @@ bool ASFormatter::isUniformInitializerBrace() const
 		if (isInClassInitializer
 		        || isLegalNameChar(previousNonWSChar)
 		        || previousNonWSChar == '(')
-			return true;
+			RETURN(true);
 	}
-	return false;
-	MARK_EXIT();
+	RETURN(false);
 }
 
 /**
@@ -3980,7 +3953,7 @@ bool ASFormatter::isMultiStatementLine() const
 			continue;
 		}
 		if (currentLine.compare(i, 2, "//") == 0)
-			return false;
+	                RETURN(false);
 		if (isInQuote_)
 		{
 			if (currentLine[i] == '"' || currentLine[i] == '\'')
@@ -4018,12 +3991,11 @@ bool ASFormatter::isMultiStatementLine() const
 		{
 			++semiCount_;
 			if (semiCount_ > 1)
-				return true;
+				RETURN(true);
 			continue;
 		}
 	}
-	return false;
-	MARK_EXIT();
+	RETURN(false);
 }
 
 /**
@@ -4091,8 +4063,7 @@ string ASFormatter::peekNextText(const string& firstLine,
 		nextLine_ = "";
 	else
 		nextLine_ = nextLine_.substr(firstChar);
-	return nextLine_;
-	MARK_EXIT();
+	RETURN(nextLine_);
 }
 
 /**
@@ -5787,16 +5758,15 @@ bool ASFormatter::isOkToBreakBlock(BraceType braceType) const
 	// Otherwise they will be formatted differently on consecutive runs.
 	if (isBraceType(braceType, ARRAY_TYPE)
 	        && isBraceType(braceType, SINGLE_LINE_TYPE))
-		return false;
+	        RETURN(false);
 	if (isBraceType(braceType, COMMAND_TYPE)
 	        && isBraceType(braceType, EMPTY_BLOCK_TYPE))
-		return false;
+	        RETURN(false);
 	if (!isBraceType(braceType, SINGLE_LINE_TYPE)
 	        || isBraceType(braceType, BREAK_BLOCK_TYPE)
 	        || shouldBreakOneLineBlocks)
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 /**
@@ -5805,10 +5775,9 @@ bool ASFormatter::isOkToBreakBlock(BraceType braceType) const
 bool ASFormatter::isSharpStyleWithParen(const string* header) const
 {
 	MARK_ENTRY();
-	return (isSharpStyle() && peekNextChar() == '('
+	RETURN((isSharpStyle() && peekNextChar() == '('
 	        && (header == &AS_CATCH
-	            || header == &AS_DELEGATE));
-	MARK_EXIT();
+	            || header == &AS_DELEGATE)));
 }
 
 /**
@@ -5829,10 +5798,9 @@ const string* ASFormatter::checkForHeaderFollowingComment(const string& firstLin
 	string nextText = peekNextText(firstLine, endOnEmptyLine);
 
 	if (nextText.length() == 0 || !isCharPotentialHeader(nextText, 0))
-		return nullptr;
+		RETURN(nullptr);
 
-	return ASBase::findHeader(nextText, 0, headers);
-	MARK_EXIT();
+	RETURN(ASBase::findHeader(nextText, 0, headers));
 }
 
 /**
@@ -5884,32 +5852,32 @@ bool ASFormatter::commentAndHeaderFollows()
 	// is the next line a comment
 	auto stream = make_shared<ASPeekStream>(sourceIterator);
 	if (!stream->hasMoreLines())
-		return false;
+	        RETURN(false);
 	string nextLine_ = stream->peekNextLine();
 	size_t firstChar = nextLine_.find_first_not_of(" \t");
 	if (firstChar == string::npos
 	        || !(nextLine_.compare(firstChar, 2, "//") == 0
 	             || nextLine_.compare(firstChar, 2, "/*") == 0))
-		return false;
+	        RETURN(false);
 
 	// find the next non-comment text, and reset
 	string nextText = peekNextText(nextLine_, false, stream);
 	if (nextText.length() == 0 || !isCharPotentialHeader(nextText, 0))
-		return false;
+	        RETURN(false);
 
 	const string* newHeader = ASBase::findHeader(nextText, 0, headers);
 
 	if (newHeader == nullptr)
-		return false;
+	        RETURN(false);
 
 	// if a closing header, reset break unless break is requested
 	if (isClosingHeader(newHeader) && !shouldBreakClosingHeaderBlocks)
 	{
 		isAppendPostBlockEmptyLineRequested = false;
-		return false;
+	        RETURN(false);
 	}
 
-	return true;
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -5930,20 +5898,14 @@ bool ASFormatter::isCurrentBraceBroken() const
 	// check brace modifiers
 	if (shouldAttachExternC
 	        && isBraceType((*braceTypeStack)[stackEnd], EXTERN_TYPE))
-	{
-		return false;
-	}
+	        RETURN(false);
 	if (shouldAttachNamespace
 	        && isBraceType((*braceTypeStack)[stackEnd], NAMESPACE_TYPE))
-	{
-		return false;
-	}
+	        RETURN(false);
 	if (shouldAttachClass
 	        && (isBraceType((*braceTypeStack)[stackEnd], CLASS_TYPE)
 	            || isBraceType((*braceTypeStack)[stackEnd], INTERFACE_TYPE)))
-	{
-		return false;
-	}
+	        RETURN(false);
 	if (shouldAttachInline
 	        && isCStyle()			// for C++ only
 	        && braceFormatMode != RUN_IN_MODE
@@ -5954,7 +5916,7 @@ bool ASFormatter::isCurrentBraceBroken() const
 		for (i = 1; i < braceTypeStack->size(); i++)
 			if (isBraceType((*braceTypeStack)[i], CLASS_TYPE)
 			        || isBraceType((*braceTypeStack)[i], STRUCT_TYPE))
-				return false;
+	                        RETURN(false);
 	}
 
 	// check braces
@@ -6019,7 +5981,7 @@ bool ASFormatter::isCurrentBraceBroken() const
 			}
 		}
 	}
-	return breakBrace;
+	RETURN(breakBrace);
 	MARK_EXIT();
 }
 
@@ -6493,20 +6455,18 @@ int ASFormatter::getNextLineCommentAdjustment()
 	assert(foundClosingHeader && previousNonWSChar == '}');
         printf("getNextLineCommentAdjustment()\n");
 	if (charNum < 1)			// "else" is in column 1
-		return 0;
+		RETURN(0);
 	size_t lastBrace = currentLine.rfind('}', charNum - 1);
 	if (lastBrace != string::npos)
-		return (lastBrace - charNum);	// return a negative number
-	return 0;
-	MARK_EXIT();
+		RETURN((lastBrace - charNum));	// return a negative number
+	RETURN(0);
 }
 
 // for console build only
 LineEndFormat ASFormatter::getLineEndFormat() const
 {
 	MARK_ENTRY();
-	return lineEnd;
-	MARK_EXIT();
+	RETURN(lineEnd);
 }
 
 /**
@@ -6522,12 +6482,11 @@ int ASFormatter::getCurrentLineCommentAdjustment()
 	assert(foundClosingHeader && previousNonWSChar == '}');
         printf("getCurrentLineCommentAdjustment()\n");
 	if (charNum < 1)
-		return 2;
+		RETURN(2);
 	size_t lastBrace = currentLine.rfind('}', charNum - 1);
 	if (lastBrace == string::npos)
-		return 2;
-	return 0;
-	MARK_EXIT();
+		RETURN(2);
+	RETURN(0);
 }
 
 /**
@@ -6541,11 +6500,11 @@ string ASFormatter::getPreviousWord(const string& line, int currPos) const
 	MARK_ENTRY();
 	// get the last legal word (may be a number)
 	if (currPos == 0)
-		return string();
+		RETURN(string());
 
 	size_t end = line.find_last_not_of(" \t", currPos - 1);
 	if (end == string::npos || !isLegalNameChar(line[end]))
-		return string();
+		RETURN(string());
 
 	int start;          // start of the previous word
 	for (start = end; start > -1; start--)
@@ -6555,8 +6514,7 @@ string ASFormatter::getPreviousWord(const string& line, int currPos) const
 	}
 	start++;
 
-	return (line.substr(start, end - start + 1));
-	MARK_EXIT();
+	RETURN(line.substr(start, end - start + 1));
 }
 
 /**
@@ -6660,26 +6618,26 @@ bool ASFormatter::addBracesToStatement()
 	        && currentHeader != &AS_QFOREACH
 	        && currentHeader != &AS_QFOREVER
 	        && currentHeader != &AS_FOREVER)
-		return false;
+	        RETURN(false);
 
 	if (currentHeader == &AS_WHILE && foundClosingHeader)	// do-while
-		return false;
+	        RETURN(false);
 
 	// do not brace an empty statement
 	if (currentChar == ';')
-		return false;
+	        RETURN(false);
 
 	// do not add if a header follows
 	if (isCharPotentialHeader(currentLine, charNum))
 		if (findHeader(headers) != nullptr)
-			return false;
+	                RETURN(false);
 
 	// find the next semi-colon
 	size_t nextSemiColon = charNum;
 	if (currentChar != ';')
 		nextSemiColon = findNextChar(currentLine, ';', charNum + 1);
 	if (nextSemiColon == string::npos)
-		return false;
+	        RETURN(false);
 
 	// add closing brace before changing the line length
 	if (nextSemiColon == currentLine.length() - 1)
@@ -6699,7 +6657,7 @@ bool ASFormatter::addBracesToStatement()
 		if ((formattedLine.length() - 1) - lastText > 1)
 			formattedLine.erase(lastText + 1);
 	}
-	return true;
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -6719,10 +6677,10 @@ bool ASFormatter::removeBracesFromStatement()
 	        && currentHeader != &AS_FOR
 	        && currentHeader != &AS_WHILE
 	        && currentHeader != &AS_FOREACH)
-		return false;
+	        RETURN(false);
 
 	if (currentHeader == &AS_WHILE && foundClosingHeader)	// do-while
-		return false;
+	        RETURN(false);
 
 	bool isFirstLine = true;
 	string nextLine_;
@@ -6748,21 +6706,21 @@ bool ASFormatter::removeBracesFromStatement()
 			break;
 	}
 	if (!stream.hasMoreLines())
-		return false;
+	        RETURN(false);
 
 	// don't remove if comments or a header follow the brace
 	if ((nextLine_.compare(nextChar, 2, "/*") == 0)
 	        || (nextLine_.compare(nextChar, 2, "//") == 0)
 	        || (isCharPotentialHeader(nextLine_, nextChar)
 	            && ASBase::findHeader(nextLine_, nextChar, headers) != nullptr))
-		return false;
+	        RETURN(false);
 
 	// find the next semi-colon
 	size_t nextSemiColon = nextChar;
 	if (nextLine_[nextChar] != ';')
 		nextSemiColon = findNextChar(nextLine_, ';', nextChar + 1);
 	if (nextSemiColon == string::npos)
-		return false;
+	        RETURN(false);
 
 	// find the closing brace
 	isFirstLine = true;
@@ -6781,12 +6739,12 @@ bool ASFormatter::removeBracesFromStatement()
 			break;
 	}
 	if (nextLine_.length() == 0 || nextLine_[nextChar] != '}')
-		return false;
+	        RETURN(false);
 
 	// remove opening brace
 	currentLine[charNum] = currentChar = ' ';
 	assert(adjustChecksumIn(-'{'));
-	return true;
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -6806,15 +6764,15 @@ size_t ASFormatter::findNextChar(const string& line, char searchChar, int search
 	for (i = searchStart; i < line.length(); i++)
 	{
 		if (line.compare(i, 2, "//") == 0)
-			return string::npos;
+			RETURN(string::npos);
 		if (line.compare(i, 2, "/*") == 0)
 		{
 			size_t endComment = line.find("*/", i + 2);
 			if (endComment == string::npos)
-				return string::npos;
+				RETURN(string::npos);
 			i = endComment + 2;
 			if (i >= line.length())
-				return string::npos;
+				RETURN(string::npos);
 		}
 		if (line[i] == '"'
 		        || (line[i] == '\'' && !isDigitSeparator(line, i)))
@@ -6824,7 +6782,7 @@ size_t ASFormatter::findNextChar(const string& line, char searchChar, int search
 			{
 				size_t endQuote = line.find(quote, i + 1);
 				if (endQuote == string::npos)
-					return string::npos;
+					RETURN(string::npos);
 				i = endQuote;
 				if (line[endQuote - 1] != '\\')	// check for '\"'
 					break;
@@ -6839,13 +6797,12 @@ size_t ASFormatter::findNextChar(const string& line, char searchChar, int search
 		// for now don't process C# 'delegate' braces
 		// do this last in case the search char is a '{'
 		if (line[i] == '{')
-			return string::npos;
+			RETURN(string::npos);
 	}
 	if (i >= line.length())	// didn't find searchChar
-		return string::npos;
+		RETURN(string::npos);
 
-	return i;
-	MARK_EXIT();
+	RETURN(i);
 }
 
 /**
@@ -7195,21 +7152,21 @@ bool ASFormatter::isStructAccessModified(const string& firstLine, size_t index) 
 			if (nextLine_[i] == '}')
 				--braceCount;
 			if (braceCount == 0)
-				return false;
+	                        RETURN(false);
 			// check for access modifiers
 			if (isCharPotentialHeader(nextLine_, i))
 			{
 				if (findKeyword(nextLine_, i, AS_PUBLIC)
 				        || findKeyword(nextLine_, i, AS_PRIVATE)
 				        || findKeyword(nextLine_, i, AS_PROTECTED))
-					return true;
+					RETURN(true);
 				string name = getCurrentWord(nextLine_, i);
 				i += name.length() - 1;
 			}
 		}	// end of for loop
 	}	// end of while loop
 
-	return false;
+	RETURN(false);
 	MARK_EXIT();
 }
 
@@ -7372,27 +7329,25 @@ EndOfWhileLoop:
 	if (!isInIndentableBlock)
 		preprocBlockEnd = 0;
 	// peekReset() is done by previous peekNextText()
-	return isInIndentableBlock;
-	MARK_EXIT();
+	RETURN(isInIndentableBlock);
 }
 
 bool ASFormatter::isNDefPreprocStatement(const string& nextLine_, const string& preproc) const
 {
 	MARK_ENTRY();
 	if (preproc == "ifndef")
-		return true;
+		RETURN(true);
 	// check for '!defined'
 	if (preproc == "if")
 	{
 		size_t i = nextLine_.find('!');
 		if (i == string::npos)
-			return false;
+	                RETURN(false);
 		i = nextLine_.find_first_not_of(" \t", ++i);
 		if (i != string::npos && nextLine_.compare(i, 7, "defined") == 0)
-			return true;
+			RETURN(true);
 	}
-	return false;
-	MARK_EXIT();
+	RETURN(false);
 }
 
 /**
@@ -7406,26 +7361,26 @@ bool ASFormatter::isExecSQL(const string& line, size_t index) const
 {
 	MARK_ENTRY();
 	if (line[index] != 'e' && line[index] != 'E')	// quick check to reject most
-		return false;
+	        RETURN(false);
 	string word;
 	if (isCharPotentialHeader(line, index))
 		word = getCurrentWord(line, index);
 	for (size_t i = 0; i < word.length(); i++)
 		word[i] = (char) toupper(word[i]);
 	if (word != "EXEC")
-		return false;
+                RETURN(false);
 	size_t index2 = index + word.length();
 	index2 = line.find_first_not_of(" \t", index2);
 	if (index2 == string::npos)
-		return false;
+	        RETURN(false);
 	word.erase();
 	if (isCharPotentialHeader(line, index2))
 		word = getCurrentWord(line, index2);
 	for (size_t i = 0; i < word.length(); i++)
 		word[i] = (char) toupper(word[i]);
 	if (word != "SQL")
-		return false;
-	return true;
+	        RETURN(false);
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -7489,10 +7444,9 @@ void ASFormatter::trimContinuationLine()
 bool ASFormatter::isClosingHeader(const string* header) const
 {
 	MARK_ENTRY();
-	return (header == &AS_ELSE
+	RETURN((header == &AS_ELSE
 	        || header == &AS_CATCH
-	        || header == &AS_FINALLY);
-	MARK_EXIT();
+	        || header == &AS_FINALLY));
 }
 
 /**
@@ -7515,20 +7469,19 @@ bool ASFormatter::isImmediatelyPostCast() const
 		line = readyFormattedLine;
 		paren = line.rfind(')');
 		if (paren == string::npos)
-			return false;
+	                RETURN(false);
 	}
 	if (paren == 0)
-		return false;
+	        RETURN(false);
 
 	// find character preceding the closing paren
 	size_t lastChar = line.find_last_not_of(" \t", paren - 1);
 	if (lastChar == string::npos)
-		return false;
+	        RETURN(false);
 	// check for pointer cast
 	if (line[lastChar] == '*')
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 /**
@@ -7921,22 +7874,22 @@ bool ASFormatter::isOkToSplitFormattedLine()
 	        || isInExecSQL
 	        || isInAsm || isInAsmOneLine || isInAsmBlock
 	        || isInTemplate)
-		return false;
+	        RETURN(false);
 
 	if (!isOkToBreakBlock(braceTypeStack->back()) && currentChar != '{')
 	{
 		shouldKeepLineUnbroken = true;
 		clearFormattedLineSplitPoints();
-		return false;
+	        RETURN(false);
 	}
 	if (isBraceType(braceTypeStack->back(), ARRAY_TYPE))
 	{
 		shouldKeepLineUnbroken = true;
 		if (!isBraceType(braceTypeStack->back(), ARRAY_NIS_TYPE))
 			clearFormattedLineSplitPoints();
-		return false;
+	        RETURN(false);
 	}
-	return true;
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -8087,8 +8040,7 @@ size_t ASFormatter::findFormattedLineSplitPoint() const
 		}
 	}
 
-	return splitPoint;
-	MARK_EXIT();
+	RETURN(splitPoint);
 }
 
 void ASFormatter::clearFormattedLineSplitPoints()
@@ -8115,8 +8067,8 @@ bool ASFormatter::pointerSymbolFollows() const
 	MARK_ENTRY();
 	size_t peekNum = currentLine.find_first_not_of(" \t", charNum + 1);
 	if (peekNum == string::npos || currentLine.compare(peekNum, 2, "->") != 0)
-		return false;
-	return true;
+	        RETURN(false);
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -8130,7 +8082,7 @@ bool ASFormatter::computeChecksumIn(const string& currentLine_)
 	for (size_t i = 0; i < currentLine_.length(); i++)
 		if (!isWhiteSpace(currentLine_[i]))
 			checksumIn += currentLine_[i];
-	return true;
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -8142,7 +8094,7 @@ bool ASFormatter::adjustChecksumIn(int adjustment)
 {
 	MARK_ENTRY();
 	checksumIn += adjustment;
-	return true;
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -8154,8 +8106,7 @@ bool ASFormatter::adjustChecksumIn(int adjustment)
 size_t ASFormatter::getChecksumIn() const
 {
 	MARK_ENTRY();
-	return checksumIn;
-	MARK_EXIT();
+	RETURN(checksumIn);
 }
 
 /**
@@ -8168,7 +8119,7 @@ bool ASFormatter::computeChecksumOut(const string& beautifiedLine)
 	for (size_t i = 0; i < beautifiedLine.length(); i++)
 		if (!isWhiteSpace(beautifiedLine[i]))
 			checksumOut += beautifiedLine[i];
-	return true;
+	RETURN(true);
 	MARK_EXIT();
 }
 
@@ -8178,8 +8129,7 @@ bool ASFormatter::computeChecksumOut(const string& beautifiedLine)
 bool ASFormatter::getIsLineReady() const
 {
 	MARK_ENTRY();
-	return isLineReady;
-	MARK_EXIT();
+	RETURN(isLineReady);
 }
 
 /**
@@ -8190,8 +8140,7 @@ bool ASFormatter::getIsLineReady() const
 size_t ASFormatter::getChecksumOut() const
 {
 	MARK_ENTRY();
-	return checksumOut;
-	MARK_EXIT();
+	RETURN(checksumOut);
 }
 
 /**
@@ -8201,16 +8150,14 @@ size_t ASFormatter::getChecksumOut() const
 int ASFormatter::getChecksumDiff() const
 {
 	MARK_ENTRY();
-	return checksumOut - checksumIn;
-	MARK_EXIT();
+	RETURN(checksumOut - checksumIn);
 }
 
 // for unit testing
 int ASFormatter::getFormatterFileType() const
 {
 	MARK_ENTRY();
-	return formatterFileType;
-	MARK_EXIT();
+	RETURN(formatterFileType);
 }
 
 // Check if an operator follows the next word.
@@ -8221,10 +8168,10 @@ const string* ASFormatter::getFollowingOperator() const
 	// find next word
 	size_t nextNum = currentLine.find_first_not_of(" \t", charNum + 1);
 	if (nextNum == string::npos)
-		return nullptr;
+		RETURN(nullptr);
 
 	if (!isLegalNameChar(currentLine[nextNum]))
-		return nullptr;
+		RETURN(nullptr);
 
 	// bypass next word and following spaces
 	while (nextNum < currentLine.length())
@@ -8238,11 +8185,10 @@ const string* ASFormatter::getFollowingOperator() const
 	if (nextNum >= currentLine.length()
 	        || !isCharPotentialOperator(currentLine[nextNum])
 	        || currentLine[nextNum] == '/')		// comment
-		return nullptr;
+		RETURN(nullptr);
 
 	const string* newOperator = ASBase::findOperator(currentLine, nextNum, operators);
-	return newOperator;
-	MARK_EXIT();
+	RETURN(newOperator);
 }
 
 // Check following data to determine if the current character is an array operator.
@@ -8255,11 +8201,10 @@ bool ASFormatter::isArrayOperator() const
 	// find next word
 	size_t nextNum = currentLine.find_first_not_of(" \t", charNum + 1);
 	if (nextNum == string::npos)
-		return false;
+	        RETURN(false);
 
 	if (!isLegalNameChar(currentLine[nextNum]))
-		return false;
-
+	        RETURN(false);
 	// bypass next word and following spaces
 	while (nextNum < currentLine.length())
 	{
@@ -8274,9 +8219,8 @@ bool ASFormatter::isArrayOperator() const
 	        || currentLine[nextNum] == '}'
 	        || currentLine[nextNum] == ')'
 	        || currentLine[nextNum] == '(')
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 // Reset the flags that indicate various statement information.
@@ -8435,8 +8379,7 @@ int ASFormatter::findObjCColonAlignment() const
 EndOfWhileLoop:
 	if (!foundMethodColon)
 		colonAlign = -1;
-	return colonAlign;
-	MARK_EXIT();
+	RETURN(colonAlign);
 }
 
 // pad an Objective-C method colon
