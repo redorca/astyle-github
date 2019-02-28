@@ -8,7 +8,6 @@
 //-----------------------------------------------------------------------------
 
 #include "astyle.h"
-#include "markdefs.h"
 
 #include <algorithm>
 
@@ -468,6 +467,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	string line;
 	bool isInQuoteContinuation = isInVerbatimQuote || haveLineContinuationChar;
 
+        SHOW_LINE(&originalLine[0]);
 	currentHeader = nullptr;
 	lastLineHeader = nullptr;
 	blockCommentNoBeautify = blockCommentNoIndent;
@@ -547,6 +547,7 @@ string ASBeautifier::beautify(const string& originalLine)
 					lineIsCommentOnly = true;
 			}
 		}
+                SHOW_LINE(&line[0]);
 
 		isInRunInComment = false;
 		size_t j = line.find_first_not_of(" \t{");
@@ -1575,6 +1576,7 @@ string ASBeautifier::trim(const string& str) const
 		end = str.length() - 1;
 
 	string returnStr(str, start, end + 1 - start);
+        SHOW_LINE(&returnStr[0]);
 	RETURN(returnStr);
 }
 
@@ -1982,6 +1984,7 @@ bool ASBeautifier::isPreprocessorConditionalCplusplus(const string& line) const
 {
 	MARK_ENTRY();
 	string preproc = trim(line.substr(1));
+        SHOW_LINE(&preproc[0]);
 	if (preproc.compare(0, 5, "ifdef") == 0 && getNextWord(preproc, 4) == "__cplusplus")
 		RETURN(true);
 	if (preproc.compare(0, 2, "if") == 0)
@@ -2831,7 +2834,11 @@ void ASBeautifier::parseCurrentLine(const string& line)
 			// bypass rest of the comment up to the comment end
 			while (i + 1 < line.length())
 				i++;
-
+                        /* XXX Why not simply set
+                        i = line.length - 1;
+                         */
+                        LABEL("...");
+                        SHOW_LINE(&line[0]);
 			continue;
 		}
 		if (isInComment)
@@ -2847,7 +2854,8 @@ void ASBeautifier::parseCurrentLine(const string& line)
 			while (i + 1 < line.length()
 			        && line.compare(i + 1, 2, "*/") != 0)
 				i++;
-
+                        LABEL("...");
+                        SHOW_LINE(&line[0]);
 			continue;
 		}
 

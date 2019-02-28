@@ -569,6 +569,7 @@ string ASFormatter::nextLine()
 		if (isInLineComment)
 		{
 			formatLineCommentBody();
+                        SHOW_LINE(&currentLine[0]);
 			continue;
 		}
 
@@ -2576,6 +2577,7 @@ void ASFormatter::goForward(int i)
 	MARK_ENTRY();
 	while (--i >= 0)
 		getNextChar();
+        SHOW_LINE(&currentLine[0]);
 	MARK_EXIT();
 }
 
@@ -3073,7 +3075,6 @@ void ASFormatter::appendSpaceAfter()
 void ASFormatter::breakLine(bool isSplitLine /*false*/)
 {
 	MARK_ENTRY();
-        printf("breakLine()\n");
 	isLineReady = true;
 	isInLineBreak = false;
 	spacePadNum = nextLineSpacePadNum;
@@ -5993,7 +5994,6 @@ void ASFormatter::formatCommentBody()
 {
 	MARK_ENTRY();
 	assert(isInComment);
-        printf("formatCommentBody()\n");
 
 	// append the comment
 	while (charNum < (int) currentLine.length())
@@ -6001,7 +6001,6 @@ void ASFormatter::formatCommentBody()
 		currentChar = currentLine[charNum];
 		if (isSequenceReached("*/"))
 		{
-                        printf("== current line %s\n",&currentLine[0]);
 			formatCommentCloser();
 			break;
 		}
@@ -6012,6 +6011,7 @@ void ASFormatter::formatCommentBody()
 	}
 	if (shouldStripCommentPrefix)
 		stripCommentPrefix();
+        SHOW_LINE(&currentLine[0]);
 	MARK_EXIT();
 }
 
@@ -6025,7 +6025,6 @@ void ASFormatter::formatCommentOpener()
 	MARK_ENTRY();
 	assert(isSequenceReached("/*"));
 
-        printf("formatCommentOpener()\n");
 	isInComment = isInCommentStartLine = true;
 	isImmediatelyPostLineComment = false;
 	if (previousNonWSChar == '}')
@@ -6113,6 +6112,7 @@ void ASFormatter::formatCommentOpener()
 
 	if (previousCommandChar == '}')
 		currentHeader = nullptr;
+        SHOW_LINE(&formattedLine[0]);
 	MARK_EXIT();
 }
 
@@ -6124,7 +6124,6 @@ void ASFormatter::formatCommentCloser()
 {
 	MARK_ENTRY();
 	assert(isSequenceReached("*/"));
-        printf("formatCommentCloser()\n");
 	isInComment = false;
 	noTrimCommentContinuation = false;
 	isImmediatelyPostComment = true;
