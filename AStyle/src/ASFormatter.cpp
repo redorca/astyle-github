@@ -147,7 +147,7 @@ ASFormatter::~ASFormatter()
 void ASFormatter::init(ASSourceIterator* si)
 {
 	MARK_ENTRY();
-        printf("init()\n");
+
 	buildLanguageVectors();
 	fixOptionVariableConflicts();
 	ASBeautifier::init(si);
@@ -318,7 +318,7 @@ void ASFormatter::buildLanguageVectors()
 {
 	MARK_ENTRY();
 	if (getFileType() == formatterFileType)  // don't build unless necessary
-		return;
+		RETURN();
 
 	formatterFileType = getFileType();
 
@@ -1917,6 +1917,9 @@ string ASFormatter::nextLine()
 		isLineReady = false;
 		runInIndentContinuation = runInIndentChars;
 		beautifiedLine = beautify(readyFormattedLine);
+                LABEL("...");
+                SHOW_LINE(&beautifiedLine[0])
+                SHOW_LINE(&readyFormattedLine[0])
 		previousReadyFormattedLineLength = readyFormattedLineLength;
 		// the enhancer is not called for no-indent line comments
 		if (!lineCommentNoBeautify && !isFormattingModeOff)
@@ -1938,7 +1941,6 @@ string ASFormatter::nextLine()
 		isInBeautifySQL = isInExecSQL;					// used by ASEnhancer
 	}
 
-        printf("beautified line: %s\n", &beautifiedLine[0]);
 	prependEmptyLine = false;
 	assert(computeChecksumOut(beautifiedLine));
 	RETURN(beautifiedLine);
@@ -2577,7 +2579,6 @@ void ASFormatter::goForward(int i)
 	MARK_ENTRY();
 	while (--i >= 0)
 		getNextChar();
-        SHOW_LINE(&currentLine[0]);
 	MARK_EXIT();
 }
 
@@ -2844,7 +2845,7 @@ void ASFormatter::initNewLine()
 	// don't trim these
 	if (isInQuoteContinuation
 	        || (isInPreprocessor && !getPreprocDefineIndent()))
-		return;
+		RETURN();
 
 	// SQL continuation lines must be adjusted so the leading spaces
 	// is equivalent to the opening EXEC SQL
@@ -2868,7 +2869,7 @@ void ASFormatter::initNewLine()
 		}
 		// this will correct the format if EXEC SQL is not a hanging indent
 		trimContinuationLine();
-		return;
+		RETURN();
 	}
 
 	// comment continuation lines must be adjusted so the leading spaces
@@ -2878,7 +2879,7 @@ void ASFormatter::initNewLine()
 		if (noTrimCommentContinuation)
 			leadingSpaces = tabIncrementIn = 0;
 		trimContinuationLine();
-		return;
+		RETURN();
 	}
 
 	// compute leading spaces
@@ -2994,6 +2995,8 @@ void ASFormatter::appendSequence(const string& sequence, bool canBreakLine)
 	formattedLine.append(sequence);
 	if (formattedLine.length() > maxCodeLength)
 		testForTimeToSplitFormattedLine();
+        SHOW_LINE(&formattedLine[0]);
+        SHOW_LINE(&sequence[0]);
 	MARK_EXIT();
 }
 
@@ -4078,28 +4081,30 @@ void ASFormatter::adjustComments()
 	assert(spacePadNum != 0);
 	assert(isSequenceReached("//") || isSequenceReached("/*"));
 
-printf("currentLine : %s\n", &currentLine[0]);
-
+        SHOW_LINE(&currentLine[0]);
 	// block comment must be closed on this line with nothing after it
 	if (isSequenceReached("/*"))
 	{
+                LABEL("==B::a");
 		size_t endNum = currentLine.find("*/", charNum + 2);
 		if (endNum == string::npos)
-			return;
+			RETURN();
 		// following line comments may be a tag from AStyleWx //[[)>
 		size_t nextNum = currentLine.find_first_not_of(" \t", endNum + 2);
+                LABEL("==B::b");
 		if (nextNum != string::npos
 		        && currentLine.compare(nextNum, 2, "//") != 0)
-			return;
+			RETURN();
 	}
 
 	size_t len = formattedLine.length();
 	// don't adjust a tab
 	if (formattedLine[len - 1] == '\t')
-		return;
+		RETURN();
 	// if spaces were removed, need to add spaces before the comment
 	if (spacePadNum < 0)
 	{
+                LABEL("==B::c");
 		int adjust = -spacePadNum;          // make the number positive
 		formattedLine.append(adjust, ' ');
 	}
@@ -4107,6 +4112,7 @@ printf("currentLine : %s\n", &currentLine[0]);
 	// if cannot be done put the comment one space after the last text
 	else if (spacePadNum > 0)
 	{
+                LABEL("==B::d");
 		int adjust = spacePadNum;
 		size_t lastText = formattedLine.find_last_not_of(' ');
 		if (lastText != string::npos
@@ -4128,12 +4134,12 @@ printf("currentLine : %s\n", &currentLine[0]);
 void ASFormatter::appendCharInsideComments()
 {
 	MARK_ENTRY();
-        printf("appendCharInsideComments()\n");
+
 	if (formattedLineCommentNum == string::npos     // does the comment start on the previous line?
 	        || formattedLineCommentNum == 0)
 	{
 		appendCurrentChar();                        // don't attach
-		return;
+		RETURN();
 	}
 	assert(formattedLine.compare(formattedLineCommentNum, 2, "//") == 0
 	       || formattedLine.compare(formattedLineCommentNum, 2, "/*") == 0);
@@ -4144,7 +4150,7 @@ void ASFormatter::appendCharInsideComments()
 	if (beg == string::npos)
 	{
 		appendCurrentChar();                // don't attach
-		return;
+		RETURN();
 	}
 	beg++;
 
@@ -4288,7 +4294,7 @@ void ASFormatter::formatPointerOrReference()
 	if (peekedChar == ')' || peekedChar == '>' || peekedChar == ',')
 	{
 		formatPointerOrReferenceCast();
-		return;
+		RETURN();
 	}
 
 	// check for a padded space and remove it
@@ -4432,7 +4438,7 @@ void ASFormatter::formatPointerOrReferenceToMiddle()
 		appendSpacePad();
 		formattedLine.append(sequenceToInsert);
 		appendSpaceAfter();
-		return;
+		RETURN();
 	}
 	// do this before goForward()
 	bool isAfterScopeResolution = previousNonWSChar == ':';
@@ -4443,7 +4449,7 @@ void ASFormatter::formatPointerOrReferenceToMiddle()
 		if (wsBefore == 0 && !isAfterScopeResolution)
 			formattedLine.append(1, ' ');
 		formattedLine.append(sequenceToInsert);
-		return;
+		RETURN();
 	}
 	// goForward() to convert tabs to spaces, if necessary,
 	// and move following characters to preceding characters
@@ -4658,7 +4664,7 @@ void ASFormatter::formatPointerOrReferenceCast()
 	if (itemAlignment == PTR_ALIGN_NONE)
 	{
 		appendSequence(sequenceToInsert, false);
-		return;
+		RETURN();
 	}
 	// remove preceding whitespace
 	char prevCh = ' ';
@@ -4897,7 +4903,7 @@ void ASFormatter::padObjCMethodPrefix()
 
 	size_t prefix = formattedLine.find_first_of("+-");
 	if (prefix == string::npos)
-		return;
+		RETURN();
 	size_t firstChar = formattedLine.find_first_not_of(" \t", prefix + 1);
 	if (firstChar == string::npos)
 		firstChar = formattedLine.length();
@@ -4942,7 +4948,7 @@ void ASFormatter::padObjCReturnType()
 
 	size_t nextText = currentLine.find_first_not_of(" \t", charNum + 1);
 	if (nextText == string::npos)
-		return;
+		RETURN();
 	int spaces = nextText - charNum - 1;
 
 	if (shouldPadReturnType)
@@ -5000,7 +5006,7 @@ void ASFormatter::padObjCParamType()
 		assert(paramOpen != string::npos);
 		size_t prevText = formattedLine.find_last_not_of(" \t", paramOpen - 1);
 		if (prevText == string::npos)
-			return;
+			RETURN();
 		int spaces = paramOpen - prevText - 1;
 
 		if (shouldPadParamType
@@ -5035,7 +5041,7 @@ void ASFormatter::padObjCParamType()
 	{
 		size_t nextText = currentLine.find_first_not_of(" \t", charNum + 1);
 		if (nextText == string::npos)
-			return;
+			RETURN();
 		int spaces = nextText - charNum - 1;
 
 		if (shouldPadParamType)
@@ -5510,25 +5516,25 @@ void ASFormatter::formatArrayBraces(BraceType braceType, bool isOpeningArrayBrac
 void ASFormatter::formatRunIn()
 {
 	MARK_ENTRY();
-        printf("formatRunIn()\n");
+
 	assert(braceFormatMode == RUN_IN_MODE || braceFormatMode == NONE_MODE);
 
 	// keep one line blocks returns true without indenting the run-in
 	if (formattingStyle != STYLE_PICO
 	        && !isOkToBreakBlock(braceTypeStack->back()))
-		return; // true;
+		RETURN(); // true;
 
 	// make sure the line begins with a brace
 	size_t lastText = formattedLine.find_last_not_of(" \t");
 	if (lastText == string::npos || formattedLine[lastText] != '{')
-		return; // false;
+		RETURN(); // false;
 
 	// make sure the brace is broken
 	if (formattedLine.find_first_not_of(" \t{") != string::npos)
-		return; // false;
+		RETURN(); // false;
 
 	if (isBraceType(braceTypeStack->back(), NAMESPACE_TYPE))
-		return; // false;
+		RETURN(); // false;
 
 	bool extraIndent = false;
 	bool extraHalfIndent = false;
@@ -5548,7 +5554,7 @@ void ASFormatter::formatRunIn()
 			if (getModifierIndent())
 				extraHalfIndent = true;
 			else if (!getClassIndent())
-				return; // false;
+				RETURN(); // false;
 		}
 		else if (getClassIndent())
 			extraIndent = true;
@@ -5559,7 +5565,7 @@ void ASFormatter::formatRunIn()
 	        && isCharPotentialHeader(currentLine, charNum)
 	        && (findKeyword(currentLine, charNum, AS_CASE)
 	            || findKeyword(currentLine, charNum, AS_DEFAULT)))
-		return; // false;
+		RETURN(); // false;
 
 	// extra indent for switch statements
 	if (getSwitchIndent()
@@ -5633,11 +5639,11 @@ void ASFormatter::formatArrayRunIn()
 
 	// make sure the brace is broken
 	if (formattedLine.find_first_not_of(" \t{") != string::npos)
-		return;
+		RETURN();
 
 	size_t lastText = formattedLine.find_last_not_of(" \t");
 	if (lastText == string::npos || formattedLine[lastText] != '{')
-		return;
+		RETURN();
 
 	// check for extra whitespace
 	if (formattedLine.length() > lastText + 1
@@ -5739,7 +5745,7 @@ void ASFormatter::convertTabToSpaces()
 
 	// do NOT replace if in quotes
 	if (isInQuote || isInQuoteContinuation)
-		return;
+		RETURN();
 
 	size_t tabSize = getTabLength();
 	size_t numSpaces = tabSize - ((tabIncrementIn + charNum) % tabSize);
@@ -5789,7 +5795,7 @@ bool ASFormatter::isSharpStyleWithParen(const string* header) const
 const string* ASFormatter::checkForHeaderFollowingComment(const string& firstLine) const
 {
 	MARK_ENTRY();
-        printf("checkForHeaderFollowingComment()\n");
+
 	assert(isInComment || isInLineComment);
 	assert(shouldBreakElseIfs || shouldBreakBlocks || isInSwitchStatement());
 	// look ahead to find the next non-comment text
@@ -5819,7 +5825,7 @@ void ASFormatter::processPreprocessor()
 	const size_t preproc = currentLine.find_first_not_of(" \t", charNum + 1);
 
 	if (preproc == string::npos)
-		return;
+		RETURN();
 
 	if (currentLine.compare(preproc, 2, "if") == 0)
 	{
@@ -5846,7 +5852,7 @@ void ASFormatter::processPreprocessor()
 bool ASFormatter::commentAndHeaderFollows()
 {
 	MARK_ENTRY();
-        printf("commentAndHeaderFollows()\n");
+
 	// called ONLY IF shouldDeleteEmptyLines and shouldBreakBlocks are TRUE.
 	assert(shouldDeleteEmptyLines && shouldBreakBlocks);
 
@@ -6023,6 +6029,9 @@ void ASFormatter::formatCommentBody()
 void ASFormatter::formatCommentOpener()
 {
 	MARK_ENTRY();
+        LABEL("+++++");
+        SHOW_LINE(&formattedLine[0]);
+        SHOW_LINE(&currentLine[0]);
 	assert(isSequenceReached("/*"));
 
 	isInComment = isInCommentStartLine = true;
@@ -6042,7 +6051,10 @@ void ASFormatter::formatCommentOpener()
 	            || (shouldBreakBlocks
 	                && !isImmediatelyPostEmptyLine
 	                && previousCommandChar != '{')))
+          {
+                LABEL("followingHeader");
 		followingHeader = checkForHeaderFollowingComment(currentLine.substr(charNum));
+          }
 
 	if (spacePadNum != 0 && !isInLineBreak)
 		adjustComments();
@@ -6053,6 +6065,7 @@ void ASFormatter::formatCommentOpener()
 	        && !isImmediatelyPostComment
 	        && !isImmediatelyPostLineComment)
 	{
+                LABEL("previousCommandChar");
 		if (isBraceType(braceTypeStack->back(), NAMESPACE_TYPE))
 		{
 			// namespace run-in is always broken.
@@ -6112,7 +6125,9 @@ void ASFormatter::formatCommentOpener()
 
 	if (previousCommandChar == '}')
 		currentHeader = nullptr;
+        LABEL("-----");
         SHOW_LINE(&formattedLine[0]);
+        SHOW_LINE(&currentLine[0]);
 	MARK_EXIT();
 }
 
@@ -6129,7 +6144,7 @@ void ASFormatter::formatCommentCloser()
 	isImmediatelyPostComment = true;
 	appendSequence(AS_CLOSE_COMMENT);
 	goForward(1);
-        printf("== current line %s\n",&currentLine[0]);
+
 	if (doesLineStartComment
 	        && (currentLine.find_first_not_of(" \t", charNum + 1) == string::npos))
 		lineEndsInCommentOnly = true;
@@ -6154,7 +6169,6 @@ void ASFormatter::formatLineCommentBody()
 	MARK_ENTRY();
 	assert(isInLineComment);
 
-        printf("formatLineCommentBody()\n");
 	// append the comment
 	while (charNum < (int) currentLine.length())
 //	        && !isLineReady	// commented out in release 2.04, unnecessary
@@ -6174,7 +6188,9 @@ void ASFormatter::formatLineCommentBody()
 		isImmediatelyPostLineComment = true;
 		currentChar = 0;  //make sure it is a neutral char.
 	}
-        printf("== current line %s\n",&currentLine[0]);
+        SHOW_LINE(&currentLine[0]);
+        SHOW_LINE(&formattedLine[0]);
+
 	MARK_EXIT();
 }
 
@@ -6187,7 +6203,6 @@ void ASFormatter::formatLineCommentOpener()
 {
 	MARK_ENTRY();
 	assert(isSequenceReached("//"));
-        printf("formatLineCommentOpener()\n");
 
 	if ((int) currentLine.length() > charNum + 2
 	        && currentLine[charNum + 2] == '\xf2')     // check for windows line marker
@@ -6226,6 +6241,7 @@ void ASFormatter::formatLineCommentOpener()
 	if (!lineCommentNoIndent && spacePadNum != 0 && !isInLineBreak)
 		adjustComments();
 	formattedLineCommentNum = formattedLine.length();
+        printf("	Num: %lu\n", formattedLineCommentNum);
 
 	// must be done BEFORE appendSequence
 	// check for run-in statement
@@ -6292,7 +6308,6 @@ void ASFormatter::formatLineCommentOpener()
 	// if tabbed input don't convert the immediately following tabs to spaces
 	if (getIndentString() == "\t" && lineCommentNoIndent)
 	{
-                printf("== current line %s\n",&currentLine[0]);
 		while (charNum + 1 < (int) currentLine.length()
 		        && currentLine[charNum + 1] == '\t')
 		{
@@ -6320,7 +6335,6 @@ void ASFormatter::formatQuoteBody()
 {
 	MARK_ENTRY();
 	assert(isInQuote);
-        printf("formatQuoteBody()\n");
 
 	if (isSpecialChar)
 	{
@@ -6352,7 +6366,7 @@ void ASFormatter::formatQuoteBody()
 			{
 				appendSequence("\"\"");
 				goForward(1);
-				return;
+				RETURN();
 			}
 			isInQuote = false;
 			isInVerbatimQuote = false;
@@ -6395,7 +6409,6 @@ void ASFormatter::formatQuoteOpener()
 	assert(currentChar == '"'
 	       || (currentChar == '\'' && !isDigitSeparator(currentLine, charNum)));
 
-        printf("formatQuoteOpener()\n");
 	isInQuote = true;
 	quoteChar = currentChar;
 	if (isCStyle() && previousChar == 'R')
@@ -6452,7 +6465,7 @@ int ASFormatter::getNextLineCommentAdjustment()
 {
 	MARK_ENTRY();
 	assert(foundClosingHeader && previousNonWSChar == '}');
-        printf("getNextLineCommentAdjustment()\n");
+ 
 	if (charNum < 1)			// "else" is in column 1
 		RETURN(0);
 	size_t lastBrace = currentLine.rfind('}', charNum - 1);
@@ -6479,7 +6492,7 @@ int ASFormatter::getCurrentLineCommentAdjustment()
 {
 	MARK_ENTRY();
 	assert(foundClosingHeader && previousNonWSChar == '}');
-        printf("getCurrentLineCommentAdjustment()\n");
+
 	if (charNum < 1)
 		RETURN(2);
 	size_t lastBrace = currentLine.rfind('}', charNum - 1);
@@ -6529,7 +6542,7 @@ void ASFormatter::isLineBreakBeforeClosingHeader()
 	if (currentHeader == &AS_WHILE && shouldAttachClosingWhile)
 	{
 		appendClosingHeader();
-		return;
+		RETURN();
 	}
 
 	if (braceFormatMode == BREAK_MODE
@@ -6839,7 +6852,7 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 		else
 		{
 			if (isInQuote_)
-				return;
+				RETURN();
 			line = stream.peekNextLine();
 			if (!foundSplitPoint)
 				++breakLineNum;
@@ -6851,7 +6864,7 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 		{
 			// don't attach to a preprocessor
 			if (shouldAttachReturnType || shouldAttachReturnTypeDecl)
-				return;
+				RETURN();
 			continue;
 		}
 		// parse the line
@@ -6945,7 +6958,7 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 				}
 				// an assignment before the parens is not a function
 				if (line[i] == '=')
-					return;
+					RETURN();
 				if (isWhiteSpace(line[i]) || line[i] == '*' || line[i] == '&')
 				{
 					size_t nextNum = line.find_first_not_of(" \t", i + 1);
@@ -6975,11 +6988,11 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 						size_t parenNum =
 						    line.find_first_not_of(" \t", i + AS_OPERATOR.length());
 						if (parenNum == string::npos)
-							return;
+							RETURN();
 						// find paren after the operator
 						parenNum = line.find('(', parenNum + 1);
 						if (parenNum == string::npos)
-							return;
+							RETURN();
 						i = --parenNum;
 					}
 					continue;
@@ -6990,7 +7003,7 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 				{
 					size_t nextCharNum = line.find_first_not_of(" \t:", i + 1);
 					if (nextCharNum == string::npos)
-						return;
+						RETURN();
 
 					if (isLegalNameChar(line[nextCharNum])
 					        && findKeyword(line, nextCharNum, AS_OPERATOR))
@@ -7003,11 +7016,11 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 						size_t parenNum =
 						    line.find_first_not_of(" \t", i + AS_OPERATOR.length());
 						if (parenNum == string::npos)
-							return;
+							RETURN();
 						// find paren after the operator
 						parenNum = line.find('(', parenNum + 1);
 						if (parenNum == string::npos)
-							return;
+							RETURN();
 						i = --parenNum;
 					}
 					else
@@ -7029,7 +7042,7 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 			{
 				// consecutive ')(' parens is probably a function pointer
 				if (prevNonWSChar == ')' && !parenCount)
-					return;
+					RETURN();
 				++parenCount;
 				continue;
 			}
@@ -7051,7 +7064,7 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 					methodAttachCharNum = breakCharNum;
 					methodAttachLineNum = breakLineNum;
 				}
-				return;
+				RETURN();
 			}
 			if (line[i] == ';')
 			{
@@ -7065,10 +7078,10 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 					methodAttachCharNum = breakCharNum;
 					methodAttachLineNum = breakLineNum;
 				}
-				return;
+				RETURN();
 			}
 			if (line[i] == '}')
-				return;
+				RETURN();
 		}   // end of for loop
 		if (!foundSplitPoint)
 			breakCharNum = string::npos;
@@ -7499,7 +7512,7 @@ void ASFormatter::checkIfTemplateOpener()
 	{
 		// this is not a template -> leave...
 		isInTemplate = false;
-		return;
+		RETURN();
 	}
 
 	bool isFirstLine = true;
@@ -7580,7 +7593,7 @@ void ASFormatter::checkIfTemplateOpener()
 						isInTemplate = true;
 						templateDepth = maxTemplateDepth;
 					}
-					return;
+					RETURN();
 				}
 				continue;
 			}
@@ -7595,7 +7608,7 @@ void ASFormatter::checkIfTemplateOpener()
 				// this is not a template -> leave...
 				isInTemplate = false;
 				templateDepth = 0;
-				return;
+				RETURN();
 			}
 			if (nextLine_.compare(i, 2, AS_AND) == 0
 			        || nextLine_.compare(i, 2, AS_OR) == 0)
@@ -7603,7 +7616,7 @@ void ASFormatter::checkIfTemplateOpener()
 				// this is not a template -> leave...
 				isInTemplate = false;
 				templateDepth = 0;
-				return;
+				RETURN();
 			}
 			if (currentChar_ == ','  // comma,     e.g. A<int, char>
 			        || currentChar_ == '&'    // reference, e.g. A<int&>
@@ -7625,7 +7638,7 @@ void ASFormatter::checkIfTemplateOpener()
 				// this is not a template -> leave...
 				isInTemplate = false;
 				templateDepth = 0;
-				return;
+				RETURN();
 			}
 			string name = getCurrentWord(nextLine_, i);
 			i += name.length() - 1;
@@ -7641,26 +7654,26 @@ void ASFormatter::updateFormattedLineSplitPoints(char appendedChar)
 	assert(formattedLine.length() > 0);
 
 	if (!isOkToSplitFormattedLine())
-		return;
+		RETURN();
 
 	char nextChar = peekNextChar();
 
 	// don't split before an end of line comment
 	if (nextChar == '/')
-		return;
+		RETURN();
 
 	// don't split before or after a brace
 	if (appendedChar == '{' || appendedChar == '}'
 	        || previousNonWSChar == '{' || previousNonWSChar == '}'
 	        || nextChar == '{' || nextChar == '}'
 	        || currentChar == '{' || currentChar == '}')	// currentChar tests for an appended brace
-		return;
+		RETURN();
 
 	// don't split before or after a block paren
 	if (appendedChar == '[' || appendedChar == ']'
 	        || previousNonWSChar == '['
 	        || nextChar == '[' || nextChar == ']')
-		return;
+		RETURN();
 
 	if (isWhiteSpace(appendedChar))
 	{
@@ -7747,13 +7760,13 @@ void ASFormatter::updateFormattedLineSplitPointsOperator(const string& sequence)
 	assert(formattedLine.length() > 0);
 
 	if (!isOkToSplitFormattedLine())
-		return;
+		RETURN();
 
 	char nextChar = peekNextChar();
 
 	// don't split before an end of line comment
 	if (nextChar == '/')
-		return;
+		RETURN();
 
 	// check for logical conditional
 	if (sequence == "||" || sequence == "&&" || sequence == "or" || sequence == "and")
@@ -7847,10 +7860,10 @@ void ASFormatter::updateFormattedLineSplitPointsPointerOrReference(size_t index)
 	assert(index < formattedLine.length());
 
 	if (!isOkToSplitFormattedLine())
-		return;
+		RETURN();
 
 	if (index < maxWhiteSpace)		// just in case
-		return;
+		RETURN();
 
 	if (index <= maxCodeLength)
 		maxWhiteSpace = index;
@@ -7889,7 +7902,6 @@ bool ASFormatter::isOkToSplitFormattedLine()
 	        RETURN(false);
 	}
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /* This is called if the option maxCodeLength is set.
@@ -8068,7 +8080,6 @@ bool ASFormatter::pointerSymbolFollows() const
 	if (peekNum == string::npos || currentLine.compare(peekNum, 2, "->") != 0)
 	        RETURN(false);
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /**
@@ -8082,7 +8093,6 @@ bool ASFormatter::computeChecksumIn(const string& currentLine_)
 		if (!isWhiteSpace(currentLine_[i]))
 			checksumIn += currentLine_[i];
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /**
@@ -8094,9 +8104,7 @@ bool ASFormatter::adjustChecksumIn(int adjustment)
 	MARK_ENTRY();
 	checksumIn += adjustment;
 	RETURN(true);
-	MARK_EXIT();
-}
-
+} 
 /**
  * get the value of checksumIn for unit testing
  *
@@ -8119,7 +8127,6 @@ bool ASFormatter::computeChecksumOut(const string& beautifiedLine)
 		if (!isWhiteSpace(beautifiedLine[i]))
 			checksumOut += beautifiedLine[i];
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /**
@@ -8458,31 +8465,31 @@ void ASFormatter::padObjCMethodColon()
 void ASFormatter::stripCommentPrefix()
 {
 	MARK_ENTRY();
-        printf("stripCommentPrefix()\n");
+
 	int firstChar = formattedLine.find_first_not_of(" \t");
 	if (firstChar < 0)
-		return;
+		RETURN();
 
 	if (isInCommentStartLine)
 	{
 		// comment opener must begin the line
 		if (formattedLine.compare(firstChar, 2, "/*") != 0)
-			return;
+			RETURN();
 		int commentOpener = firstChar;
 		// ignore single line comments
 		int commentEnd = formattedLine.find("*/", firstChar + 2);
 		if (commentEnd != -1)
-			return;
+			RETURN();
 		// first char after the comment opener must be at least one indent
 		int followingText = formattedLine.find_first_not_of(" \t", commentOpener + 2);
 		if (followingText < 0)
-			return;
+			RETURN();
 		if (formattedLine[followingText] == '*' || formattedLine[followingText] == '!')
 			followingText = formattedLine.find_first_not_of(" \t", followingText + 1);
 		if (followingText < 0)
-			return;
+			RETURN();
 		if (formattedLine[followingText] == '*')
-			return;
+			RETURN();
 		int indentLen = getIndentLength();
 		int followingTextIndent = followingText - commentOpener;
 		if (followingTextIndent < indentLen)
@@ -8490,7 +8497,7 @@ void ASFormatter::stripCommentPrefix()
 			string stringToInsert(indentLen - followingTextIndent, ' ');
 			formattedLine.insert(followingText, stringToInsert);
 		}
-		return;
+		RETURN();
 	}
 	// comment body including the closer
 	if (formattedLine[firstChar] == '*')
@@ -8508,10 +8515,10 @@ void ASFormatter::stripCommentPrefix()
 			{
 				adjustChecksumIn(-'*');
 				formattedLine.erase();
-				return;
+				RETURN();
 			}
 			if (formattedLine[secondChar] == '*')
-				return;
+				RETURN();
 			// replace the leading '*'
 			int indentLen = getIndentLength();
 			adjustChecksumIn(-'*');

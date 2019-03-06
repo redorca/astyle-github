@@ -111,11 +111,12 @@ void ASEnhancer::enhance(string& line, bool isInNamespace, bool isInPreprocessor
 	        && !isInEventTable
 	        && !isInDeclareSection
 	        && !emptyLineFill)
-		return;
+		RETURN();
 
 	// test for unindent on attached braces
 	if (unindentNextLine)
 	{
+                LABEL("===A::a")
 		sw.unindentDepth++;
 		sw.unindentCase = true;
 		unindentNextLine = false;
@@ -143,9 +144,15 @@ void ASEnhancer::enhance(string& line, bool isInNamespace, bool isInPreprocessor
 	}
 
 	if (shouldUnindentComment && sw.unindentDepth > 0)
+          {
+                LABEL("===A::b")
 		unindentLine(line, sw.unindentDepth - 1);
+          }
 	else if (shouldUnindentLine && sw.unindentDepth > 0)
+          {
+                LABEL("===A::c")
 		unindentLine(line, sw.unindentDepth);
+          }
 	MARK_EXIT();
 }
 
@@ -237,8 +244,7 @@ size_t ASEnhancer::findCaseColon(const string& line, size_t caseIndex) const
 				break;                              // found it
 		}
 	}
-	return i;
-	MARK_EXIT();
+	RETURN(i);
 }
 
 /**
@@ -254,7 +260,7 @@ int ASEnhancer::indentLine(string& line, int indent) const
 	MARK_ENTRY();
 	if (line.length() == 0
 	        && !emptyLineFill)
-		return 0;
+		RETURN(0);
 
 	size_t charsToInsert = 0;
 
@@ -279,8 +285,7 @@ int ASEnhancer::indentLine(string& line, int indent) const
 		line.insert(line.begin(), charsToInsert, ' ');
 	}
 
-	return charsToInsert;
-	MARK_EXIT();
+	RETURN(charsToInsert);
 }
 
 /**
@@ -301,7 +306,7 @@ bool ASEnhancer::isBeginDeclareSectionSQL(const string& line, size_t index) cons
 	{
 		i = line.find_first_not_of(" \t", i);
 		if (i == string::npos)
-			return false;
+			RETURN(false);
 		if (line[i] == ';')
 			break;
 		if (!isCharPotentialHeader(line, i))
@@ -326,12 +331,11 @@ bool ASEnhancer::isBeginDeclareSectionSQL(const string& line, size_t index) cons
 			i += word.length() - 1;
 			continue;
 		}
-		return false;
+		RETURN(false);
 	}
 	if (hits == 3)
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 /**
@@ -352,7 +356,7 @@ bool ASEnhancer::isEndDeclareSectionSQL(const string& line, size_t index) const
 	{
 		i = line.find_first_not_of(" \t", i);
 		if (i == string::npos)
-			return false;
+			RETURN(false);
 		if (line[i] == ';')
 			break;
 		if (!isCharPotentialHeader(line, i))
@@ -377,12 +381,11 @@ bool ASEnhancer::isEndDeclareSectionSQL(const string& line, size_t index) const
 			i += word.length() - 1;
 			continue;
 		}
-		return false;
+		RETURN(false);
 	}
 	if (hits == 3)
-		return true;
-	return false;
-	MARK_EXIT();
+		RETURN(true);
+	RETURN(false);
 }
 
 /**
@@ -456,11 +459,10 @@ bool ASEnhancer::isOneLineBlockReached(const string& line, int startChar) const
 			--_braceCount;
 
 		if (_braceCount == 0)
-			return true;
+			RETURN(true);
 	}
 
-	return false;
-	MARK_EXIT();
+	RETURN(false);
 }
 
 /**
@@ -679,7 +681,7 @@ size_t ASEnhancer::processSwitchBlock(string& line, size_t index)
 			sw.unindentDepth++;
 			lookingForCaseBrace = false;              // not looking now
 		}
-		return i;
+		RETURN(i);
 	}
 	lookingForCaseBrace = false;                      // no opening brace, don't indent
 
@@ -702,7 +704,7 @@ size_t ASEnhancer::processSwitchBlock(string& line, size_t index)
 			sw = switchStack.back();
 			switchStack.pop_back();
 		}
-		return i;
+		RETURN(i);
 	}
 
 	if (isPotentialKeyword
@@ -731,20 +733,19 @@ size_t ASEnhancer::processSwitchBlock(string& line, size_t index)
 				sw.switchBraceCount++;
 				if (!isOneLineBlockReached(line, i))
 					unindentNextLine = true;
-				return i;
+				RETURN(i);
 			}
 		}
 		lookingForCaseBrace = true;
 		i--;									// need to process this char
-		return i;
+		RETURN(i);
 	}
 	if (isPotentialKeyword)
 	{
 		string name = getCurrentWord(line, i);          // bypass the entire name
 		i += name.length() - 1;
 	}
-	return i;
-	MARK_EXIT();
+	RETURN(i);
 }
 
 /**
@@ -764,7 +765,7 @@ int ASEnhancer::unindentLine(string& line, int unindent) const
 		whitespace = line.length();         // must remove padding, if any
 
 	if (whitespace == 0)
-		return 0;
+		RETURN(0);
 
 	size_t charsToErase = 0;
 
@@ -799,8 +800,7 @@ int ASEnhancer::unindentLine(string& line, int unindent) const
 			charsToErase = 0;
 	}
 
-	return charsToErase;
-	MARK_EXIT();
+	RETURN(charsToErase);
 }
 
 }   // end namespace astyle

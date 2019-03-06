@@ -136,9 +136,7 @@ ASStreamIterator<T>::~ASStreamIterator() = default;
 template<typename T>
 int ASStreamIterator<T>::getStreamLength() const
 {
-	MARK_ENTRY();
 	return static_cast<int>(streamLength);
-	MARK_EXIT();
 }
 
 /**
@@ -179,7 +177,7 @@ string ASStreamIterator<T>::nextLine(bool emptyLineWasDeleted)
 
 	if (inStream->eof())
 	{
-		return buffer;
+	        RETURN(buffer);
 	}
 
 	int peekCh = inStream->peek();
@@ -236,8 +234,7 @@ string ASStreamIterator<T>::nextLine(bool emptyLineWasDeleted)
 	else
 		outputEOL = "\r";           // MacOld (CR)
 
-	MARK_EXIT();
-	return buffer;
+	RETURN(buffer);
 }
 
 // save the current position and get the next line
@@ -265,7 +262,7 @@ string ASStreamIterator<T>::peekNextLine()
 
 	if (inStream->eof())
 	{
-		return nextLine_;
+		RETURN(nextLine_);
 	}
 
 	int peekCh = inStream->peek();
@@ -277,8 +274,7 @@ string ASStreamIterator<T>::peekNextLine()
 			inStream->get();
 	}
 
-	MARK_EXIT();
-	return nextLine_;
+	RETURN(nextLine_);
 }
 
 // reset current position and EOF for peekNextLine()
@@ -336,8 +332,7 @@ bool ASStreamIterator<T>::getLineEndChange(int lineEndFormat) const
 		else if (eolMacOld > 0)
 			lineEndChange = (eolWindows + eolLinux != 0);
 	}
-	MARK_EXIT();
-	return lineEndChange;
+	RETURN(lineEndChange);
 }
 
 //-----------------------------------------------------------------------------
@@ -485,8 +480,7 @@ FileEncoding ASConsole::detectEncoding(const char* data, size_t dataSize) const
 	else if (dataSize >= 2 && memcmp(data, "\xFF\xFE", 2) == 0)
 		encoding = UTF_16LE;
 
-	MARK_EXIT();
-	return encoding;
+	RETURN(encoding);
 }
 
 // error exit without a message
@@ -709,17 +703,16 @@ string ASConsole::findProjectOptionFilePath(const string& fileName_) const
 	{
 		string filepath = parent + fileName_;
 		if (fileExists(filepath.c_str()))
-			return filepath;
+			RETURN(filepath);
 		if (fileName_ == ".astylerc")
 		{
 			filepath = parent + "_astylerc";
 			if (fileExists(filepath.c_str()))
-				return filepath;
+				RETURN(filepath);
 		}
 		parent = getParentDirectory(parent);
 	}
-	MARK_EXIT();
-	return string();
+	RETURN(string());
 }
 
 // for unit testing
@@ -815,8 +808,7 @@ string ASConsole::getProjectOptionFileName() const
 	size_t start = projectOptionFileName.find_last_of(g_fileSeparator);
 	if (start == string::npos)
 		start = 0;
-	MARK_EXIT();
-	return projectOptionFileName.substr(start + 1);
+	RETURN(projectOptionFileName.substr(start + 1));
 }
 
 // for unit testing
@@ -964,8 +956,7 @@ FileEncoding ASConsole::readFile(const string& fileName_, stringstream& in) cons
 	}
 	fin.close();
 	delete[] data;
-	MARK_EXIT();
-	return encoding;
+	RETURN(encoding);
 }
 
 void ASConsole::setIgnoreExcludeErrors(bool state)
@@ -1074,8 +1065,7 @@ string ASConsole::getCurrentDirectory(const string& fileName_) const
 	currdir[0] = '\0';
 	if (!GetCurrentDirectory(sizeof(currdir), currdir))
 		error("Cannot find file", fileName_.c_str());
-	MARK_EXIT();
-	return string(currdir);
+	RETURN(string(currdir));
 }
 
 /**
@@ -1166,8 +1156,7 @@ string ASConsole::getFullPathName(const string& relativePath) const
 	MARK_ENTRY();
 	char fullPath[MAX_PATH];
 	GetFullPathName(relativePath.c_str(), MAX_PATH, fullPath, nullptr);
-	return fullPath;
-	MARK_EXIT();
+	RETURN(fullPath);
 }
 
 /**
@@ -1193,7 +1182,7 @@ string ASConsole::getNumberFormat(int num, size_t lcid) const
 	alphaNum << num;
 	string number = alphaNum.str();
 	if (useAscii)
-		return number;
+		RETURN(number);
 
 	// format the number using the Windows API
 	if (lcid == 0)
@@ -1201,7 +1190,7 @@ string ASConsole::getNumberFormat(int num, size_t lcid) const
 	int outSize = ::GetNumberFormat(lcid, 0, number.c_str(), nullptr, nullptr, 0);
 	char* outBuf = new (nothrow) char[outSize];
 	if (outBuf == nullptr)
-		return number;
+		RETURN(number);
 	::GetNumberFormat(lcid, 0, number.c_str(), nullptr, outBuf, outSize);
 	string formattedNum(outBuf);
 	delete[] outBuf;
@@ -1209,7 +1198,7 @@ string ASConsole::getNumberFormat(int num, size_t lcid) const
 	int decSize = ::GetLocaleInfo(lcid, LOCALE_SDECIMAL, nullptr, 0);
 	char* decBuf = new (nothrow) char[decSize];
 	if (decBuf == nullptr)
-		return number;
+		RETURN(number);
 	::GetLocaleInfo(lcid, LOCALE_SDECIMAL, decBuf, decSize);
 	size_t i = formattedNum.rfind(decBuf);
 	delete[] decBuf;
@@ -1217,8 +1206,7 @@ string ASConsole::getNumberFormat(int num, size_t lcid) const
 		formattedNum.erase(i);
 	if (!formattedNum.length())
 		formattedNum = "0";
-	MARK_EXIT();
-	return formattedNum;
+	RETURN(formattedNum);
 }
 
 /**
@@ -1233,16 +1221,15 @@ bool ASConsole::isHomeOrInvalidAbsPath(const string& absPath) const
 	MARK_ENTRY();
 	char* env = getenv("USERPROFILE");
 	if (env == nullptr)
-		return true;
+		RETURN(true);
 
 	if (absPath.c_str() == env)
-		return true;
+		RETURN(true);
 
 	if (absPath.compare(0, strlen(env), env) != 0)
-		return true;
+		RETURN(true);
 
-	MARK_EXIT();
-	return false;
+	RETURN(false);
 }
 
 /**
@@ -1285,7 +1272,7 @@ void ASConsole::launchDefaultBrowser(const char* filePathIn /*nullptr*/) const
 	if (stat(htmlFilePath.c_str(), &statbuf) != 0 || !(statbuf.st_mode & S_IFREG))
 	{
 		printf(_("Cannot open HTML file %s\n"), htmlFilePath.c_str());
-		return;
+		RETURN();
 	}
 
 	SHELLEXECUTEINFO sei = { sizeof(sei), {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {} };
@@ -1500,8 +1487,7 @@ string ASConsole::getNumberFormat(int num, const char* groupingArg, const char* 
 		        && groupingArg[ig + 1] != '\0')
 			grouping = groupingArg[++ig];
 	}
-	MARK_EXIT();
-	return formattedNum;
+	RETURN(formattedNum);
 }
 
 /**
@@ -1516,16 +1502,15 @@ bool ASConsole::isHomeOrInvalidAbsPath(const string& absPath) const
 	MARK_ENTRY();
 	char* env = getenv("HOME");
 	if (env == nullptr)
-		return true;
+		RETURN(true);
 
 	if (absPath.c_str() == env)
-		return true;
+		RETURN(true);
 
 	if (absPath.compare(0, strlen(env), env) != 0)
-		return true;
+		RETURN(true);
 
-	MARK_EXIT();
-	return false;
+	RETURN(false);
 }
 
 /**
@@ -1556,7 +1541,7 @@ void ASConsole::launchDefaultBrowser(const char* filePathIn /*nullptr*/) const
 	if (stat(htmlFilePath.c_str(), &statbuf) != 0 || !(statbuf.st_mode & S_IFREG))
 	{
 		printf(_("Cannot open HTML file %s\n"), htmlFilePath.c_str());
-		return;
+		RETURN();
 	}
 
 	// get search paths
@@ -1616,7 +1601,7 @@ string ASConsole::getParentDirectory(const string& absPath) const
 	MARK_ENTRY();
 	if (isHomeOrInvalidAbsPath(absPath))
 	{
-		return string();
+		RETURN(string());
 	}
 	size_t offset = absPath.size() - 1;
 	if (absPath[absPath.size() - 1] == g_fileSeparator)
@@ -1626,11 +1611,10 @@ string ASConsole::getParentDirectory(const string& absPath) const
 	size_t idx = absPath.rfind(g_fileSeparator, offset);
 	if (idx == string::npos)
 	{
-		return string();
+		RETURN(string());
 	}
 	string str = absPath.substr(0, idx + 1);
-	MARK_EXIT();
-	return str;
+	RETURN(str);
 }
 
 // get individual file names from the command-line file path
@@ -1789,7 +1773,7 @@ bool ASConsole::isParamOption(const string& arg, const char* option)
 // compare a path to the exclude vector
 // used for both directories and filenames
 // updates the g_excludeHitsVector
-// return true if a match
+// RETURN(true) if a match
 bool ASConsole::isPathExclued(const string& subPath)
 {
 	MARK_ENTRY();
@@ -1829,8 +1813,7 @@ bool ASConsole::isPathExclued(const string& subPath)
 			break;
 		}
 	}
-	MARK_EXIT();
-	return retVal;
+	RETURN(retVal);
 }
 
 void ASConsole::printHelp() const
@@ -2712,7 +2695,7 @@ void ASConsole::standardizePath(string& path, bool removeBeginningSeparator /*fa
 void ASConsole::printMsg(const char* msg, const string& data) const
 {
 	if (isQuiet)
-		return;
+		RETURN();
 	printf(msg, data.c_str());
 }
 
@@ -2728,7 +2711,7 @@ void ASConsole::printVerboseHeader() const
 {
 	assert(isVerbose);
 	if (isQuiet)
-		return;
+		RETURN();
 	// get the date
 	time_t lt;
 	char str[20];
@@ -2762,7 +2745,7 @@ void ASConsole::printVerboseStats(clock_t startTime) const
 {
 	assert(isVerbose);
 	if (isQuiet)
-		return;
+		RETURN();
 	if (hasWildcard)
 		printSeparatingLine();
 	string formatted = getNumberFormat(filesFormatted);
@@ -2807,19 +2790,19 @@ bool ASConsole::stringEndsWith(const string& str, const string& suffix) const
 {
 	int strIndex = (int) str.length() - 1;
 	int suffixIndex = (int) suffix.length() - 1;
-
+        MARK_ENTRY();
 	while (strIndex >= 0 && suffixIndex >= 0)
 	{
 		if (tolower(str[strIndex]) != tolower(suffix[suffixIndex]))
-			return false;
+			RETURN(false);
 
 		--strIndex;
 		--suffixIndex;
 	}
 	// suffix longer than string
 	if (strIndex < 0 && suffixIndex >= 0)
-		return false;
-	return true;
+		RETURN(false);
+	RETURN(true);
 }
 
 void ASConsole::updateExcludeVector(const string& suffixParam)
@@ -2842,8 +2825,7 @@ int ASConsole::waitForRemove(const char* newFileName) const
 			break;
 	}
 	errno = 0;
-	MARK_EXIT();
-	return seconds;
+	RETURN(seconds);
 }
 
 // From The Code Project http://www.codeproject.com/string/wildcmp.asp
@@ -2851,7 +2833,6 @@ int ASConsole::waitForRemove(const char* newFileName) const
 // Modified to compare case insensitive for Windows
 int ASConsole::wildcmp(const char* wild, const char* data) const
 {
-	MARK_ENTRY();
 	const char* cp = nullptr, *mp = nullptr;
 	bool cmpval;
 
@@ -2864,7 +2845,7 @@ int ASConsole::wildcmp(const char* wild, const char* data) const
 
 		if (cmpval)
 		{
-			return 0;
+			return(0);
 		}
 		wild++;
 		data++;
@@ -2876,7 +2857,7 @@ int ASConsole::wildcmp(const char* wild, const char* data) const
 		{
 			if (!*++wild)
 			{
-				return 1;
+				return(1);
 			}
 			mp = wild;
 			cp = data + 1;
@@ -2905,8 +2886,7 @@ int ASConsole::wildcmp(const char* wild, const char* data) const
 	{
 		wild++;
 	}
-	MARK_EXIT();
-	return !*wild;
+	return(!*wild);
 }
 
 void ASConsole::writeFile(const string& fileName_, FileEncoding encoding, ostringstream& out) const
@@ -2982,19 +2962,18 @@ char16_t* ASLibrary::formatUtf16(const char16_t* pSourceIn,		// the source to be
                                  fpError fpErrorHandler,		// error handler function
                                  fpAlloc fpMemoryAlloc) const	// memory allocation function)
 {
-	MARK_ENTRY();
 	const char* utf8In = convertUtf16ToUtf8(pSourceIn);
 	if (utf8In == nullptr)
 	{
 		fpErrorHandler(121, "Cannot convert input utf-16 to utf-8.");
-		return nullptr;
+		RETURN(nullptr);
 	}
 	const char* utf8Options = convertUtf16ToUtf8(pOptions);
 	if (utf8Options == nullptr)
 	{
 		delete[] utf8In;
 		fpErrorHandler(122, "Cannot convert options utf-16 to utf-8.");
-		return nullptr;
+		RETURN(nullptr);
 	}
 	// call the Artistic Style formatting function
 	// cannot use the callers memory allocation here
@@ -3009,7 +2988,7 @@ char16_t* ASLibrary::formatUtf16(const char16_t* pSourceIn,		// the source to be
 	utf8Options = nullptr;
 	// AStyle error has already been sent
 	if (utf8Out == nullptr)
-		return nullptr;
+		RETURN(nullptr);
 	// convert text to wide char and return it
 	char16_t* utf16Out = convertUtf8ToUtf16(utf8Out, fpMemoryAlloc);
 	delete[] utf8Out;
@@ -3017,10 +2996,9 @@ char16_t* ASLibrary::formatUtf16(const char16_t* pSourceIn,		// the source to be
 	if (utf16Out == nullptr)
 	{
 		fpErrorHandler(123, "Cannot convert output utf-8 to utf-16.");
-		return nullptr;
+		RETURN(nullptr);
 	}
-	MARK_EXIT();
-	return utf16Out;
+	return(utf16Out);
 }
 
 // STATIC method to allocate temporary memory for AStyle formatting.
@@ -3040,7 +3018,7 @@ char16_t* ASLibrary::convertUtf8ToUtf16(const char* utf8In, fpAlloc fpMemoryAllo
 {
 	MARK_ENTRY();
 	if (utf8In == nullptr)
-		return nullptr;
+		RETURN(nullptr);
 	char* data = const_cast<char*>(utf8In);
 	size_t dataSize = strlen(utf8In);
 	bool isBigEndian = encode.getBigEndian();
@@ -3048,7 +3026,7 @@ char16_t* ASLibrary::convertUtf8ToUtf16(const char* utf8In, fpAlloc fpMemoryAllo
 	size_t utf16Size = (encode.utf16LengthFromUtf8(data, dataSize) + sizeof(char16_t));
 	char* utf16Out = fpMemoryAlloc((long) utf16Size);
 	if (utf16Out == nullptr)
-		return nullptr;
+		RETURN(nullptr);
 #ifdef NDEBUG
 	encode.utf8ToUtf16(data, dataSize + 1, isBigEndian, utf16Out);
 #else
@@ -3056,8 +3034,7 @@ char16_t* ASLibrary::convertUtf8ToUtf16(const char* utf8In, fpAlloc fpMemoryAllo
 	assert(utf16Len == utf16Size);
 #endif
 	assert(utf16Size == (encode.utf16len(reinterpret_cast<char16_t*>(utf16Out)) + 1) * sizeof(char16_t));
-	MARK_EXIT();
-	return reinterpret_cast<char16_t*>(utf16Out);
+	RETURN(reinterpret_cast<char16_t*>(utf16Out));
 }
 
 /**
@@ -3069,7 +3046,7 @@ char* ASLibrary::convertUtf16ToUtf8(const char16_t* utf16In) const
 {
 	MARK_ENTRY();
 	if (utf16In == nullptr)
-		return nullptr;
+		RETURN(nullptr);
 	char* data = reinterpret_cast<char*>(const_cast<char16_t*>(utf16In));
 	// size must be in chars
 	size_t dataSize = encode.utf16len(utf16In) * sizeof(char16_t);
@@ -3077,7 +3054,7 @@ char* ASLibrary::convertUtf16ToUtf8(const char16_t* utf16In) const
 	size_t utf8Size = encode.utf8LengthFromUtf16(data, dataSize, isBigEndian) + 1;
 	char* utf8Out = new (nothrow) char[utf8Size];
 	if (utf8Out == nullptr)
-		return nullptr;
+		RETURN(nullptr);
 #ifdef NDEBUG
 	encode.utf16ToUtf8(data, dataSize + 1, isBigEndian, true, utf8Out);
 #else
@@ -3085,8 +3062,7 @@ char* ASLibrary::convertUtf16ToUtf8(const char16_t* utf16In) const
 	assert(utf8Len == utf8Size);
 #endif
 	assert(utf8Size == strlen(utf8Out) + 1);
-	MARK_EXIT();
-	return utf8Out;
+	RETURN(utf8Out);
 }
 
 #endif	// ASTYLE_LIB
@@ -3112,7 +3088,7 @@ ASOptions::ASOptions(ASFormatter& formatterArg, ASConsole& consoleArg)
  * a projectOptionsVector (project option file),
  * or an optionsVector (command line)
  *
- * @return        true if no errors, false if errors
+ * @RETURN(true) if no errors, false if errors
  */
 bool ASOptions::parseOptions(vector<string>& optionsVector, const string& errorInfo)
 {
@@ -3155,9 +3131,8 @@ bool ASOptions::parseOptions(vector<string>& optionsVector, const string& errorI
 		}
 	}
 	if (optionErrors.str().length() > 0)
-		return false;
-	MARK_EXIT();
-	return true;
+		RETURN(false);
+	RETURN(true);
 }
 
 void ASOptions::parseOption(const string& arg, const string& errorInfo)
@@ -3715,9 +3690,9 @@ bool ASOptions::parseOptionContinued(const string& arg, const string& errorInfo)
 	// End of options used by GUI /////////////////////////////////////////////////////////////////
 	else
 	{
-		return false;
+		RETURN(false);
 	}
-	return true;
+	RETURN(true);
 #else
 	// Options used by only console ///////////////////////////////////////////////////////////////
 	else if (isOption(arg, "n", "suffix=none"))
@@ -3803,10 +3778,9 @@ bool ASOptions::parseOptionContinued(const string& arg, const string& errorInfo)
 	}
 	else
 	{
-		return false;
+		RETURN(false);
 	}
-	MARK_EXIT();
-	return true;
+	RETURN(true);
 #endif
 }	// End of parseOptionContinued function
 
@@ -3945,7 +3919,6 @@ size_t ASEncoding::utf16len(const utf16* utf16In) const
 // Input inLen is the size in BYTES (not wchar_t).
 size_t ASEncoding::utf8LengthFromUtf16(const char* utf16In, size_t inLen, bool isBigEndian) const
 {
-	MARK_ENTRY();
 	size_t len = 0;
 	size_t wcharLen = (inLen / 2) + (inLen % 2);
 	const char16_t* uptr = reinterpret_cast<const char16_t*>(utf16In);
@@ -3965,8 +3938,7 @@ size_t ASEncoding::utf8LengthFromUtf16(const char* utf16In, size_t inLen, bool i
 			len += 3;
 		i++;
 	}
-	MARK_EXIT();
-	return len;
+	return(len);
 }
 
 // Adapted from SciTE Utf8_16.cxx.
@@ -3975,7 +3947,6 @@ size_t ASEncoding::utf8LengthFromUtf16(const char* utf16In, size_t inLen, bool i
 // Convert a utf-8 file to utf-16.
 size_t ASEncoding::utf8ToUtf16(char* utf8In, size_t inLen, bool isBigEndian, char* utf16Out) const
 {
-	MARK_ENTRY();
 	int nCur = 0;
 	ubyte* pRead = reinterpret_cast<ubyte*>(utf8In);
 	utf16* pCur = reinterpret_cast<utf16*>(utf16Out);
@@ -4042,8 +4013,7 @@ size_t ASEncoding::utf8ToUtf16(char* utf8In, size_t inLen, bool isBigEndian, cha
 		}
 	}
 	// return value is the output length in BYTES (not wchar_t)
-	MARK_EXIT();
-	return (pCur - pCurStart) * 2;
+	return((pCur - pCurStart) * 2);
 }
 
 // Adapted from SciTE UniConversion.cxx.
@@ -4053,7 +4023,6 @@ size_t ASEncoding::utf8ToUtf16(char* utf8In, size_t inLen, bool isBigEndian, cha
 // Return value is the size in BYTES (not wchar_t).
 size_t ASEncoding::utf16LengthFromUtf8(const char* utf8In, size_t len) const
 {
-	MARK_ENTRY();
 	size_t ulen = 0;
 	size_t charLen;
 	for (size_t i = 0; i < len;)
@@ -4074,8 +4043,7 @@ size_t ASEncoding::utf16LengthFromUtf8(const char* utf8In, size_t len) const
 		ulen++;
 	}
 	// return value is the length in bytes (not wchar_t)
-	MARK_EXIT();
-	return ulen * 2;
+	return(ulen * 2);
 }
 
 // Adapted from SciTE Utf8_16.cxx.
@@ -4085,7 +4053,6 @@ size_t ASEncoding::utf16LengthFromUtf8(const char* utf8In, size_t len) const
 size_t ASEncoding::utf16ToUtf8(char* utf16In, size_t inLen, bool isBigEndian,
                                bool firstBlock, char* utf8Out) const
 {
-	MARK_ENTRY();
 	int nCur16 = 0;
 	int nCur = 0;
 	ubyte* pRead = reinterpret_cast<ubyte*>(utf16In);
@@ -4172,8 +4139,7 @@ size_t ASEncoding::utf16ToUtf8(char* utf16In, size_t inLen, bool isBigEndian,
 		}
 		*pCur++ = static_cast<ubyte>(nCur);
 	}
-	MARK_EXIT();
-	return pCur - pCurStart;
+	return(pCur - pCurStart);
 }
 
 //----------------------------------------------------------------------------
@@ -4429,8 +4395,7 @@ int main(int argc, char** argv)
 	else
 		console->formatCinToCout();
 
-	return EXIT_SUCCESS;
-	MARK_EXIT();
+	RETURN(EXIT_SUCCESS);
 }
 
 #endif	// ASTYLE_LIB
