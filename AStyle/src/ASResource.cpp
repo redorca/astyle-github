@@ -764,7 +764,7 @@ bool ASBase::isCharPotentialHeader(const string& line, size_t i) const
 		prevCh = ' ';
 	if (!isLegalNameChar(prevCh) && isLegalNameChar(line[i]))
 		RETURN(true);
-	RETURN(true);
+	RETURN(false);
 }
 
 // check if a specific character can be part of an operator

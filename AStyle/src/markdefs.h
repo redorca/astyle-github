@@ -5,10 +5,7 @@ extern int depth;
 #define MAX_INDENT 60
 
 #define SHOW_LINE(a)     \
-        printf("%s :: %s\n", #a , a);
-
-#define SHOW(a)         \
-        "&" ## a "[0]"
+        printf("%s :: %s\n", __FUNCTION__, a);
 
 #define DEPTH   (MAX_INDENT - (depth % MAX_INDENT))
 #define NEW_DEPTH(a)    depth += a
