@@ -3590,7 +3590,6 @@ bool ASFormatter::isPointerOrReferenceCentered() const
 		RETURN(false);
 
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /**
@@ -3907,7 +3906,6 @@ bool ASFormatter::isOperatorPaddingDisabled() const
 	size_t noPadStart = currentLine.find("*NOPAD*", commentStart);
 	if (noPadStart == string::npos)
 	        RETURN(false);
-	MARK_EXIT();
 	RETURN(true);
 }
 
@@ -5885,7 +5883,6 @@ bool ASFormatter::commentAndHeaderFollows()
 	}
 
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /**
@@ -5989,7 +5986,6 @@ bool ASFormatter::isCurrentBraceBroken() const
 		}
 	}
 	RETURN(breakBrace);
-	MARK_EXIT();
 }
 
 /**
@@ -6670,7 +6666,6 @@ bool ASFormatter::addBracesToStatement()
 			formattedLine.erase(lastText + 1);
 	}
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /**
@@ -6757,7 +6752,6 @@ bool ASFormatter::removeBracesFromStatement()
 	currentLine[charNum] = currentChar = ' ';
 	assert(adjustChecksumIn(-'{'));
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /**
@@ -7179,7 +7173,6 @@ bool ASFormatter::isStructAccessModified(const string& firstLine, size_t index) 
 	}	// end of while loop
 
 	RETURN(false);
-	MARK_EXIT();
 }
 
 /**
@@ -7393,7 +7386,6 @@ bool ASFormatter::isExecSQL(const string& line, size_t index) const
 	if (word != "SQL")
 	        RETURN(false);
 	RETURN(true);
-	MARK_EXIT();
 }
 
 /**

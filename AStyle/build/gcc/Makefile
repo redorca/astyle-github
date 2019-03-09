@@ -100,9 +100,10 @@ $(objdir)/%.o:  %.cpp  astyle.h  astyle_main.h
 	$(CXX) $(CFLAGSr) -c $< -o $@
 
 # OBJd
+$(objdir)/%_d.o: DEFS=$(DEFS)
 $(objdir)/%_d.o:  %.cpp  astyle.h  astyle_main.h
 	@ mkdir -p $(objdir)
-	$(CXX) $(CFLAGSd) -c $< -o $@
+	$(CXX) -D$(DEFS) $(CFLAGSd) -c $< -o $@
 
 # OBJs
 $(objdir)/%_s.o:  %.cpp  astyle.h
@@ -134,6 +135,8 @@ $(objdir)/%_sjd.o:  %.cpp  astyle.h
 	@ mkdir -p $(objdir)
 	$(CXX) $(CFLAGSsjd) -c $< -o $@
 
+BIN  = asttyle
+
 ##################################################
 # define build dependencies for each command
 
@@ -144,7 +147,9 @@ astyle:  $(OBJ)
 	@ echo
 
 debug:  astyled
+astyled:  DEFS="-DDBG"
 astyled:  $(OBJd)
+	@echo "=====================" >&2
 	@ mkdir -p $(bindir)
 	$(CXX) $(LDFLAGSd) -o $(bindir)/$@ $^
 	@ echo
@@ -200,7 +205,7 @@ clobber: clean
 
 install:
 	$(INSTALL) -m 755 -d $(ipath)
-	@$(INSTALL) -m 755 $(bindir)/astyle  $(ipath)
+	$(INSTALL) -m 755 $(bindir)/$(BIN)  $(ipath)
 
 	@if [ -d $(SYSCONF_PATH)/html ]; then \
 		rm -rf  $(SYSCONF_PATH)/html; \

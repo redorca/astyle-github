@@ -2,15 +2,15 @@
 
 extern char depth_indent[];
 extern int depth;
-#define MAX_INDENT 60
 
+#define MAX_INDENT 60
 #define DEPTH   (MAX_INDENT - (depth % MAX_INDENT))
 #define NEW_DEPTH(a)    depth += a
 #define EXIT    "^^^"
 #define ENTER   "vvv"
 #define STEP  2
 
-#if defined(ACTIVE)
+#if !defined(DBG)
 
 #define SHOW_LINE(a)     \
         printf("%s :: %s\n", __FUNCTION__, a);
