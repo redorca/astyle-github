@@ -10,7 +10,7 @@ extern int depth;
 #define ENTER   "vvv"
 #define STEP  2
 
-#if !defined(DBG)
+#if defined(DBG)
 
 #define SHOW_LINE(a)     \
         printf("%s :: %s\n", __FUNCTION__, a);
