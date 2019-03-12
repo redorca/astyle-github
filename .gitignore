@@ -3,4 +3,6 @@ obj/
 *.swp
 *.o
 *.orig
-
+GTAGS
+GRTAGS
+GPATH
