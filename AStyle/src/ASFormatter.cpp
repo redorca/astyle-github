@@ -6025,7 +6025,6 @@ void ASFormatter::formatCommentBody()
 void ASFormatter::formatCommentOpener()
 {
 	MARK_ENTRY();
-        LABEL("+++++");
         SHOW_LINE(&formattedLine[0]);
         SHOW_LINE(&currentLine[0]);
 	assert(isSequenceReached("/*"));
@@ -6121,7 +6120,7 @@ void ASFormatter::formatCommentOpener()
 
 	if (previousCommandChar == '}')
 		currentHeader = nullptr;
-        LABEL("-----");
+
         SHOW_LINE(&formattedLine[0]);
         SHOW_LINE(&currentLine[0]);
 	MARK_EXIT();
@@ -6153,6 +6152,9 @@ void ASFormatter::formatCommentCloser()
 		isInLineBreak = true;
 		shouldBreakLineAtNextChar = true;
 	}
+        LABEL("Closing");
+        SHOW_LINE(&formattedLine[0]);
+        SHOW_LINE(&currentLine[0]);
 	MARK_EXIT();
 }
 
