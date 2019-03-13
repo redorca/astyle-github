@@ -496,7 +496,7 @@ string ASFormatter::nextLine()
 		else if (!getNextChar())
 		{
 			breakLine();
-			continue;
+			CONTINUE;
 		}
 		// stuff to do when reading a new character...
 		// make sure that a virgin '{' at the beginning of the file will be treated as a block...
@@ -517,6 +517,7 @@ string ASFormatter::nextLine()
 		}
 		if (!isWhiteSpace(currentChar))
                 {
+                        SHOW_LINE(&currentLine[0]);
 			isInBraceRunIn = false;
 		}
 		isPreviousCharPostComment = isCharImmediatelyPostComment;
@@ -539,14 +540,14 @@ string ASFormatter::nextLine()
 			breakLine();
 			formattedLine = currentLine;
 			charNum = (int) currentLine.length() - 1;
-			continue;
+			CONTINUE;
 		}
 		if (isFormattingModeOff)
 		{
 			breakLine();
 			formattedLine = currentLine;
 			charNum = (int) currentLine.length() - 1;
-			continue;
+			CONTINUE;
 		}
 		if ((lineIsLineCommentOnly || lineIsCommentOnly)
 		        && currentLine.find("*INDENT-OFF*", charNum) != string::npos)
@@ -558,14 +559,14 @@ string ASFormatter::nextLine()
 		        }
 			formattedLine = currentLine;
 			charNum = (int) currentLine.length() - 1;
-			continue;
+			CONTINUE;
 		}
 
 		if (shouldBreakLineAtNextChar)
 		{
 			if (isWhiteSpace(currentChar) && !lineIsEmpty)
 		        {
-				continue;
+				CONTINUE;
 		        }
 			isInLineBreak = true;
 			shouldBreakLineAtNextChar = false;
@@ -578,26 +579,25 @@ string ASFormatter::nextLine()
 				passedSemicolon = true;
 		        }
 			appendCurrentChar();
-			continue;
+			CONTINUE;
 		}
 
 		if (isInLineComment)
 		{
 			formatLineCommentBody();
-                        SHOW_LINE(&currentLine[0]);
-			continue;
+			CONTINUE;
 		}
 
 		if (isInComment)
 		{
 			formatCommentBody();
-			continue;
+			CONTINUE;
 		}
 
 		if (isInQuote)
 		{
 			formatQuoteBody();
-			continue;
+			CONTINUE;
 		}
 
 		// not in quote or comment or line comment
@@ -606,20 +606,22 @@ string ASFormatter::nextLine()
 		{
 			formatLineCommentOpener();
 			testForTimeToSplitFormattedLine();
-			continue;
+			CONTINUE;
 		}
 		if (isSequenceReached("/*"))
 		{
+printf("==========>\n");
 			formatCommentOpener();
 			testForTimeToSplitFormattedLine();
-			continue;
+			CONTINUE;
 		}
 		if (currentChar == '"'
 		        || (currentChar == '\'' && !isDigitSeparator(currentLine, charNum)))
 		{
+printf("..........>\n");
 			formatQuoteOpener();
 			testForTimeToSplitFormattedLine();
-			continue;
+			CONTINUE;
 		}
 		// treat these preprocessor statements as a line comment
 		if (currentChar == '#'
@@ -647,21 +649,22 @@ string ASFormatter::nextLine()
 		                }
 				isInLineComment = true;
 				appendCurrentChar();
-				continue;
+				CONTINUE;
 			}
 		}
 
 		if (isInPreprocessor)
 		{
+                        SHOW_LINE(&currentLine[0]);
 			appendCurrentChar();
-			continue;
+			CONTINUE;
 		}
 
 		if (isInTemplate && shouldCloseTemplates)
 		{
 			if (previousNonWSChar == '>' && isWhiteSpace(currentChar) && peekNextChar() == '>')
 		        {
-				continue;
+				CONTINUE;
 		        }
 		}
 
@@ -672,7 +675,7 @@ string ASFormatter::nextLine()
 			assert(adjustChecksumIn(-'}'));
 			if (isEmptyLine(currentLine))
 		        {
-				continue;
+				CONTINUE;
 		        }
 		}
 
@@ -680,7 +683,7 @@ string ASFormatter::nextLine()
 		if (isWhiteSpace(currentChar))
 		{
 			appendCurrentChar();
-			continue;
+			CONTINUE;
 		}
 
 		/* not in MIDDLE of quote or comment or SQL or white-space of any type ... */
@@ -824,7 +827,7 @@ string ASFormatter::nextLine()
 		                        {
 						shouldBreakLineAtNextChar = true;
 				        }
-					continue;
+					CONTINUE;
 				}
 			}
 
@@ -936,7 +939,7 @@ string ASFormatter::nextLine()
 					isCharImmediatelyPostCloseBlock = true;
 					needHeaderOpeningBrace = false;
 				}
-				continue;
+				CONTINUE;
 			}
 		}
 
@@ -949,7 +952,7 @@ string ASFormatter::nextLine()
 			{
 				shouldReparseCurrentChar = true;
 				isInLineBreak = true;
-				continue;
+				CONTINUE;
 			}
 		}
 
@@ -1218,7 +1221,7 @@ string ASFormatter::nextLine()
 					formatClosingBrace(braceType);
 			        }
 			}
-			continue;
+			CONTINUE;
 		}
 
 		if ((((previousCommandChar == '{' && isPreviousBraceBlockRelated)
@@ -1519,7 +1522,7 @@ string ASFormatter::nextLine()
 					isInCase = true;
 			        }
 
-				continue;
+				CONTINUE;
 			}
 			if ((newHeader = findHeader(preDefinitionHeaders)) != nullptr
 			        && parenStack->back() == 0
@@ -1545,7 +1548,7 @@ string ASFormatter::nextLine()
 				appendSequence(*newHeader);
 				goForward(newHeader->length() - 1);
 
-				continue;
+				CONTINUE;
 			}
 			if ((newHeader = findHeader(preCommandHeaders)) != nullptr)
 			{
@@ -1560,7 +1563,7 @@ string ASFormatter::nextLine()
 				foundCastOperator = true;
 				appendSequence(*newHeader);
 				goForward(newHeader->length() - 1);
-				continue;
+				CONTINUE;
 			}
 		}   // (isPotentialHeader && !isInTemplate)
 
@@ -1853,7 +1856,7 @@ string ASFormatter::nextLine()
 				goForward(name.length() - 1);
 			}
 
-			continue;
+			CONTINUE;
 
 		}   // (isPotentialHeader &&  !isInTemplate)
 
@@ -1871,7 +1874,7 @@ string ASFormatter::nextLine()
 			string name = '@' + AS_INTERFACE;
 			appendSequence(name);
 			goForward(name.length() - 1);
-			continue;
+			CONTINUE;
 		}
 		if (currentChar == '@'
 		        && isCStyle()
@@ -1884,7 +1887,7 @@ string ASFormatter::nextLine()
 			string name = '@' + AS_SELECTOR;
 			appendSequence(name);
 			goForward(name.length() - 1);
-			continue;
+			CONTINUE;
 		}
 		if ((currentChar == '-' || currentChar == '+')
 		        && isCStyle()
@@ -1903,7 +1906,7 @@ string ASFormatter::nextLine()
 				objCColonAlign = findObjCColonAlignment();
 		        }
 			appendCurrentChar();
-			continue;
+			CONTINUE;
 		}
 
 		// determine if this is a potential calculation
@@ -1969,13 +1972,13 @@ string ASFormatter::nextLine()
 				goForward(newHeader->length() - 1);
 			}
 			isImmediatelyPostPointerOrReference = true;
-			continue;
+			CONTINUE;
 		}
 
 		if (shouldPadOperators && newHeader != nullptr && !isOperatorPaddingDisabled())
 		{
 			padOperators(newHeader);
-			continue;
+			CONTINUE;
 		}
 
 		// remove spaces before commas
@@ -2012,7 +2015,7 @@ string ASFormatter::nextLine()
 			{
 				appendCurrentChar();
 				appendSpaceAfter();
-				continue;
+				CONTINUE;
 			}
 		}
 
@@ -2064,7 +2067,7 @@ string ASFormatter::nextLine()
 					padObjCParamType();
 		                }
 			}
-			continue;
+			CONTINUE;
 		}
 
 		// bypass the entire operator
@@ -2072,7 +2075,7 @@ string ASFormatter::nextLine()
 		{
 			appendOperator(*newHeader);
 			goForward(newHeader->length() - 1);
-			continue;
+			CONTINUE;
 		}
 
 		appendCurrentChar();

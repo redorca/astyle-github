@@ -14,8 +14,10 @@ extern int depth;
 
 #if defined(DBG)
 
+#define CONTINUE    {  SHOW_LINE(&currentLine[0]); continue; }
+
 #define SHOW_LINE(a)     \
-        printf("%s %d:: %s\n", #a , __LINE__, a);
+        printf("%s :: %d == %s %s\n", __FILE__, __LINE__, #a, a);
 /*      printf("%s :: %s\n", __FUNCTION__, a); */
 
 #define LABEL(a)                         \
@@ -41,8 +43,8 @@ extern int depth;
         }
 #else
 
+#define CONTINUE    continue;
 #define SHOW_LINE(a)
-
 #define SHOW_DEPTH(XXX)
 #define LABEL(a)
 #define MARK_EXIT()
