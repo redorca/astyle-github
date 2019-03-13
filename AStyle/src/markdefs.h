@@ -15,7 +15,7 @@ extern int depth;
 #if defined(DBG)
 
 #define SHOW_LINE(a)     \
-        printf("%s :: %s\n", #a , a);
+        printf("%s %d:: %s\n", #a , __LINE__, a);
 /*      printf("%s :: %s\n", __FUNCTION__, a); */
 
 #define LABEL(a)                         \
