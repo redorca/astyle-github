@@ -13,9 +13,9 @@
 // Change both the "Format" and the "Current Language..." settings.
 // A restart is required if the codepage has changed.
 //		Windows problems:
-//		Hindi    - no available locale, language pack removed
-//		Japanese - language pack install error
-//		Ukranian - displays a ? instead of i
+//		Hindi     - no available locale, language pack removed
+//		Japanese  - language pack install error
+//		Ukrainian - displays a ? instead of i
 //
 // Linux:
 // Change the LANG environment variable: LANG=fr_FR.UTF-8.
@@ -66,8 +66,8 @@
 #endif
 
 #ifdef __INTEL_COMPILER
-	#pragma warning(disable:  383)  // value copied to temporary, reference to temporary used
-	#pragma warning(disable:  981)  // operands are evaluated in unspecified order
+	// #pragma warning(disable:  383)  // value copied to temporary, reference to temporary used
+	// #pragma warning(disable:  981)  // operands are evaluated in unspecified order
 #endif
 
 #ifdef __clang__
@@ -88,9 +88,7 @@ ASLocalizer::ASLocalizer()
 	MARK_ENTRY();
 	// set language default values to english (ascii)
 	// this will be used if a locale or a language cannot be found
-	m_localeName = "UNKNOWN";
 	m_langID = "en";
-	m_lcid = 0;
 	m_subLangID.clear();
 	m_translationClass = nullptr;
 
@@ -106,6 +104,7 @@ ASLocalizer::ASLocalizer()
 #ifdef _WIN32
 	size_t lcid = GetUserDefaultLCID();
 	setLanguageFromLCID(lcid);
+	m_codepage = GetACP();
 #else
 	setLanguageFromName(localeName);
 #endif
@@ -170,12 +169,11 @@ void ASLocalizer::setLanguageFromLCID(size_t lcid)
 	size_t lang = PRIMARYLANGID(LANGIDFROMLCID(m_lcid));
 	size_t sublang = SUBLANGID(LANGIDFROMLCID(m_lcid));
 	// find language in the wlc table
-	size_t count = sizeof(wlc) / sizeof(wlc[0]);
-	for (size_t i = 0; i < count; i++)
+	for (WinLangCode language : wlc)
 	{
-		if (wlc[i].winLang == lang)
+		if (language.winLang == lang)
 		{
-			m_langID = wlc[i].canonicalLang;
+			m_langID = language.canonicalLang;
 			break;
 		}
 	}
@@ -229,7 +227,6 @@ void ASLocalizer::setLanguageFromName(const char* langID)
 {
 	MARK_ENTRY();
 	// the constants describing the format of lang_LANG locale string
-	m_lcid = 0;
 	string langStr = langID;
 	m_langID = langStr.substr(0, 2);
 
@@ -395,11 +392,11 @@ bool Translation::getWideTranslation(const string& stringIn, wstring& wideOut) c
 // Get the wide translation string. Used for testing.
 {
 	MARK_ENTRY();
-	for (size_t i = 0; i < m_translationVector.size(); i++)
+	for (const pair<string, wstring>& translation : m_translationVector)
 	{
-		if (m_translationVector.at(i).first == stringIn)
+		if (translation.first == stringIn)
 		{
-			wideOut = m_translationVector.at(i).second;
+			wideOut = translation.second;
 			RETURN(true);
 		}
 	}
@@ -415,11 +412,11 @@ string& Translation::translate(const string& stringIn) const
 {
 	MARK_ENTRY();
 	m_mbTranslation.clear();
-	for (size_t i = 0; i < m_translationVector.size(); i++)
+	for (const pair<string, wstring>& translation : m_translationVector)
 	{
-		if (m_translationVector.at(i).first == stringIn)
+		if (translation.first == stringIn)
 		{
-			m_mbTranslation = convertToMultiByte(m_translationVector.at(i).second);
+			m_mbTranslation = convertToMultiByte(translation.second);
 			break;
 		}
 	}

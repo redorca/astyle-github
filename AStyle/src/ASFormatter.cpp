@@ -213,6 +213,7 @@ void ASFormatter::init(ASSourceIterator* si)
 	isInCommentStartLine = false;
 	noTrimCommentContinuation = false;
 	isInPreprocessor = false;
+	isInPreprocessorDefineDef = false;
 	isInPreprocessorBeautify = false;
 	doesLineStartComment = false;
 	lineEndsInCommentOnly = false;
@@ -1025,6 +1026,7 @@ printf("..........>\n");
 		// handle parens
 		if (currentChar == '(' || currentChar == '[' || (isInTemplate && currentChar == '<'))
 		{
+			// do not use emplace_back on vector<bool> until supported by macOS
 			questionMarkStack->push_back(foundQuestionMark);
 			foundQuestionMark = false;
 			parenStack->back()++;
@@ -1123,6 +1125,7 @@ printf("..........>\n");
 				braceTypeStack->emplace_back(newBraceType);
 				preBraceHeaderStack->emplace_back(currentHeader);
 				currentHeader = nullptr;
+				// do not use emplace_back on vector<bool> until supported by macOS
 				structStack->push_back(isInIndentableStruct);
 				if (isBraceType(newBraceType, STRUCT_TYPE) && isCStyle())
 			        {
@@ -1377,18 +1380,6 @@ printf("..........>\n");
 						isAppendPostBlockEmptyLineRequested = false;
 			                }
 				}
-
-				// TODO: this can be removed in a future release
-				// version 3.0 - break erroneous attached header from previous versions
-				if (isSharpStyle()
-				        && ((newHeader == &AS_SET && currentHeader == &AS_GET)
-				            || (newHeader == &AS_REMOVE && currentHeader == &AS_ADD))
-				        && !isBraceType(braceTypeStack->back(), SINGLE_LINE_TYPE)
-				        && currentLine[currentLine.find_first_not_of(" \t")] == '}')
-			        {
-					isInLineBreak = true;
-			        }
-				// END TODO
 
 				const string* previousHeader = currentHeader;
 				currentHeader = newHeader;
@@ -2990,7 +2981,10 @@ bool ASFormatter::getNextLine(bool emptyLineWasDeleted /*false*/)
 	if (!isInComment
 	        && (previousNonWSChar != '\\'
 	            || isEmptyLine(currentLine)))
+	{
 		isInPreprocessor = false;
+		isInPreprocessorDefineDef = false;
+	}
 
 	if (passedSemicolon)
 		isInExecSQL = false;
@@ -3087,7 +3081,8 @@ void ASFormatter::initNewLine()
 	// preprocessor tabs are replaced later in the program
 	for (charNum = 0; isWhiteSpace(currentLine[charNum]) && charNum + 1 < (int) len; charNum++)
 	{
-		if (currentLine[charNum] == '\t' && !isInPreprocessor)
+		if (currentLine[charNum] == '\t'
+		        && (!isInPreprocessor || isInPreprocessorDefineDef))
 			tabIncrementIn += tabSize - 1 - ((tabIncrementIn + charNum) % tabSize);
 	}
 	leadingSpaces = charNum + tabIncrementIn;
@@ -3792,15 +3787,31 @@ bool ASFormatter::isPointerOrReferenceCentered() const
 bool ASFormatter::isPointerOrReferenceVariable(const string& word) const
 {
 	MARK_ENTRY();
-	RETURN((word == "char"
+	assert(currentChar == '*' || currentChar == '&' || currentChar == '^');
+	bool retval = false;
+	if (word == "char"
 	        || word == "string"
+	        || word == "String"
 	        || word == "NSString"
 	        || word == "int"
 	        || word == "void"
 	        || (word.length() >= 6     // check end of word for _t
 	            && word.compare(word.length() - 2, 2, "_t") == 0)
 	        || word == "INT"
-	        || word == "VOID"));
+	        || word == "VOID")
+		retval = true;
+	// check for C# object type "x is string"
+	if (retval && isSharpStyle())
+	{
+		// find the word previous to the 'word' parameter
+		string prevWord;
+		size_t wordStart = currentLine.rfind(word, charNum);
+		if (wordStart != string::npos)
+			prevWord = getPreviousWord(currentLine, wordStart);
+		if (prevWord == "is")
+			retval = false;
+	}
+	RETURN(retval);
 }
 
 /**
@@ -4549,7 +4560,7 @@ void ASFormatter::formatPointerOrReferenceToType()
 			break;
 		}
 	}
-	// append the seqence
+	// append the sequence
 	string charSave;
 	size_t prevCh = formattedLine.find_last_not_of(" \t");
 	if (prevCh < formattedLine.length())
@@ -5766,8 +5777,8 @@ void ASFormatter::formatRunIn()
 	if (getSwitchIndent()
 	        && !preBraceHeaderStack->empty()
 	        && preBraceHeaderStack->back() == &AS_SWITCH
-	        && ((isLegalNameChar(currentChar)
-	             && !findKeyword(currentLine, charNum, AS_CASE))))
+	        && (isLegalNameChar(currentChar)
+	            && !findKeyword(currentLine, charNum, AS_CASE)))
 		extraIndent = true;
 
 	isInLineBreak = false;
@@ -6038,6 +6049,8 @@ void ASFormatter::processPreprocessor()
 		}
 	}
 	MARK_EXIT();
+	else if (currentLine.compare(preproc, 6, "define") == 0)
+		isInPreprocessorDefineDef = true;
 }
 
 /**
@@ -7282,7 +7295,7 @@ void ASFormatter::findReturnTypeSplitPoint(const string& firstLine)
 					methodBreakCharNum = breakCharNum;
 					methodBreakLineNum = breakLineNum;
 				}
-				if ((shouldAttachReturnTypeDecl && foundSplitPoint && isAlreadyBroken))
+				if (shouldAttachReturnTypeDecl && foundSplitPoint && isAlreadyBroken)
 				{
 					methodAttachCharNum = breakCharNum;
 					methodAttachLineNum = breakLineNum;
@@ -7408,7 +7421,7 @@ bool ASFormatter::isIndentablePreprocessorBlock(const string& firstLine, size_t 
 	bool blockContainsDefineContinuation = false;
 	bool isInClassConstructor = false;
 	bool isPotentialHeaderGuard = false;	// ifndef is first preproc statement
-	bool isPotentialHeaderGuard2 = false;	// define is within the first proproc
+	bool isPotentialHeaderGuard2 = false;	// define is within the first preproc
 	int  numBlockIndents = 0;
 	int  lineParenCount = 0;
 	string nextLine_ = firstLine.substr(index);
@@ -7585,8 +7598,8 @@ bool ASFormatter::isExecSQL(const string& line, size_t index) const
 	string word;
 	if (isCharPotentialHeader(line, index))
 		word = getCurrentWord(line, index);
-	for (size_t i = 0; i < word.length(); i++)
-		word[i] = (char) toupper(word[i]);
+	for (char& character : word)
+		character = (char) toupper(character);
 	if (word != "EXEC")
                 RETURN(false);
 	size_t index2 = index + word.length();
@@ -7596,8 +7609,8 @@ bool ASFormatter::isExecSQL(const string& line, size_t index) const
 	word.erase();
 	if (isCharPotentialHeader(line, index2))
 		word = getCurrentWord(line, index2);
-	for (size_t i = 0; i < word.length(); i++)
-		word[i] = (char) toupper(word[i]);
+	for (char& character : word)
+		character = (char) toupper(character);
 	if (word != "SQL")
 	        RETURN(false);
 	RETURN(true);
@@ -8296,9 +8309,9 @@ bool ASFormatter::pointerSymbolFollows() const
 bool ASFormatter::computeChecksumIn(const string& currentLine_)
 {
 	MARK_ENTRY();
-	for (size_t i = 0; i < currentLine_.length(); i++)
-		if (!isWhiteSpace(currentLine_[i]))
-			checksumIn += currentLine_[i];
+	for (const char& character : currentLine_)
+		if (!isWhiteSpace(character))
+			checksumIn += character;
 	RETURN(true);
 }
 
@@ -8330,9 +8343,9 @@ size_t ASFormatter::getChecksumIn() const
 bool ASFormatter::computeChecksumOut(const string& beautifiedLine)
 {
 	MARK_ENTRY();
-	for (size_t i = 0; i < beautifiedLine.length(); i++)
-		if (!isWhiteSpace(beautifiedLine[i]))
-			checksumOut += beautifiedLine[i];
+	for (const char& character : beautifiedLine)
+		if (!isWhiteSpace(character))
+			checksumOut += character;
 	RETURN(true);
 }
 
