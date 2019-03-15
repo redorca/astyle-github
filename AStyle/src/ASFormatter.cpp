@@ -519,6 +519,7 @@ string ASFormatter::nextLine()
                 {
                         SHOW_LINE(&currentLine[0]);
 			isInBraceRunIn = false;
+                        printf("currentChar %c\n", currentChar);
 		}
 		isPreviousCharPostComment = isCharImmediatelyPostComment;
 		isCharImmediatelyPostComment = false;
@@ -584,12 +585,14 @@ string ASFormatter::nextLine()
 
 		if (isInLineComment)
 		{
+                        LABEL("===");
 			formatLineCommentBody();
 			CONTINUE;
 		}
 
 		if (isInComment)
 		{
+                        LABEL("+++");
 			formatCommentBody();
 			CONTINUE;
 		}
@@ -610,7 +613,6 @@ string ASFormatter::nextLine()
 		}
 		if (isSequenceReached("/*"))
 		{
-printf("==========>\n");
 			formatCommentOpener();
 			testForTimeToSplitFormattedLine();
 			CONTINUE;
@@ -3151,6 +3153,7 @@ void ASFormatter::initNewLine()
 void ASFormatter::appendChar(char ch, bool canBreakLine)
 {
 	MARK_ENTRY();
+        printf("%s :: current ch (%c)\n", __FUNCTION__, ch);
 	if (canBreakLine && isInLineBreak)
 		breakLine();
 
@@ -3180,11 +3183,12 @@ void ASFormatter::appendSequence(const string& sequence, bool canBreakLine)
 	MARK_ENTRY();
 	if (canBreakLine && isInLineBreak)
 		breakLine();
+        SHOW_LINE(&sequence[0]);
+        SHOW_LINE(&formattedLine[0]);
 	formattedLine.append(sequence);
 	if (formattedLine.length() > maxCodeLength)
 		testForTimeToSplitFormattedLine();
         SHOW_LINE(&formattedLine[0]);
-        SHOW_LINE(&sequence[0]);
 	MARK_EXIT();
 }
 
@@ -3871,9 +3875,14 @@ bool ASFormatter::isInSwitchStatement() const
 	MARK_ENTRY();
 	assert(isInLineComment || isInComment);
 	if (!preBraceHeaderStack->empty())
+        {
 		for (size_t i = 1; i < preBraceHeaderStack->size(); i++)
 			if (preBraceHeaderStack->at(i) == &AS_SWITCH)
+                        {
+                                LABEL("AS_SWITCH");
 				RETURN(true);
+                        }
+        }
 	RETURN(false);
 }
 
@@ -6220,7 +6229,9 @@ void ASFormatter::formatCommentOpener()
 	isInComment = isInCommentStartLine = true;
 	isImmediatelyPostLineComment = false;
 	if (previousNonWSChar == '}')
+        {
 		resetEndOfStatement();
+        }
 
 	// Check for a following header.
 	// For speed do not check multiple comment lines more than once.
@@ -6240,7 +6251,9 @@ void ASFormatter::formatCommentOpener()
           }
 
 	if (spacePadNum != 0 && !isInLineBreak)
+        {
 		adjustComments();
+        }
 	formattedLineCommentNum = formattedLine.length();
 
 	// must be done BEFORE appendSequence
@@ -6275,13 +6288,19 @@ void ASFormatter::formatCommentOpener()
 		}
 	}
 	else if (!doesLineStartComment)
+        {
 		noTrimCommentContinuation = true;
+        }
 
 	// ASBeautifier needs to know the following statements
 	if (shouldBreakElseIfs && followingHeader == &AS_ELSE)
+        {
 		elseHeaderFollowsComments = true;
+        }
 	if (followingHeader == &AS_CASE || followingHeader == &AS_DEFAULT)
+        {
 		caseHeaderFollowsComments = true;
+        }
 
 	// appendSequence will write the previous line
 	appendSequence(AS_OPEN_COMMENT);
@@ -6299,15 +6318,21 @@ void ASFormatter::formatCommentOpener()
 		if (isClosingHeader(followingHeader))
 		{
 			if (!shouldBreakClosingHeaderBlocks)
+                        {
 				isPrependPostBlockEmptyLineRequested = false;
+                        }
 		}
 		// if an opening header, break before the comment
 		else
+                {
 			isPrependPostBlockEmptyLineRequested = true;
+                }
 	}
 
 	if (previousCommandChar == '}')
+        {
 		currentHeader = nullptr;
+        }
 
         SHOW_LINE(&formattedLine[0]);
         SHOW_LINE(&currentLine[0]);
