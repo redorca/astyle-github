@@ -41,6 +41,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <sstream>
+#include <cmath>
 
 // includes for recursive getFileNames() function
 #ifdef _WIN32

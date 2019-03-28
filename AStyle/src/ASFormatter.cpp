@@ -6049,8 +6049,6 @@ void ASFormatter::processPreprocessor()
 		}
 	}
 	MARK_EXIT();
-	else if (currentLine.compare(preproc, 6, "define") == 0)
-		isInPreprocessorDefineDef = true;
 }
 
 /**
