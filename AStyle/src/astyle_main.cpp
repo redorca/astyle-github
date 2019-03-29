@@ -1412,9 +1412,7 @@ void ASConsole::getFileNames(const string& directory, const vector<string>& wild
 string ASConsole::getFullPathName(const string& relativePath) const
 {
 	char fullPath[PATH_MAX];
-	fullPath[0] = '\0';
-	realpath(relativePath.c_str(), fullPath);
-	return fullPath;
+	return realpath(relativePath.c_str(), fullPath);
 }
 
 // LINUX function to get the documentation file path prefix
@@ -2869,7 +2867,7 @@ int ASConsole::wildcmp(const char* wild, const char* data) const
 
 		if (cmpval)
 		{
-			return(0);
+			return 0;
 		}
 		wild++;
 		data++;
@@ -2881,7 +2879,7 @@ int ASConsole::wildcmp(const char* wild, const char* data) const
 		{
 			if (!*++wild)
 			{
-				return(1);
+				return 1;
 			}
 			mp = wild;
 			cp = data + 1;
@@ -2910,7 +2908,7 @@ int ASConsole::wildcmp(const char* wild, const char* data) const
 	{
 		wild++;
 	}
-	return(!*wild);
+	return !*wild;
 }
 
 void ASConsole::writeFile(const string& fileName_, FileEncoding encoding, ostringstream& out) const
@@ -3022,7 +3020,7 @@ char16_t* ASLibrary::formatUtf16(const char16_t* pSourceIn,		// the source to be
 		fpErrorHandler(123, "Cannot convert output utf-8 to utf-16.");
 		RETURN(nullptr);
 	}
-	return(utf16Out);
+	RETURN(utf16Out);
 }
 
 // STATIC method to allocate temporary memory for AStyle formatting.
@@ -3963,7 +3961,7 @@ size_t ASEncoding::utf8LengthFromUtf16(const char* utf16In, size_t inLen, bool i
 			len += 3;
 		i++;
 	}
-	return(len);
+	return len;
 }
 
 // Adapted from SciTE Utf8_16.cxx.
@@ -4038,7 +4036,7 @@ size_t ASEncoding::utf8ToUtf16(char* utf8In, size_t inLen, bool isBigEndian, cha
 		}
 	}
 	// return value is the output length in BYTES (not wchar_t)
-	return((pCur - pCurStart) * 2);
+	return (pCur - pCurStart) * 2;
 }
 
 // Adapted from SciTE UniConversion.cxx.
@@ -4068,7 +4066,7 @@ size_t ASEncoding::utf16LengthFromUtf8(const char* utf8In, size_t len) const
 		ulen++;
 	}
 	// return value is the length in bytes (not wchar_t)
-	return(ulen * 2);
+	return ulen * 2;
 }
 
 // Adapted from SciTE Utf8_16.cxx.
@@ -4164,7 +4162,7 @@ size_t ASEncoding::utf16ToUtf8(char* utf16In, size_t inLen, bool isBigEndian,
 		}
 		*pCur++ = static_cast<ubyte>(nCur);
 	}
-	return(pCur - pCurStart);
+	return pCur - pCurStart;
 }
 
 //----------------------------------------------------------------------------

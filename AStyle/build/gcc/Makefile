@@ -135,7 +135,7 @@ $(objdir)/%_sjd.o:  %.cpp  astyle.h
 	@ mkdir -p $(objdir)
 	$(CXX) $(CFLAGSsjd) -c $< -o $@
 
-BIN  = asttyle
+BIN  = astyle
 
 ##################################################
 # define build dependencies for each command
