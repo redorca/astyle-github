@@ -520,7 +520,6 @@ string ASFormatter::nextLine()
                 {
                         SHOW_LINE(&currentLine[0]);
 			isInBraceRunIn = false;
-                        printf("currentChar %c\n", currentChar);
 		}
 		isPreviousCharPostComment = isCharImmediatelyPostComment;
 		isCharImmediatelyPostComment = false;
@@ -621,7 +620,6 @@ string ASFormatter::nextLine()
 		if (currentChar == '"'
 		        || (currentChar == '\'' && !isDigitSeparator(currentLine, charNum)))
 		{
-printf("..........>\n");
 			formatQuoteOpener();
 			testForTimeToSplitFormattedLine();
 			CONTINUE;
@@ -3148,7 +3146,6 @@ void ASFormatter::initNewLine()
 void ASFormatter::appendChar(char ch, bool canBreakLine)
 {
 	MARK_ENTRY();
-        printf("%s :: current ch (%c)\n", __FUNCTION__, ch);
 	if (canBreakLine && isInLineBreak)
 		breakLine();
 
@@ -6463,7 +6460,6 @@ void ASFormatter::formatLineCommentOpener()
 	if (!lineCommentNoIndent && spacePadNum != 0 && !isInLineBreak)
 		adjustComments();
 	formattedLineCommentNum = formattedLine.length();
-        printf("	Num: %lu\n", formattedLineCommentNum);
 
 	// must be done BEFORE appendSequence
 	// check for run-in statement
