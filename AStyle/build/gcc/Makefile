@@ -3,20 +3,16 @@
 RM  = rm -f
 CP  = cp -p
 
-# list of source files for astyle
-SRC = astyle_main.cpp \
-      ASBeautifier.cpp \
-      ASFormatter.cpp \
-      ASEnhancer.cpp \
-      ASLocalizer.cpp \
-      ASResource.cpp
-
 # list of source files for libraries without ASLocalizer
-SRCx = astyle_main.cpp \
-       ASBeautifier.cpp \
-       ASFormatter.cpp \
-       ASEnhancer.cpp \
-       ASResource.cpp
+SRCx =  astyle_main.cpp \
+        ASBeautifier.cpp \
+        ASFormatter.cpp \
+        ASEnhancer.cpp \
+        ASResource.cpp
+
+# list of source files for astyle
+SRC = $(SRCx) ASLocalizer.cpp
+SRC_ROOTS      = $(SRC:%.cpp=%)
 
 # source directories
 vpath %.cpp ../../src
@@ -92,57 +88,73 @@ OBJad = $(patsubst %.cpp,$(objdir)/%_ad.o,$(SRCx))
 OBJsj  = $(patsubst %.cpp,$(objdir)/%_sj.o,$(SRCx))
 OBJsjd = $(patsubst %.cpp,$(objdir)/%_sjd.o,$(SRCx))
 
+OBJS_REGULAR            = ${addsuffix .o,$(SRC_ROOTS)}
+AFFIX_a                 = ${addsuffix _a,$(SRC_ROOTS)}
+AFFIX_s                 = ${addsuffix _s,$(SRC_ROOTS)}
+AFFIX_sj                = ${addsuffix _sj,$(SRC_ROOTS)}
+AFFIX_ALL               = $(AFFIX_a) $(AFFIX_s) $(AFFIX_sj)
+AFFIX_dbg               = ${addsuffix d.o,$(AFFIX_ALL)}
+AFFIX_objs              = ${addsuffix  .o,$(SRC_ROOTS) $(AFFIX_ALL)}
+OBJS                    = ${addprefix $(objdir)/,$(AFFIX_objs) $(AFFIX_dbg)}
+
+#
+# Rule to make directories so each
+# target does not need to mkdir anything.
+#
+$(OBJS):  $(objdir)
+$(SYSCONF_PATH) $(ipath) $(bindir) $(objdir):
+	$(INSTALL) -m 755 -d $@
+
+${addsuffix .o,$(SRC_ROOTS)}: astyle_main.h
+$(OBJS): %.cpp astyle.h
+	@echo "Compile object %@ %%"
+
 # define object file rule (with the suffix) for each build
 
-# OBJ
-$(objdir)/%.o:  %.cpp  astyle.h  astyle_main.h
-	@ mkdir -p $(objdir)
-	$(CXX) $(CFLAGSr) -c $< -o $@
+## # OBJ
+## $(objdir)/%.o:  %.cpp  astyle.h  astyle_main.h
+## 	$(CXX) $(CFLAGSr) -c $< -o $@
 
-# OBJd
-$(objdir)/%_d.o: DEFS=$(DEFS)
-$(objdir)/%_d.o:  %.cpp  astyle.h  astyle_main.h
-	@ mkdir -p $(objdir)
-	$(CXX) -D$(DEFS) $(CFLAGSd) -c $< -o $@
+## # OBJd
+## $(objdir)/%_d.o: DEFS=$(DEFS)
+## $(objdir)/%_d.o:  %.cpp  astyle.h  astyle_main.h
+## 	$(CXX) -D$(DEFS) $(CFLAGSd) -c $< -o $@
 
-# OBJs
-$(objdir)/%_s.o:  %.cpp  astyle.h
-	@ mkdir -p $(objdir)
-	$(CXX) $(CFLAGSs) -c $< -o $@
+## # OBJs
+## $(objdir)/%_s.o:  %.cpp  astyle.h
+## 	$(CXX) $(CFLAGSs) -c $< -o $@
 
-# OBJsd
-$(objdir)/%_sd.o:  %.cpp  astyle.h
-	@ mkdir -p $(objdir)
-	$(CXX) $(CFLAGSsd) -c $< -o $@
+## # OBJsd
+## $(objdir)/%_sd.o:  %.cpp  astyle.h
+## 	$(CXX) $(CFLAGSsd) -c $< -o $@
 
-# OBJa
-$(objdir)/%_a.o:  %.cpp  astyle.h
-	@ mkdir -p $(objdir)
-	$(CXX) $(CFLAGSa) -c $< -o $@
+## # OBJa
+## $(objdir)/%_a.o:  %.cpp  astyle.h
+## 	$(CXX) $(CFLAGSa) -c $< -o $@
 
-# OBJad
-$(objdir)/%_ad.o:  %.cpp  astyle.h
-	@ mkdir -p $(objdir)
-	$(CXX) $(CFLAGSad) -c $< -o $@
+## # OBJad
+## $(objdir)/%_ad.o:  %.cpp  astyle.h
+## 	$(CXX) $(CFLAGSad) -c $< -o $@
 
-# OBJsj
-$(objdir)/%_sj.o:  %.cpp  astyle.h
-	@ mkdir -p $(objdir)
-	$(CXX) $(CFLAGSsj) -c $< -o $@
+## # OBJsj
+## $(objdir)/%_sj.o:  %.cpp  astyle.h
+## 	$(CXX) $(CFLAGSsj) -c $< -o $@
 
-# OBJsjd
-$(objdir)/%_sjd.o:  %.cpp  astyle.h
-	@ mkdir -p $(objdir)
-	$(CXX) $(CFLAGSsjd) -c $< -o $@
+## # OBJsjd
+## $(objdir)/%_sjd.o:  %.cpp  astyle.h
+## 	$(CXX) $(CFLAGSsjd) -c $< -o $@
+LIBASTYLE               = libastyle
+LIBASTYLE_SHARED        =
+LIBASTYLE_SHARED_DBG    =
+LIBASTYLE_ARCHIVE       =
+LIBASTYLE_ARCHIVE_DBG   =
 
 BIN  = astyle
-
 ##################################################
 # define build dependencies for each command
 
 release:  astyle
 astyle:  $(OBJ)
-	@ mkdir -p $(bindir)
 	$(CXX) $(LDFLAGSr) -o $(bindir)/$@ $^
 	@ echo
 
@@ -150,13 +162,11 @@ debug:  astyled
 astyled:  DEFS="-DDBG"
 astyled:  $(OBJd)
 	@echo "=====================" >&2
-	@ mkdir -p $(bindir)
 	$(CXX) $(LDFLAGSd) -o $(bindir)/$@ $^
 	@ echo
 
 shared:  libastyle.so
 libastyle.so:  $(OBJs)
-	@ mkdir -p $(bindir)
 	$(CXX) -shared $(LDFLAGSr) -Wl,-soname,libastyle.so.$(MAJORVER) \
 	-o $(bindir)/libastyle.so.$(SOLIBVER) $^
 	@ln  --symbolic --force  libastyle.so.$(SOLIBVER)  libastyle.so.$(MAJORVER)
@@ -166,7 +176,6 @@ libastyle.so:  $(OBJs)
 
 shareddebug:  libastyled.so
 libastyled.so:  $(OBJsd)
-	@ mkdir -p $(bindir)
 	$(CXX) -shared $(LDFLAGSd) -Wl,-soname,libastyled.so.$(MAJORVER) \
 	-o $(bindir)/libastyled.so.$(SOLIBVER) $^
 	@ln  --symbolic --force  libastyled.so.$(SOLIBVER)  libastyled.so.$(MAJORVER)
@@ -176,19 +185,16 @@ libastyled.so:  $(OBJsd)
 
 static:  libastyle.a
 libastyle.a:  $(OBJa)
-	@ mkdir -p $(bindir)
 	ar crs $(bindir)/$@ $^
 	@ echo
 
 staticdebug:  libastyled.a
 libastyled.a:  $(OBJad)
-	@ mkdir -p $(bindir)
 	ar crs $(bindir)/$@ $^
 	@ echo
 
 java:  libastylej.so
 libastylej.so:  $(OBJsj)
-	@ mkdir -p $(bindir)
 	$(CXX) -shared $(LDFLAGSr) -Wl,-soname,libastylej.so.$(MAJORVER) \
 	-o $(bindir)/libastylej.so.$(SOLIBVER) $^
 	@ln  --symbolic --force  libastylej.so.$(SOLIBVER)  libastylej.so.$(MAJORVER)
@@ -198,7 +204,6 @@ libastylej.so:  $(OBJsj)
 
 javadebug:  libastylejd.so
 libastylejd.so:  $(OBJsjd)
-	@ mkdir -p $(bindir)
 	$(CXX) -shared $(LDFLAGSr) -Wl,-soname,libastylejd.so.$(MAJORVER) \
 	-o $(bindir)/libastylejd.so.$(SOLIBVER) $^
 	@ln  --symbolic --force  libastylejd.so.$(SOLIBVER)  libastylejd.so.$(MAJORVER)
@@ -210,17 +215,23 @@ all:  release debug shared shareddebug static staticdebug
 
 javaall:  java javadebug
 
-clean:
-	rm -f $(objdir)/*.o $(bindir)/*astyle*
+cleanbinary:
+	@rm -f $(ipath)/$(BIN)
+
+clean: cleanbinary
+	@rm -f $(objdir)/*.o $(bindir)/*astyle*
 
 cleanobj:
-	rm -f $(objdir)/*.o
+	@rm -f $(objdir)/*.o
 
 clobber: clean
 	@$(RM) -r $(objdir) $(bindir)
 
+#
+# Ensure all the necessary dirs are in place.
+install: $(SYSCONF_PATH) $(ipath) $(bindir)
+
 install:
-	$(INSTALL) -m 755 -d $(ipath)
 	$(INSTALL) -m 755 $(bindir)/$(BIN)  $(ipath)
 
 	@if [ -d $(SYSCONF_PATH)/html ]; then \
