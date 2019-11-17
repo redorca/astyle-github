@@ -468,7 +468,6 @@ string ASBeautifier::beautify(const string& originalLine)
 	string line;
 	bool isInQuoteContinuation = isInVerbatimQuote || haveLineContinuationChar;
 
-        SHOW_LINE(&originalLine[0]);
 	currentHeader = nullptr;
 	lastLineHeader = nullptr;
 	blockCommentNoBeautify = blockCommentNoIndent;
@@ -548,7 +547,6 @@ string ASBeautifier::beautify(const string& originalLine)
 					lineIsCommentOnly = true;
 			}
 		}
-                SHOW_LINE(&line[0]);
 
 		isInRunInComment = false;
 		size_t j = line.find_first_not_of(" \t{");
@@ -1567,7 +1565,6 @@ string ASBeautifier::trim(const string& str) const
 	int end = str.length() - 1;
 
         LABEL(">>>");
-        SHOW_LINE(&str[0])
 	while (start < end && isWhiteSpace(str[start]))
 		start++;
 
@@ -1910,7 +1907,6 @@ string ASBeautifier::getNextWord(const string& line, size_t currPos) const
 {
 	MARK_ENTRY();
         LABEL(">>>");
-        SHOW_LINE(&line[0]);
 
 	size_t lineLength = line.length();
 	// get the last legal word (may be a number)
@@ -1989,7 +1985,6 @@ bool ASBeautifier::isPreprocessorConditionalCplusplus(const string& line) const
 {
 	MARK_ENTRY();
 	string preproc = trim(line.substr(1));
-        SHOW_LINE(&preproc[0]);
 	if (preproc.compare(0, 5, "ifdef") == 0 && getNextWord(preproc, 4) == "__cplusplus")
 		RETURN(true);
 	if (preproc.compare(0, 2, "if") == 0)
@@ -2679,7 +2674,6 @@ void ASBeautifier::parseCurrentLine(const string& line)
 		isInQuote = false;				// missing closing quote
 	haveLineContinuationChar = false;
         LABEL(">>>");
-        SHOW_LINE(&line[0]);
 
 	for (size_t i = 0; i < line.length(); i++)
 	{
@@ -2845,7 +2839,6 @@ void ASBeautifier::parseCurrentLine(const string& line)
                         i = line.length - 1;
                          */
                         LABEL("...");
-                        SHOW_LINE(&line[0]);
 			continue;
 		}
 		if (isInComment)
@@ -2862,7 +2855,6 @@ void ASBeautifier::parseCurrentLine(const string& line)
 			        && line.compare(i + 1, 2, "*/") != 0)
 				i++;
                         LABEL("...");
-                        SHOW_LINE(&line[0]);
 			continue;
 		}
 

@@ -31,7 +31,7 @@ endif
 
 # set prefix if not defined on the command line
 ifndef prefix
-    prefix=$(HOME)
+    prefix=$(HOME)/usr
 endif
 SYSCONF_PATH=$(prefix)/share/doc/astyle
 
@@ -208,6 +208,9 @@ clobber: uninstall
 
 prep-install:
 	$(Q) [ ! -d $(SYSCONF_PATH)/html ] || $(RM) -r $(SYSCONF_PATH)/html
+
+install_debug: BIN=astyled
+install_debug: install
 
 install: prep-install $(ipath) $(SYSCONF_PATH)/html
 	$(Q) $(INSTALL) -m 755 $(bindir)/$(BIN)  $(ipath)

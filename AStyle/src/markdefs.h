@@ -14,7 +14,8 @@ extern int depth;
 
 #if defined(DBG)
 
-#define CONTINUE    {  SHOW_LINE(&currentLine[0]); continue; }
+/* #define CONTINUE    {  SHOW_LINE(&currentLine[0]); continue; } */
+#define CONTINUE    continue;
 
 #define SHOW_LINE(a)     \
         printf("%s :: %d == %s %s\n", __FILE__, __LINE__, #a, a);
