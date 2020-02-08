@@ -164,8 +164,7 @@ const string ASResource::AS_SEMICOLON = string(";");
  */
 bool sortOnLength(const string* a, const string* b)
 {
-        MARK_ENTRY();
-	RETURN((*a).length() > (*b).length());
+	return ((*a).length() > (*b).length());
 }
 
 /**
@@ -176,8 +175,7 @@ bool sortOnLength(const string* a, const string* b)
  */
 bool sortOnName(const string* a, const string* b)
 {
-        MARK_ENTRY();
-	RETURN(*a < *b);
+	return (*a < *b);
 }
 
 /**
@@ -740,21 +738,24 @@ string ASBase::getCurrentWord(const string& line, size_t index) const
 // check if a specific character can be used in a legal variable/method/class name
 bool ASBase::isLegalNameChar(char ch) const
 {
-	MARK_ENTRY();
+//	MARK_ENTRY();
 	if (isWhiteSpace(ch))
-		RETURN(false);
+//		RETURN(false);
+                return false;
 	if ((unsigned char) ch > 127)
-		RETURN(false);
-	RETURN((isalnum((unsigned char) ch)
+//		RETURN(false);
+                return false;
+//	RETURN((isalnum((unsigned char) ch)
+	return (isalnum((unsigned char) ch)
 	        || ch == '.' || ch == '_'
 	        || (isJavaStyle() && ch == '$')
-	        || (isSharpStyle() && ch == '@')));  // may be used as a prefix
+	        || (isSharpStyle() && ch == '@')) ;  // may be used as a prefix
 }
 
 // check if a specific character can be part of a header
 bool ASBase::isCharPotentialHeader(const string& line, size_t i) const
 {
-	MARK_ENTRY();
+//	MARK_ENTRY();
 	assert(!isWhiteSpace(line[i]));
 	char prevCh = ' ';
 	if (i > 0)
@@ -762,8 +763,10 @@ bool ASBase::isCharPotentialHeader(const string& line, size_t i) const
 	if (i > 1 && line[i - 2] == '\\')
 		prevCh = ' ';
 	if (!isLegalNameChar(prevCh) && isLegalNameChar(line[i]))
-		RETURN(true);
-	RETURN(false);
+                return true;
+//		RETURN(true);
+        return false;
+//	RETURN(false);
 }
 
 // check if a specific character can be part of an operator

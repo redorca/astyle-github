@@ -94,38 +94,38 @@ OBJsj  = $(patsubst %.cpp,$(objdir)/%_sj.o,$(SRCx))
 OBJsjd = $(patsubst %.cpp,$(objdir)/%_sjd.o,$(SRCx))
 
 # define object file rule (with the suffix) for each build
-
+HEADERS =       astyle.h astyle_main.h markdefs.h
 # OBJ
-$(objdir)/%.o:  %.cpp  astyle.h  astyle_main.h
+$(objdir)/%.o:  %.cpp  $(HEADERS)
 	$(CXX) $(CFLAGSr) -c $< -o $@
 
 # OBJd
 $(objdir)/%_d.o: DEFS=$(DEFFS)
-$(objdir)/%_d.o:  %.cpp  astyle.h  astyle_main.h
+$(objdir)/%_d.o:  %.cpp  $(HEADERS)
 	$(CXX) $(DEFS) $(CFLAGSd) -c $< -o $@
 
 # OBJs
-$(objdir)/%_s.o:  %.cpp  astyle.h
+$(objdir)/%_s.o:  %.cpp  $(HEADERS)
 	$(CXX) $(CFLAGSs) -c $< -o $@
 
 # OBJsd
-$(objdir)/%_sd.o:  %.cpp  astyle.h
+$(objdir)/%_sd.o:  %.cpp  $(HEADERS)
 	$(CXX) $(CFLAGSsd) -c $< -o $@
 
 # OBJa
-$(objdir)/%_a.o:  %.cpp  astyle.h
+$(objdir)/%_a.o:  %.cpp  $(HEADERS)
 	$(CXX) $(CFLAGSa) -c $< -o $@
 
 # OBJad
-$(objdir)/%_ad.o:  %.cpp  astyle.h
+$(objdir)/%_ad.o:  %.cpp  $(HEADERS)
 	$(CXX) $(CFLAGSad) -c $< -o $@
 
 # OBJsj
-$(objdir)/%_sj.o:  %.cpp  astyle.h
+$(objdir)/%_sj.o:  %.cpp  $(HEADERS)
 	$(CXX) $(CFLAGSsj) -c $< -o $@
 
 # OBJsjd
-$(objdir)/%_sjd.o:  %.cpp  astyle.h
+$(objdir)/%_sjd.o:  %.cpp  $(HEADERS)
 	$(CXX) $(CFLAGSsjd) -c $< -o $@
 
 BIN  = astyle

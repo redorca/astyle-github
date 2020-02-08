@@ -535,7 +535,7 @@ string ASFormatter::nextLine()
 			&& currentLine.find("*INDENT-ON*", charNum) != string::npos
 			&& isFormattingModeOff)
 		{
-			LABEL("CommentOnly");
+			LABEL("\tCommentOnly");
 			isFormattingModeOff = false;
 			breakLine();
 			formattedLine = currentLine;
@@ -584,14 +584,14 @@ string ASFormatter::nextLine()
 
 		if (isInLineComment)
 		{
-			LABEL("===");
+			LABEL("\t===");
 			formatLineCommentBody();
 			CONTINUE;
 		}
 
 		if (isInComment)
 		{
-			LABEL("+++");
+			LABEL("\t+++");
 			formatCommentBody();
 			CONTINUE;
 		}
@@ -2092,7 +2092,7 @@ string ASFormatter::nextLine()
 		isLineReady = false;
 		runInIndentContinuation = runInIndentChars;
 		beautifiedLine = beautify(readyFormattedLine);
-		LABEL("...");
+		LABEL("\t...");
 		previousReadyFormattedLineLength = readyFormattedLineLength;
 		// the enhancer is not called for no-indent line comments
 		if (!lineCommentNoBeautify && !isFormattingModeOff)
@@ -2118,6 +2118,7 @@ string ASFormatter::nextLine()
 
 	prependEmptyLine = false;
 	assert(computeChecksumOut(beautifiedLine));
+        DISPLAY(beautifiedLine.data(), BLUE('|'));
 	RETURN(beautifiedLine);
 }
 
@@ -2764,16 +2765,15 @@ void ASFormatter::goForward(int i)
  */
 char ASFormatter::peekNextChar() const
 {
-	MARK_ENTRY();
 	char ch = ' ';
 	size_t peekNum = currentLine.find_first_not_of(" \t", charNum + 1);
 
 	if (peekNum == string::npos)
-		RETURN(ch);
+		return ch;
 
 	ch = currentLine[peekNum];
 
-	RETURN(ch);
+	return ch;
 }
 
 /**
@@ -2883,7 +2883,6 @@ bool ASFormatter::isBeforeMultipleLineEndComments(int startPos) const
  */
 bool ASFormatter::getNextChar()
 {
-	MARK_ENTRY();
 	isInLineBreak = false;
 	previousChar = currentChar;
 
@@ -2907,11 +2906,11 @@ bool ASFormatter::getNextChar()
 		if (currentChar == '\t' && shouldConvertTabs)
 			convertTabToSpaces();
 
-		RETURN(true);
+		return true;
 	}
 
 	// end of line has been reached
-	RETURN(getNextLine());
+	return getNextLine();
 }
 
 /**
@@ -2933,6 +2932,7 @@ bool ASFormatter::getNextLine(bool emptyLineWasDeleted /*false*/)
 	else
 	{
 		currentLine = sourceIterator->nextLine(emptyLineWasDeleted);
+                DISPLAY(currentLine.data(), GREEN(':'))
 		assert(computeChecksumIn(currentLine));
 	}
 	// reset variables for new line
@@ -3141,7 +3141,6 @@ void ASFormatter::initNewLine()
  */
 void ASFormatter::appendChar(char ch, bool canBreakLine)
 {
-	MARK_ENTRY();
 	if (canBreakLine && isInLineBreak)
 		breakLine();
 
@@ -3155,7 +3154,6 @@ void ASFormatter::appendChar(char ch, bool canBreakLine)
 		if (formattedLine.length() > maxCodeLength)
 			testForTimeToSplitFormattedLine();
 	}
-	MARK_EXIT();
 }
 
 /**
@@ -3186,7 +3184,6 @@ void ASFormatter::appendSequence(const string& sequence, bool canBreakLine)
  */
 void ASFormatter::appendOperator(const string& sequence, bool canBreakLine)
 {
-	MARK_ENTRY();
 	if (canBreakLine && isInLineBreak)
 		breakLine();
 	formattedLine.append(sequence);
@@ -3198,7 +3195,6 @@ void ASFormatter::appendOperator(const string& sequence, bool canBreakLine)
 		if (formattedLine.length() > maxCodeLength)
 			testForTimeToSplitFormattedLine();
 	}
-	MARK_EXIT();
 }
 
 /**
@@ -8071,7 +8067,7 @@ void ASFormatter::updateFormattedLineSplitPointsPointerOrReference(size_t index)
 
 bool ASFormatter::isOkToSplitFormattedLine()
 {
-	MARK_ENTRY();
+//	MARK_ENTRY();
 	assert(maxCodeLength != string::npos);
 	// Is it OK to split the line?
 	if (shouldKeepLineUnbroken
@@ -8083,22 +8079,26 @@ bool ASFormatter::isOkToSplitFormattedLine()
 		|| isInExecSQL
 		|| isInAsm || isInAsmOneLine || isInAsmBlock
 		|| isInTemplate)
-		RETURN(false);
+                return false;
+//		RETURN(false);
 
 	if (!isOkToBreakBlock(braceTypeStack->back()) && currentChar != '{')
 	{
 		shouldKeepLineUnbroken = true;
 		clearFormattedLineSplitPoints();
-		RETURN(false);
+                return false;
+//		RETURN(false);
 	}
 	if (isBraceType(braceTypeStack->back(), ARRAY_TYPE))
 	{
 		shouldKeepLineUnbroken = true;
 		if (!isBraceType(braceTypeStack->back(), ARRAY_NIS_TYPE))
 			clearFormattedLineSplitPoints();
-		RETURN(false);
+                return false;
+//		RETURN(false);
 	}
-	RETURN(true);
+        return true;
+//	RETURN(true);
 }
 
 /* This is called if the option maxCodeLength is set.

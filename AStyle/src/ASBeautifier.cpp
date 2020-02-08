@@ -1564,7 +1564,7 @@ string ASBeautifier::trim(const string& str) const
 	int start = 0;
 	int end = str.length() - 1;
 
-        LABEL(">>>");
+        LABEL("\t>>>");
 	while (start < end && isWhiteSpace(str[start]))
 		start++;
 
@@ -1906,7 +1906,6 @@ int ASBeautifier::getContinuationIndentComma(const string& line, size_t currPos)
 string ASBeautifier::getNextWord(const string& line, size_t currPos) const
 {
 	MARK_ENTRY();
-        LABEL(">>>");
 
 	size_t lineLength = line.length();
 	// get the last legal word (may be a number)
@@ -2673,7 +2672,6 @@ void ASBeautifier::parseCurrentLine(const string& line)
 	        && !isInAsm)
 		isInQuote = false;				// missing closing quote
 	haveLineContinuationChar = false;
-        LABEL(">>>");
 
 	for (size_t i = 0; i < line.length(); i++)
 	{
@@ -2838,7 +2836,7 @@ void ASBeautifier::parseCurrentLine(const string& line)
                         /* XXX Why not simply set
                         i = line.length - 1;
                          */
-                        LABEL("...");
+                        LABEL("\t...");
 			continue;
 		}
 		if (isInComment)
@@ -2854,7 +2852,7 @@ void ASBeautifier::parseCurrentLine(const string& line)
 			while (i + 1 < line.length()
 			        && line.compare(i + 1, 2, "*/") != 0)
 				i++;
-                        LABEL("...");
+                        LABEL("\t...");
 			continue;
 		}
 
