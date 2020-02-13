@@ -535,7 +535,7 @@ string ASFormatter::nextLine()
 			&& currentLine.find("*INDENT-ON*", charNum) != string::npos
 			&& isFormattingModeOff)
 		{
-			LABEL("\tCommentOnly");
+			LABEL("\tLineCommentOnly or CommentOnly && INDENT-ON");
 			isFormattingModeOff = false;
 			breakLine();
 			formattedLine = currentLine;
@@ -544,6 +544,7 @@ string ASFormatter::nextLine()
 		}
 		if (isFormattingModeOff)
 		{
+			LABEL("\tisFormattingModeOff == true")
 			breakLine();
 			formattedLine = currentLine;
 			charNum = (int) currentLine.length() - 1;
@@ -552,6 +553,7 @@ string ASFormatter::nextLine()
 		if ((lineIsLineCommentOnly || lineIsCommentOnly)
 			&& currentLine.find("*INDENT-OFF*", charNum) != string::npos)
 		{
+			LABEL("\tLineCommentOnly or CommentOnly && INDENT-OFF");
 			isFormattingModeOff = true;
 			if (isInLineBreak)			// is true if not the first line
 			{
@@ -584,14 +586,14 @@ string ASFormatter::nextLine()
 
 		if (isInLineComment)
 		{
-			LABEL("\t===");
+			LABEL("\t=== isInLineComment true");
 			formatLineCommentBody();
 			CONTINUE;
 		}
 
 		if (isInComment)
 		{
-			LABEL("\t+++");
+			LABEL("\t+++ isInComment true");
 			formatCommentBody();
 			CONTINUE;
 		}
@@ -606,12 +608,14 @@ string ASFormatter::nextLine()
 
 		if (isSequenceReached("//"))
 		{
+			LABEL("\t<<<< sequence reached '//'")
 			formatLineCommentOpener();
 			testForTimeToSplitFormattedLine();
 			CONTINUE;
 		}
 		if (isSequenceReached("/*"))
 		{
+			LABEL("\t<<<< sequence reached '/*'")
 			formatCommentOpener();
 			testForTimeToSplitFormattedLine();
 			CONTINUE;
@@ -655,6 +659,7 @@ string ASFormatter::nextLine()
 
 		if (isInPreprocessor)
 		{
+			LABEL("\t=== isInPreprocessor")
 			appendCurrentChar();
 			CONTINUE;
 		}
@@ -742,6 +747,7 @@ string ASFormatter::nextLine()
 
 		if (isImmediatelyPostComment)
 		{
+			LABEL("\t=== isInPreprocessor")
 			caseHeaderFollowsComments = false;
 			isImmediatelyPostComment = false;
 			isCharImmediatelyPostComment = true;
@@ -749,6 +755,7 @@ string ASFormatter::nextLine()
 
 		if (isImmediatelyPostLineComment)
 		{
+			LABEL("\t=== isInPreprocessor")
 			caseHeaderFollowsComments = false;
 			isImmediatelyPostLineComment = false;
 			isCharImmediatelyPostLineComment = true;
@@ -791,6 +798,7 @@ string ASFormatter::nextLine()
 		// reset isImmediatelyPostHeader information
 		if (isImmediatelyPostHeader)
 		{
+			LABEL("\t=== isInPreprocessor")
 			// should braces be added
 			if (currentChar != '{'
 				&& shouldAddBraces
@@ -2089,15 +2097,19 @@ string ASFormatter::nextLine()
 	}
 	else		// format the current formatted line
 	{
+		LABEL("\t... Ready to enhance.");
 		isLineReady = false;
 		runInIndentContinuation = runInIndentChars;
 		beautifiedLine = beautify(readyFormattedLine);
-		LABEL("\t...");
 		previousReadyFormattedLineLength = readyFormattedLineLength;
 		// the enhancer is not called for no-indent line comments
 		if (!lineCommentNoBeautify && !isFormattingModeOff)
 		{
 			enhancer->enhance(beautifiedLine, isInNamespace, isInPreprocessorBeautify, isInBeautifySQL);
+		}
+                else
+		{
+			LABEL("\t=== no-indent line comment.")
 		}
 		runInIndentChars = 0;
 		lineCommentNoBeautify = lineCommentNoIndent;
@@ -6033,6 +6045,8 @@ void ASFormatter::processPreprocessor()
 				braceTypeStack->pop_back();
 		}
 	}
+ 	else if (currentLine.compare(preproc, 6, "define") == 0)
+ 		isInPreprocessorDefineDef = true;
 	MARK_EXIT();
 }
 
@@ -6196,6 +6210,7 @@ void ASFormatter::formatCommentBody()
 		currentChar = currentLine[charNum];
 		if (isSequenceReached("*/"))
 		{
+			LABEL("\t<<<< sequence reached '*/'")
 			formatCommentCloser();
 			break;
 		}
@@ -6239,7 +6254,7 @@ void ASFormatter::formatCommentOpener()
 			&& !isImmediatelyPostEmptyLine
 			&& previousCommandChar != '{')))
 	  {
-		LABEL("followingHeader");
+		LABEL("check for followingHeader");
 		followingHeader = checkForHeaderFollowingComment(currentLine.substr(charNum));
 	  }
 
@@ -6282,6 +6297,7 @@ void ASFormatter::formatCommentOpener()
 	}
 	else if (!doesLineStartComment)
 	{
+                LABEL("doesLineStartComment = false")
 		noTrimCommentContinuation = true;
 	}
 
