@@ -216,6 +216,7 @@ void ASFormatter::init(ASSourceIterator* si)
 	isInPreprocessorDefineDef = false;
 	isInPreprocessorBeautify = false;
 	doesLineStartComment = false;
+	preserveCommentBodyIndents = true;
 	lineEndsInCommentOnly = false;
 	lineIsCommentOnly = false;
 	lineIsLineCommentOnly = false;

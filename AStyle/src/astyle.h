@@ -941,6 +941,7 @@ private:  // variables
 	bool isInPreprocessorBeautify;
 	bool isInTemplate;
 	bool doesLineStartComment;
+	bool preserveCommentBodyIndents;
 	bool lineEndsInCommentOnly;
 	bool lineIsCommentOnly;
 	bool lineIsLineCommentOnly;
