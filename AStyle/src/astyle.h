@@ -490,6 +490,7 @@ private:  // variables
 	bool isInAsmBlock;
 	bool isInComment;
 	bool isInPreprocessorComment;
+	bool wasInPreprocessorComment;
 	bool isInRunInComment;
 	bool isInCase;
 	bool isInQuestion;

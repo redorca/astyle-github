@@ -547,7 +547,10 @@ void ASEnhancer::parseCurrentLine(string& line, bool isInPreprocessor, bool isIn
 		{
 			// unindent if not in case braces
 			if (sw.switchBraceCount == 1 && sw.unindentCase)
+                          {
+                                LABEL("shoudUnindentComment == true");
 				shouldUnindentComment = true;
+		          }
 			isInComment = false;
 			i++;
 			continue;
@@ -556,7 +559,10 @@ void ASEnhancer::parseCurrentLine(string& line, bool isInPreprocessor, bool isIn
 		{
 			// unindent if not in case braces
 			if (sw.switchBraceCount == 1 && sw.unindentCase)
+                          {
+                                LABEL("isInComment:: shoudUnindentComment == true");
 				shouldUnindentComment = true;
+		          }
 			size_t commentEnd = line.find("*/", i);
 			if (commentEnd == string::npos)
 				i = line.length() - 1;

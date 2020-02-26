@@ -179,6 +179,7 @@ ASBeautifier::ASBeautifier(const ASBeautifier& other) : ASBase(other)
 	isInAsmBlock = other.isInAsmBlock;
 	isInComment = other.isInComment;
 	isInPreprocessorComment = other.isInPreprocessorComment;
+	wasInPreprocessorComment = isInPreprocessorComment;
 	isInRunInComment = other.isInRunInComment;
 	isInCase = other.isInCase;
 	isInQuestion = other.isInQuestion;
@@ -495,6 +496,7 @@ string ASBeautifier::beautify(const string& originalLine)
 		objCColonAlignSubsequent = 0;
 	}
 
+        LABEL("==A::a")
 	// handle and remove white spaces around the line:
 	// If not in comment, first find out size of white space before line,
 	// so that possible comments starting in the line continue in
@@ -507,6 +509,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	}
 	else if (isInComment || isInBeautifySQL)
 	{
+                LABEL("==Z::a")
 		// trim the end of comment and SQL lines
 		line = originalLine;
 		size_t trimEnd = line.find_last_not_of(" \t");
@@ -530,6 +533,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	}
 	else
 	{
+                LABEL("==B::a")
 		line = trim(originalLine);
 		if (line.length() > 0)
 		{
@@ -543,8 +547,12 @@ string ASBeautifier::beautify(const string& originalLine)
 				lineIsLineCommentOnly = true;
 			else if (line.compare(0, 2, "/*") == 0)
 			{
+                                LABEL("==E::a")
 				if (line.find("*/", 2) != string::npos)
+			        {
+                                        LABEL("==F::a")
 					lineIsCommentOnly = true;
+			        }
 			}
 		}
 
@@ -567,6 +575,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	        && line.find("*INDENT-OFF*", 0) != string::npos)
 		isIndentModeOff = true;
 
+        LABEL("==A::b")
 	if (line.length() == 0)
 	{
 		if (backslashEndsPrevLine)
@@ -603,6 +612,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	        && line.length() > 0
 	        && line[0] != '#')
 	{
+                LABEL("==C::a")
 		string indentedLine;
 		if (isInClassHeaderTab || isInClassInitializer)
 		{
@@ -621,6 +631,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	        && ((line[0] == '#' && !isIndentedPreprocessor(line, 0))
 	            || backslashEndsPrevLine))
 	{
+                LABEL("==D::a")
 		if (line[0] == '#' && !isInDefine)
 		{
 			string preproc = extractPreprocessorStatement(line);
@@ -691,13 +702,17 @@ string ASBeautifier::beautify(const string& originalLine)
 			backslashEndsPrevLine = (line[line.length() - 1] == '\\');
 		// comments within the definition line can be continued without the backslash
 		if (isInPreprocessorUnterminatedComment(line))
+                {
+			LABEL("is in preprocessor unterminated comment.");
 			backslashEndsPrevLine = true;
+                }
 
 		// check if this line ends a multi-line #define
 		// if so, use the #define's cloned beautifier for the line's indentation
 		// and then remove it from the active beautifier stack and delete it.
 		if (!backslashEndsPrevLine && isInDefineDefinition && !isInDefine)
 		{
+			LABEL("No previous back slash.");
 			isInDefineDefinition = false;
 			// this could happen with invalid input
 			if (activeBeautifierStack->empty())
@@ -715,6 +730,7 @@ string ASBeautifier::beautify(const string& originalLine)
 			RETURN(originalLine);
 	}
 
+        LABEL("==A::c")
 	// if there exists any worker beautifier in the activeBeautifierStack,
 	// then use it instead of me to indent the current line.
 	// variables set by ASFormatter must be updated.
@@ -792,7 +808,10 @@ string ASBeautifier::beautify(const string& originalLine)
 		indentCount = 0;
 
 	if (lineCommentNoBeautify || blockCommentNoBeautify || isInQuoteContinuation)
+        {
+                LABEL("==D::a")
 		indentCount = spaceIndentCount = 0;
+        }
 
 	// finally, insert indentations into beginning of line
 
@@ -2018,14 +2037,21 @@ bool ASBeautifier::isInPreprocessorUnterminatedComment(const string& line)
 	MARK_ENTRY();
 	if (!isInPreprocessorComment)
 	{
-		size_t startPos = line.find("/*");
-		if (startPos == string::npos)
-			RETURN(false);
+                if (!wasInPreprocessorComment)
+                {
+		        size_t startPos = line.find("/*");
+		        if (startPos == string::npos)
+			        RETURN(false);
+	        }
+                LABEL("was in preprocessor comment");
+		wasInPreprocessorComment = false;
 	}
 	size_t endNum = line.find("*/");
-	if (endNum != string::npos)
+	if (!(wasInPreprocessorComment) && (endNum != string::npos))
 	{
 		isInPreprocessorComment = false;
+                LABEL("set wasInPreprocessorComment true");
+		wasInPreprocessorComment = true;
 		RETURN(false);
 	}
 	isInPreprocessorComment = true;
@@ -2154,7 +2180,10 @@ void ASBeautifier::computePreliminaryIndentation()
 		spaceIndentObjCMethodAlignment = continuationIndentStack->back();
 
 	if (!continuationIndentStack->empty())
+        {
+                LABEL("==L::a")
 		spaceIndentCount = continuationIndentStack->back();
+        }
 
 	for (size_t i = 0; i < headerStack->size(); i++)
 	{
@@ -2175,13 +2204,20 @@ void ASBeautifier::computePreliminaryIndentation()
 		}
 		else if (!(i > 0 && (*headerStack)[i - 1] != &AS_OPEN_BRACE
 		           && (*headerStack)[i] == &AS_OPEN_BRACE))
+                {
+                        LABEL("==L::a")
 			++indentCount;
+
+                }
 
 		if (!isJavaStyle() && !namespaceIndent && i > 0
 		        && ((*headerStack)[i - 1] == &AS_NAMESPACE
 		            || (*headerStack)[i - 1] == &AS_MODULE)
 		        && (*headerStack)[i] == &AS_OPEN_BRACE)
+                {
+                        LABEL("==M::a")
 			--indentCount;
+                }
 
 		if (isCStyle() && i >= 1
 		        && (*headerStack)[i - 1] == &AS_CLASS
@@ -2248,7 +2284,10 @@ void ASBeautifier::computePreliminaryIndentation()
 	        && (*headerStack)[headerStack->size() - 1] == &AS_OPEN_BRACE
 	        && lineBeginsWithCloseBrace
 	        && braceBlockStateStack->back())
+        {
+                LABEL("==M::a")
 		--indentCount;
+        }
 
 	// unindent an indented switch closing brace...
 	else if (!lineStartsInComment
@@ -2280,7 +2319,10 @@ void ASBeautifier::adjustParsedLineIndentation(size_t iPrelim, bool isInExtraHea
 {
 	MARK_ENTRY();
 	if (lineStartsInComment)
+          {
+                LABEL("==Q::a")
 		RETURN();
+          }
 
 	// unindent a one-line statement in a header indent
 	if (!blockIndent
@@ -2324,7 +2366,10 @@ void ASBeautifier::adjustParsedLineIndentation(size_t iPrelim, bool isInExtraHea
 		--indentCount;
 
 	if (indentCount < 0)
+        {
+                LABEL("==R::a")
 		indentCount = 0;
+        }
 
 	// take care of extra brace indentation option...
 	if (!lineStartsInComment
@@ -2805,6 +2850,7 @@ void ASBeautifier::parseCurrentLine(const string& line)
 		if ((isInComment || isInLineComment) && line.compare(i, 2, "*/") == 0)
 		{
 			size_t firstText = line.find_first_not_of(" \t");
+                        LABEL("==S::a")
 			// if there is a 'case' statement after these comments unindent by 1
 			// only if the ending comment is the first entry on the line
 			if (isCaseHeaderCommentIndent && firstText == i)
@@ -2830,6 +2876,7 @@ void ASBeautifier::parseCurrentLine(const string& line)
 
 		if (isInLineComment)
 		{
+                        LABEL("==T::a")
 			// bypass rest of the comment up to the comment end
 			while (i + 1 < line.length())
 				i++;
@@ -2841,6 +2888,7 @@ void ASBeautifier::parseCurrentLine(const string& line)
 		}
 		if (isInComment)
 		{
+                        LABEL("==U::a")
 			// if there is a 'case' statement after these comments unindent by 1
 			if (!lineOpensWithComment && isCaseHeaderCommentIndent)
 				--indentCount;

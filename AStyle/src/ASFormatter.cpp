@@ -2094,18 +2094,23 @@ string ASFormatter::nextLine()
 		beautifiedLine = beautify("");
 		previousReadyFormattedLineLength = 0;
 		// call the enhancer for new empty lines
+		LABEL("\t... Ready to enhance prepending an empty line.");
 		enhancer->enhance(beautifiedLine, isInNamespace, isInPreprocessorBeautify, isInBeautifySQL);
 	}
 	else		// format the current formatted line
 	{
-		LABEL("\t... Ready to enhance.");
+		LABEL("\t... Ready to enhance without prepending an empty line.");
+                // string* tmpLine = nullptr;
 		isLineReady = false;
 		runInIndentContinuation = runInIndentChars;
 		beautifiedLine = beautify(readyFormattedLine);
 		previousReadyFormattedLineLength = readyFormattedLineLength;
+                // tmpLine->append(std::to_string(readyFormattedLineLength));
+                // LABEL(tmpLine->c_str())
 		// the enhancer is not called for no-indent line comments
 		if (!lineCommentNoBeautify && !isFormattingModeOff)
 		{
+			LABEL("\t=== Enhancing.")
 			enhancer->enhance(beautifiedLine, isInNamespace, isInPreprocessorBeautify, isInBeautifySQL);
 		}
                 else
@@ -2131,7 +2136,7 @@ string ASFormatter::nextLine()
 
 	prependEmptyLine = false;
 	assert(computeChecksumOut(beautifiedLine));
-        DISPLAY(beautifiedLine.data(), BLUE('|'));
+        DISPLAY(beautifiedLine.c_str(), BLUE('|'));
 	RETURN(beautifiedLine);
 }
 
@@ -2945,7 +2950,7 @@ bool ASFormatter::getNextLine(bool emptyLineWasDeleted /*false*/)
 	else
 	{
 		currentLine = sourceIterator->nextLine(emptyLineWasDeleted);
-                DISPLAY(currentLine.data(), GREEN(':'))
+                DISPLAY(currentLine.c_str(), GREEN(':'))
 		assert(computeChecksumIn(currentLine));
 	}
 	// reset variables for new line

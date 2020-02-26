@@ -11,7 +11,7 @@ extern int depth;
 #define ENTER   "vvv"
 #define STEP  4
 #define FOO(a)  MODDEPTH / (a)
-#define RESET()         "\033[39;49m"
+#define RESET()         "\033[0;39;49m"
 #define GREEN(a)        "\033[1;37;42m" # a
 #define BLUE(a)         "\033[1;37;44m" # a
 #if defined(DBG)
