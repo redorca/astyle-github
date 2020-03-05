@@ -489,6 +489,8 @@ string ASFormatter::nextLine()
 	isCharImmediatelyPostCloseBlock = false;
 	isCharImmediatelyPostTemplate = false;
 
+	LABEL("==Aa::a");
+        DISPLAY(formattedLine.c_str(), GREEN(" 1 "))
 	while (!isLineReady)
 	{
 		if (shouldReparseCurrentChar)
@@ -565,12 +567,14 @@ string ASFormatter::nextLine()
 			CONTINUE;
 		}
 
+                DISPLAY(formattedLine.c_str(), GREEN(' '));
 		if (shouldBreakLineAtNextChar)
 		{
 			if (isWhiteSpace(currentChar) && !lineIsEmpty)
 			{
 				CONTINUE;
 			}
+                        LABEL(",,1  isInLineBreak goes true")
 			isInLineBreak = true;
 			shouldBreakLineAtNextChar = false;
 		}
@@ -645,6 +649,7 @@ string ASFormatter::nextLine()
 				// check for run-in
 				if (formattedLine.length() > 0 && formattedLine[0] == '{')
 				{
+                                        LABEL(",,2  isInLineBreak goes true")
 					isInLineBreak = true;
 					isInBraceRunIn = false;
 				}
@@ -704,6 +709,7 @@ string ASFormatter::nextLine()
 			// check for run-in
 			if (formattedLine.length() > 0 && formattedLine[0] == '{')
 			{
+                                LABEL(",,3  isInLineBreak goes true")
 				isInLineBreak = true;
 				isInBraceRunIn = false;
 			}
@@ -851,6 +857,7 @@ string ASFormatter::nextLine()
 					&& isCharPotentialHeader(nextText, 0)
 					&& ASBase::findHeader(nextText, 0, headers) == &AS_IF)
 				{
+                                        LABEL(",,4  isInLineBreak goes true")
 					isInLineBreak = true;
 				}
 			}
@@ -886,11 +893,13 @@ string ASFormatter::nextLine()
 							&& ASBase::findHeader(nextText, 0, headers) != &AS_IF)
 							|| nextText[0] == '{'))
 					{
+                                                LABEL(",,5  isInLineBreak goes true")
 						isInLineBreak = true;
 					}
 				}
 				else
 				{
+                                        LABEL(",,6  isInLineBreak goes true")
 					isInLineBreak = true;
 				}
 			}
@@ -940,6 +949,7 @@ string ASFormatter::nextLine()
 				shouldReparseCurrentChar = true;
 				if (formattedLine.find_first_not_of(" \t") != string::npos)
 				{
+                                        LABEL(",,7  isInLineBreak goes true")
 					isInLineBreak = true;
 				}
 				if (needHeaderOpeningBrace)
@@ -959,6 +969,7 @@ string ASFormatter::nextLine()
 				&& (formattedLine.find_first_not_of(" \t") != string::npos))
 			{
 				shouldReparseCurrentChar = true;
+                                LABEL(",,8  isInLineBreak goes true")
 				isInLineBreak = true;
 				CONTINUE;
 			}
@@ -975,6 +986,7 @@ string ASFormatter::nextLine()
 		{
 			if ((size_t) charNum == methodBreakCharNum)
 			{
+                                LABEL(",,10  isInLineBreak goes true")
 				isInLineBreak = true;
 			}
 			methodBreakCharNum = string::npos;
@@ -1271,6 +1283,7 @@ string ASFormatter::nextLine()
 						&& (isBraceType(braceTypeStack->back(), BREAK_BLOCK_TYPE)
 						    || shouldBreakOneLineBlocks))
 					{
+                                                LABEL(",,11  isInLineBreak goes true")
 						isInLineBreak = true;
 					}
 					else if (currentLineBeginsWithBrace)
@@ -1289,6 +1302,7 @@ string ASFormatter::nextLine()
 				}
 				else
 				{
+                                        LABEL(",,12  isInLineBreak goes true")
 					isInLineBreak = true;
 				}
 			}
@@ -1303,6 +1317,7 @@ string ASFormatter::nextLine()
 				     || currentChar == '('))
 			{
 				previousCommandChar = ' ';
+                                LABEL(",,13  isInLineBreak goes true")
 				isInLineBreak = true;
 			}
 		}
@@ -1400,6 +1415,7 @@ string ASFormatter::nextLine()
 					if (maxCodeLength != string::npos
 						&& previousHeader != &AS_CASE)
 					{
+                                                LABEL(",,14  isInLineBreak goes true")
 						isInLineBreak = true;
 					}
 					else
@@ -2977,7 +2993,10 @@ bool ASFormatter::getNextLine(bool emptyLineWasDeleted /*false*/)
 
 	// unless reading in the first line of the file, break a new line.
 	if (!isVirgin)
+	{
+                LABEL(",,15  isInLineBreak goes true")
 		isInLineBreak = true;
+	}
 	else
 		isVirgin = false;
 
@@ -3072,9 +3091,14 @@ void ASFormatter::initNewLine()
 	// is equivalent to the opening comment
 	if (isInComment)
 	{
+		LABEL("==C::a");
 		if (noTrimCommentContinuation)
+	        {
+		        LABEL("==CC::a");
 			leadingSpaces = tabIncrementIn = 0;
+	        }
 		trimContinuationLine();
+		LABEL("==C::z");
 		RETURN();
 	}
 
@@ -5361,10 +5385,10 @@ void ASFormatter::formatOpeningBrace(BraceType braceType)
 			if (isOkToBreakBlock(braceType)
 				&& !(isCharImmediatelyPostComment && isCharImmediatelyPostLineComment)	// don't attach if two comments on the line
 				&& !isImmediatelyPostPreprocessor
-//				&& peekNextChar() != '}'		// don't attach { }		// removed release 2.03
-				&& previousCommandChar != '{'	// don't attach { {
-				&& previousCommandChar != '}'	// don't attach } {
-				&& previousCommandChar != ';')	// don't attach ; {
+//				&& peekNextChar() != '\}'		// don't attach { }		// removed release 2.03
+				&& previousCommandChar != '{'	// don't attach \{ {
+				&& previousCommandChar != '}'	// don't attach } \{
+				&& previousCommandChar != ';')	// don't attach ; \{
 			{
 				appendCharInsideComments();
 			}
@@ -5451,7 +5475,7 @@ void ASFormatter::formatClosingBrace(BraceType braceType)
 		parenStack->pop_back();
 
 	// mark state of immediately after empty block
-	// this state will be used for locating braces that appear immediately AFTER an empty block (e.g. '{} \n}').
+	// this state will be used for locating braces that appear immediately AFTER an empty block (e.g. '{} \n\}').
 	if (previousCommandChar == '{')
 		isImmediatelyPostEmptyBlock = true;
 
@@ -5542,6 +5566,7 @@ void ASFormatter::formatArrayBraces(BraceType braceType, bool isOpeningArrayBrac
 				if (isBraceType(braceType, ENUM_TYPE)
 					&& formattingStyle == STYLE_MOZILLA)
 				{
+                                        LABEL(",,16  isInLineBreak goes true")
 					isInLineBreak = true;
 					appendCurrentChar();		// don't attach
 				}
@@ -5551,6 +5576,7 @@ void ASFormatter::formatArrayBraces(BraceType braceType, bool isOpeningArrayBrac
 					      && formattedLine[formattedLine.length() - 1] == '\\'))
 					 && currentLineBeginsWithBrace)
 				{
+                                        LABEL(",,17  isInLineBreak goes true")
 					isInLineBreak = true;
 					appendCurrentChar();		// don't attach
 				}
@@ -5747,6 +5773,7 @@ void ASFormatter::formatRunIn()
 
 	bool extraIndent = false;
 	bool extraHalfIndent = false;
+        LABEL(",,18  isInLineBreak goes true")
 	isInLineBreak = true;
 
 	// cannot attach a class modifier without indent-classes
@@ -5816,7 +5843,7 @@ void ASFormatter::formatRunIn()
 	else if (getIndentString() == "\t")
 	{
 		appendChar('\t', false);
-		runInIndentChars = 2;	// one for { and one for tab
+		runInIndentChars = 2;	// one for \{ and one for tab
 		if (extraIndent)
 		{
 			appendChar('\t', false);
@@ -5847,11 +5874,11 @@ void ASFormatter::formatArrayRunIn()
 	assert(isBraceType(braceTypeStack->back(), ARRAY_TYPE));
 
 	// make sure the brace is broken
-	if (formattedLine.find_first_not_of(" \t{") != string::npos)
+	if (formattedLine.find_first_not_of(" \t\{") != string::npos)
 		RETURN();
 
 	size_t lastText = formattedLine.find_last_not_of(" \t");
-	if (lastText == string::npos || formattedLine[lastText] != '{')
+	if (lastText == string::npos || formattedLine[lastText] != '\{')
 		RETURN();
 
 	// check for extra whitespace
@@ -5862,7 +5889,7 @@ void ASFormatter::formatArrayRunIn()
 	if (getIndentString() == "\t")
 	{
 		appendChar('\t', false);
-		runInIndentChars = 2;	// one for { and one for tab
+		runInIndentChars = 2;	// one for \{ and one for tab
 	}
 	else
 	{
@@ -5871,6 +5898,7 @@ void ASFormatter::formatArrayRunIn()
 		runInIndentChars = indent;
 	}
 	isInBraceRunIn = true;
+        LABEL("==C::a");
 	isInLineBreak = false;
 	MARK_EXIT();
 }
@@ -6279,6 +6307,7 @@ void ASFormatter::formatCommentOpener()
 		if (isBraceType(braceTypeStack->back(), NAMESPACE_TYPE))
 		{
 			// namespace run-in is always broken.
+                        LABEL(",,19  isInLineBreak goes true")
 			isInLineBreak = true;
 		}
 		else if (braceFormatMode == NONE_MODE)
@@ -6292,7 +6321,10 @@ void ASFormatter::formatCommentOpener()
 			// if the brace was not attached?
 			if (formattedLine.length() > 0 && formattedLine[0] == '{'
 				&& !isBraceType(braceTypeStack->back(), SINGLE_LINE_TYPE))
+		        {
+                                LABEL(",,2X  isInLineBreak goes true")
 				isInLineBreak = true;
+		        }
 		}
 		else if (braceFormatMode == RUN_IN_MODE)
 		{
@@ -6375,6 +6407,7 @@ void ASFormatter::formatCommentCloser()
 		&& !isInPreprocessor
 		&& isOkToBreakBlock(braceTypeStack->back()))
 	{
+                LABEL(",,20  isInLineBreak goes true")
 		isInLineBreak = true;
 		shouldBreakLineAtNextChar = true;
 	}
@@ -6405,6 +6438,7 @@ void ASFormatter::formatLineCommentBody()
 	// explicitly break a line when a line comment's end is found.
 	if (charNum == (int) currentLine.length())
 	{
+                LABEL(",,21  isInLineBreak goes true")
 		isInLineBreak = true;
 		isInLineComment = false;
 		isImmediatelyPostLineComment = true;
@@ -6478,17 +6512,26 @@ void ASFormatter::formatLineCommentOpener()
 			if (!lineCommentNoIndent)
 				formatRunIn();
 			else
+		        {
+                                LABEL(",,22  isInLineBreak goes true")
 				isInLineBreak = true;
+		        }
 		}
 		else if (braceFormatMode == BREAK_MODE)
 		{
 			if (formattedLine.length() > 0 && formattedLine[0] == '{')
+		        {
+                                LABEL(",,23  isInLineBreak goes true")
 				isInLineBreak = true;
+		        }
 		}
 		else
 		{
 			if (currentLineBeginsWithBrace)
+		        {
+                                LABEL(",,24  isInLineBreak goes true")
 				isInLineBreak = true;
+		        }
 		}
 	}
 
@@ -6538,6 +6581,7 @@ void ASFormatter::formatLineCommentOpener()
 	// explicitly break a line when a line comment's end is found.
 	if (charNum + 1 == (int) currentLine.length())
 	{
+                LABEL(",,25 isInLineBreak goes true")
 		isInLineBreak = true;
 		isInLineComment = false;
 		isImmediatelyPostLineComment = true;
@@ -6662,12 +6706,18 @@ void ASFormatter::formatQuoteOpener()
 		else if (braceFormatMode == BREAK_MODE)
 		{
 			if (formattedLine.length() > 0 && formattedLine[0] == '{')
+		        {
+                                LABEL(",,26  isInLineBreak goes true")
 				isInLineBreak = true;
+		        }
 		}
 		else
 		{
 			if (currentLineBeginsWithBrace)
+		        {
+                                LABEL(",,27  isInLineBreak goes true")
 				isInLineBreak = true;
+		        }
 		}
 	}
 	previousCommandChar = ' ';
@@ -6768,6 +6818,7 @@ void ASFormatter::isLineBreakBeforeClosingHeader()
 		|| braceFormatMode == RUN_IN_MODE
 		|| attachClosingBraceMode)
 	{
+                LABEL(",,28  isInLineBreak goes true")
 		isInLineBreak = true;
 	}
 	else if (braceFormatMode == NONE_MODE)
@@ -6775,6 +6826,7 @@ void ASFormatter::isLineBreakBeforeClosingHeader()
 		if (shouldBreakClosingHeaderBraces
 			|| getBraceIndent() || getBlockIndent())
 		{
+                        LABEL(",,29  isInLineBreak goes true")
 			isInLineBreak = true;
 		}
 		else
@@ -6795,6 +6847,7 @@ void ASFormatter::isLineBreakBeforeClosingHeader()
 		if (shouldBreakClosingHeaderBraces
 			|| getBraceIndent() || getBlockIndent())
 		{
+                        LABEL(",,30  isInLineBreak goes true")
 			isInLineBreak = true;
 		}
 		else

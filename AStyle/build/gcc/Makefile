@@ -138,8 +138,8 @@ astyle:  dirs $(OBJ)
 	$(CXX) $(LDFLAGSr) -o $(bindir)/$@ $(OBJ)
 	$(Q) echo
 
-debug:  $(BIN)d
-$(BIN)d:  DEFFS = -DDBG
+# debug:  $(BIN)d
+astyled:  DEFFS = -DDBG
 astyled: dirs $(OBJd)
 	$(CXX) $(LDFLAGSd) -o $(bindir)/$@ $(OBJd)
 	$(Q) echo

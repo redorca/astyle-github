@@ -7,8 +7,11 @@
 #
 ##################
 
+default: BIN=astyled
 default:
-	 $(MAKE) -C build/gcc prefix=~/usr BIN=astyle
+	 $(MAKE) -C build/gcc prefix=~/usr BIN=$(BIN)  clean $(BIN) install
+#	 $(MAKE) -C build/gcc prefix=~/usr BIN=$(BIN)  $(BIN)
+#	 $(MAKE) -C build/gcc prefix=~/usr BIN=$(BIN)  install_debug
 
 install:
 	 $(MAKE) -C build/gcc prefix=~/usr BIN=astyled install

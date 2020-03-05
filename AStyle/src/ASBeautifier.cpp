@@ -497,6 +497,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	}
 
         LABEL("==A::a")
+        DISPLAY(originalLine.c_str(), GREEN(' '))
 	// handle and remove white spaces around the line:
 	// If not in comment, first find out size of white space before line,
 	// so that possible comments starting in the line continue in
@@ -510,6 +511,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	else if (isInComment || isInBeautifySQL)
 	{
                 LABEL("==Z::a")
+                DISPLAY(line.c_str(), GREEN(' '))
 		// trim the end of comment and SQL lines
 		line = originalLine;
 		size_t trimEnd = line.find_last_not_of(" \t");
@@ -534,6 +536,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	else
 	{
                 LABEL("==B::a")
+                DISPLAY(line.c_str(), GREEN(' '))
 		line = trim(originalLine);
 		if (line.length() > 0)
 		{
@@ -562,12 +565,19 @@ string ASBeautifier::beautify(const string& originalLine)
 			lineOpensWithLineComment = true;
 		if (j != string::npos && line.compare(j, 2, "/*") == 0)
 		{
+                        LABEL("==BB::a")
 			lineOpensWithComment = true;
 			size_t k = line.find_first_not_of(" \t");
 			if (k != string::npos && line.compare(k, 1, "{") == 0)
+		        {
+                                LABEL("==BBB::a")
 				isInRunInComment = true;
+		        }
 		}
+                LABEL("==B::z")
 	}
+        LABEL("==A::b")
+        DISPLAY(line.c_str(), GREEN(' '))
 
 	// When indent is OFF the lines must still be processed by ASBeautifier.
 	// Otherwise the lines immediately following may not be indented correctly.
@@ -575,7 +585,6 @@ string ASBeautifier::beautify(const string& originalLine)
 	        && line.find("*INDENT-OFF*", 0) != string::npos)
 		isIndentModeOff = true;
 
-        LABEL("==A::b")
 	if (line.length() == 0)
 	{
 		if (backslashEndsPrevLine)
@@ -607,6 +616,7 @@ string ASBeautifier::beautify(const string& originalLine)
 			RETURN(line);
 	}
 
+        DISPLAY(line.c_str(), GREEN(' '))
 	// handle preprocessor commands
 	if (isInIndentablePreprocBlock
 	        && line.length() > 0
@@ -625,6 +635,7 @@ string ASBeautifier::beautify(const string& originalLine)
 		RETURN(getIndentedLineReturn(indentedLine, originalLine));
 	}
 
+        DISPLAY(line.c_str(), GREEN(' '))
 	if (!isInComment
 	        && !isInQuoteContinuation
 	        && line.length() > 0
@@ -731,6 +742,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	}
 
         LABEL("==A::c")
+        DISPLAY(line.c_str(), GREEN(' '))
 	// if there exists any worker beautifier in the activeBeautifierStack,
 	// then use it instead of me to indent the current line.
 	// variables set by ASFormatter must be updated.
@@ -771,6 +783,8 @@ string ASBeautifier::beautify(const string& originalLine)
 	// parse characters in the current line.
 	parseCurrentLine(line);
 
+        LABEL("==A::d")
+        DISPLAY(line.c_str(), GREEN(' '))
 	// handle special cases of indentation
 	adjustParsedLineIndentation(iPrelim, isInExtraHeaderIndent);
 
@@ -809,14 +823,18 @@ string ASBeautifier::beautify(const string& originalLine)
 
 	if (lineCommentNoBeautify || blockCommentNoBeautify || isInQuoteContinuation)
         {
-                LABEL("==D::a")
+                LABEL("==Dd::a")
 		indentCount = spaceIndentCount = 0;
         }
 
 	// finally, insert indentations into beginning of line
 
+        LABEL("==A::d")
+        DISPLAY(line.c_str(), GREEN(' '))
 	string indentedLine = preLineWS(indentCount, spaceIndentCount) + line;
 	indentedLine = getIndentedLineReturn(indentedLine, originalLine);
+        LABEL("==A::e")
+        DISPLAY(indentedLine.c_str(), GREEN(' '))
 
 	prevFinalLineSpaceIndentCount = spaceIndentCount;
 	prevFinalLineIndentCount = indentCount;
