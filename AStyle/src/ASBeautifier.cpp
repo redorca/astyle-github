@@ -497,8 +497,7 @@ string ASBeautifier::beautify(const string& originalLine)
 	}
 
         LABEL("==A::a")
-        DISPLAY(originalLine.c_str(), GREEN(' '))
-	// handle and remove white spaces around the line:
+        DISPLAY(originalLine.c_str(), YELLOW(" OL ")) // handle and remove white spaces around the line:
 	// If not in comment, first find out size of white space before line,
 	// so that possible comments starting in the line continue in
 	// relation to the preliminary white-space.
@@ -511,7 +510,6 @@ string ASBeautifier::beautify(const string& originalLine)
 	else if (isInComment || isInBeautifySQL)
 	{
                 LABEL("==Z::a")
-                DISPLAY(line.c_str(), GREEN(' '))
 		// trim the end of comment and SQL lines
 		line = originalLine;
 		size_t trimEnd = line.find_last_not_of(" \t");
@@ -536,7 +534,6 @@ string ASBeautifier::beautify(const string& originalLine)
 	else
 	{
                 LABEL("==B::a")
-                DISPLAY(line.c_str(), GREEN(' '))
 		line = trim(originalLine);
 		if (line.length() > 0)
 		{
@@ -550,10 +547,10 @@ string ASBeautifier::beautify(const string& originalLine)
 				lineIsLineCommentOnly = true;
 			else if (line.compare(0, 2, "/*") == 0)
 			{
-                                LABEL("==E::a")
+                                LABEL("==BB::a")
 				if (line.find("*/", 2) != string::npos)
 			        {
-                                        LABEL("==F::a")
+                                        LABEL("==BBB::a")
 					lineIsCommentOnly = true;
 			        }
 			}
@@ -577,7 +574,6 @@ string ASBeautifier::beautify(const string& originalLine)
                 LABEL("==B::z")
 	}
         LABEL("==A::b")
-        DISPLAY(line.c_str(), GREEN(' '))
 
 	// When indent is OFF the lines must still be processed by ASBeautifier.
 	// Otherwise the lines immediately following may not be indented correctly.
@@ -587,8 +583,10 @@ string ASBeautifier::beautify(const string& originalLine)
 
 	if (line.length() == 0)
 	{
+                LABEL("==AA::a")
 		if (backslashEndsPrevLine)
 		{
+                        LABEL("==AAA::a")
 			backslashEndsPrevLine = false;
 			// check if this line ends a multi-line #define
 			// if so, remove the #define's cloned beautifier from the active
@@ -603,6 +601,7 @@ string ASBeautifier::beautify(const string& originalLine)
 					delete defineBeautifier;
 				}
 			}
+                        LABEL("==AAA::z")
 		}
 		if (emptyLineFill && !isInQuoteContinuation)
 		{
@@ -613,10 +612,13 @@ string ASBeautifier::beautify(const string& originalLine)
 			// must fall thru here
 		}
 		else
+                {
+                        LABEL("==AAaa::z")
+                        DISPLAY(line.c_str(), YELLOW(" li "))
 			RETURN(line);
+		}
 	}
 
-        DISPLAY(line.c_str(), GREEN(' '))
 	// handle preprocessor commands
 	if (isInIndentablePreprocBlock
 	        && line.length() > 0
@@ -635,7 +637,6 @@ string ASBeautifier::beautify(const string& originalLine)
 		RETURN(getIndentedLineReturn(indentedLine, originalLine));
 	}
 
-        DISPLAY(line.c_str(), GREEN(' '))
 	if (!isInComment
 	        && !isInQuoteContinuation
 	        && line.length() > 0
@@ -742,7 +743,6 @@ string ASBeautifier::beautify(const string& originalLine)
 	}
 
         LABEL("==A::c")
-        DISPLAY(line.c_str(), GREEN(' '))
 	// if there exists any worker beautifier in the activeBeautifierStack,
 	// then use it instead of me to indent the current line.
 	// variables set by ASFormatter must be updated.
@@ -784,7 +784,6 @@ string ASBeautifier::beautify(const string& originalLine)
 	parseCurrentLine(line);
 
         LABEL("==A::d")
-        DISPLAY(line.c_str(), GREEN(' '))
 	// handle special cases of indentation
 	adjustParsedLineIndentation(iPrelim, isInExtraHeaderIndent);
 
@@ -830,11 +829,12 @@ string ASBeautifier::beautify(const string& originalLine)
 	// finally, insert indentations into beginning of line
 
         LABEL("==A::d")
-        DISPLAY(line.c_str(), GREEN(' '))
 	string indentedLine = preLineWS(indentCount, spaceIndentCount) + line;
+        DISPLAY(line.c_str(), YELLOW(" li "))
+        DISPLAY(indentedLine.c_str(), YELLOW(" il "))
 	indentedLine = getIndentedLineReturn(indentedLine, originalLine);
+        DISPLAY(indentedLine.c_str(), YELLOW(" il+ "))
         LABEL("==A::e")
-        DISPLAY(indentedLine.c_str(), GREEN(' '))
 
 	prevFinalLineSpaceIndentCount = spaceIndentCount;
 	prevFinalLineIndentCount = indentCount;

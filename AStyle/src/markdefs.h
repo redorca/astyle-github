@@ -12,8 +12,10 @@ extern int depth;
 #define STEP  4
 #define FOO(a)  MODDEPTH / (a)
 #define RESET()         "\033[0;39;49m"
+#define YELLOW(a)       "\033[1;30;43m" # a
 #define GREEN(a)        "\033[1;37;42m" # a
 #define BLUE(a)         "\033[1;37;44m" # a
+#define LTBLUE(a)       "\033[1;30;46m" # a
 #if defined(DBG)
 
 /* #define CONTINUE    {  SHOW_LINE(&currentLine[0]); continue; } */

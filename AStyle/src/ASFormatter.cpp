@@ -490,7 +490,6 @@ string ASFormatter::nextLine()
 	isCharImmediatelyPostTemplate = false;
 
 	LABEL("==Aa::a");
-        DISPLAY(formattedLine.c_str(), GREEN(" 1 "))
 	while (!isLineReady)
 	{
 		if (shouldReparseCurrentChar)
@@ -567,7 +566,6 @@ string ASFormatter::nextLine()
 			CONTINUE;
 		}
 
-                DISPLAY(formattedLine.c_str(), GREEN(' '));
 		if (shouldBreakLineAtNextChar)
 		{
 			if (isWhiteSpace(currentChar) && !lineIsEmpty)
@@ -665,7 +663,6 @@ string ASFormatter::nextLine()
 
 		if (isInPreprocessor)
 		{
-			LABEL("\t=== isInPreprocessor")
 			appendCurrentChar();
 			CONTINUE;
 		}
@@ -754,7 +751,8 @@ string ASFormatter::nextLine()
 
 		if (isImmediatelyPostComment)
 		{
-			LABEL("\t=== isInPreprocessor")
+			LABEL("\t=== isImmediatelyPostComment")
+
 			caseHeaderFollowsComments = false;
 			isImmediatelyPostComment = false;
 			isCharImmediatelyPostComment = true;
@@ -762,7 +760,7 @@ string ASFormatter::nextLine()
 
 		if (isImmediatelyPostLineComment)
 		{
-			LABEL("\t=== isInPreprocessor")
+			LABEL("\t=== isImmediatelyPostLineComment")
 			caseHeaderFollowsComments = false;
 			isImmediatelyPostLineComment = false;
 			isCharImmediatelyPostLineComment = true;
@@ -805,7 +803,7 @@ string ASFormatter::nextLine()
 		// reset isImmediatelyPostHeader information
 		if (isImmediatelyPostHeader)
 		{
-			LABEL("\t=== isInPreprocessor")
+			LABEL("=== QQ::a")
 			// should braces be added
 			if (currentChar != '{'
 				&& shouldAddBraces
@@ -920,6 +918,7 @@ string ASFormatter::nextLine()
 					// move ending comments to this formattedLine
 					if (isBeforeAnyLineEndComment(blockEnd))
 					{
+			                        LABEL("=== LL::a")
 						size_t commentStart = currentLine.find_first_not_of(" \t", blockEnd + 1);
 						assert(commentStart != string::npos);
 						assert((currentLine.compare(commentStart, 2, "//") == 0)
@@ -1583,9 +1582,11 @@ string ASFormatter::nextLine()
 
 		if (isInLineBreak)	  // OK to break line here
 		{
+		        LABEL("==CC::a");
 			breakLine();
 			if (isInVirginLine)		// adjust for the first line
 			{
+		                LABEL("==CCC::a");
 				lineCommentNoBeautify = lineCommentNoIndent;
 				lineCommentNoIndent = false;
 				if (isImmediatelyPostPreprocessor)
@@ -1594,6 +1595,7 @@ string ASFormatter::nextLine()
 					isIndentableProprocessor = false;
 				}
 			}
+		        LABEL("==CC::z");
 		}
 
 		if (previousNonWSChar == '}' || currentChar == ';')
@@ -2098,6 +2100,10 @@ string ASFormatter::nextLine()
 
 	// return a beautified (i.e. correctly indented) line.
 
+	LABEL("==Aa::b");
+        DISPLAY(currentLine.c_str(), LTBLUE(" CL "))
+        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
+        DISPLAY(readyFormattedLine.c_str(), LTBLUE(" RFL "))
 	string beautifiedLine;
 	size_t readyFormattedLineLength = trim(readyFormattedLine).length();
 	bool isInNamespace = isBraceType(braceTypeStack->back(), NAMESPACE_TYPE);
@@ -2149,10 +2155,10 @@ string ASFormatter::nextLine()
 		isInPreprocessorBeautify = isInPreprocessor;	// used by ASEnhancer
 		isInBeautifySQL = isInExecSQL;					// used by ASEnhancer
 	}
+        DISPLAY(beautifiedLine.c_str(), LTBLUE(" BL "))
 
 	prependEmptyLine = false;
 	assert(computeChecksumOut(beautifiedLine));
-        DISPLAY(beautifiedLine.c_str(), BLUE('|'));
 	RETURN(beautifiedLine);
 }
 
@@ -2966,7 +2972,6 @@ bool ASFormatter::getNextLine(bool emptyLineWasDeleted /*false*/)
 	else
 	{
 		currentLine = sourceIterator->nextLine(emptyLineWasDeleted);
-                DISPLAY(currentLine.c_str(), GREEN(':'))
 		assert(computeChecksumIn(currentLine));
 	}
 	// reset variables for new line
@@ -4321,7 +4326,10 @@ void ASFormatter::adjustComments()
 		LABEL("==B::a");
 		size_t endNum = currentLine.find("*/", charNum + 2);
 		if (endNum == string::npos)
+	        {
+		        LABEL("==BB::a");
 			RETURN();
+	        }
 		// following line comments may be a tag from AStyleWx //[[)>
 		size_t nextNum = currentLine.find_first_not_of(" \t", endNum + 2);
 		LABEL("==B::b");
@@ -4355,6 +4363,7 @@ void ASFormatter::adjustComments()
 			formattedLine.resize(lastText + 2);
 		else if (len < lastText + 2)
 			formattedLine.append(len - lastText, ' ');
+		LABEL("==B::d");
 	}
 	MARK_EXIT();
 }
