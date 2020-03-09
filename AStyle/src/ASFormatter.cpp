@@ -490,8 +490,12 @@ string ASFormatter::nextLine()
 	isCharImmediatelyPostTemplate = false;
 
 	LABEL("==Aa::a");
+        DISPLAY(currentLine.c_str(), LTBLUE(" CL "))
+        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
 	while (!isLineReady)
 	{
+	        LABEL("==Z::a");
+                DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
 		if (shouldReparseCurrentChar)
 		{
 			shouldReparseCurrentChar = false;
@@ -537,6 +541,7 @@ string ASFormatter::nextLine()
 			&& currentLine.find("*INDENT-ON*", charNum) != string::npos
 			&& isFormattingModeOff)
 		{
+			LABEL("=== LL::a")
 			LABEL("\tLineCommentOnly or CommentOnly && INDENT-ON");
 			isFormattingModeOff = false;
 			breakLine();
@@ -546,6 +551,7 @@ string ASFormatter::nextLine()
 		}
 		if (isFormattingModeOff)
 		{
+			LABEL("=== LL::b")
 			LABEL("\tisFormattingModeOff == true")
 			breakLine();
 			formattedLine = currentLine;
@@ -555,10 +561,12 @@ string ASFormatter::nextLine()
 		if ((lineIsLineCommentOnly || lineIsCommentOnly)
 			&& currentLine.find("*INDENT-OFF*", charNum) != string::npos)
 		{
+			LABEL("=== LL::c")
 			LABEL("\tLineCommentOnly or CommentOnly && INDENT-OFF");
 			isFormattingModeOff = true;
 			if (isInLineBreak)			// is true if not the first line
 			{
+			        LABEL("=== LLL::a")
 				breakLine();
 			}
 			formattedLine = currentLine;
@@ -634,6 +642,7 @@ string ASFormatter::nextLine()
 		if (currentChar == '#'
 			&& currentLine.find_first_not_of(" \t") == (size_t) charNum)
 		{
+			LABEL("=== LL::x")
 			string preproc = trim(currentLine.c_str() + charNum + 1);
 			if (preproc.length() > 0
 				&& isCharPotentialHeader(preproc, 0)
@@ -643,10 +652,12 @@ string ASFormatter::nextLine()
 					|| findKeyword(preproc, 0, "warning")
 					|| findKeyword(preproc, 0, "line")))
 			{
+			        LABEL("=== LLL::b")
 				currentLine = rtrim(currentLine);	// trim the end only
 				// check for run-in
 				if (formattedLine.length() > 0 && formattedLine[0] == '{')
 				{
+			                LABEL("=== LLLL::a")
                                         LABEL(",,2  isInLineBreak goes true")
 					isInLineBreak = true;
 					isInBraceRunIn = false;
@@ -663,6 +674,7 @@ string ASFormatter::nextLine()
 
 		if (isInPreprocessor)
 		{
+			LABEL("=== LL::d")
 			appendCurrentChar();
 			CONTINUE;
 		}
@@ -702,6 +714,7 @@ string ASFormatter::nextLine()
 			&& currentLine.find_first_not_of(" \t") == (size_t) charNum
 			&& !isBraceType(braceTypeStack->back(), SINGLE_LINE_TYPE))
 		{
+			LABEL("=== LL::y")
 			isInPreprocessor = true;
 			// check for run-in
 			if (formattedLine.length() > 0 && formattedLine[0] == '{')
@@ -907,6 +920,7 @@ string ASFormatter::nextLine()
 
 		if (passedSemicolon)    // need to break the formattedLine
 		{
+			LABEL("=== LL::e")
 			passedSemicolon = false;
 			if (parenStack->back() == 0 && !isCharImmediatelyPostComment && currentChar != ';') // allow ;;
 			{
@@ -918,7 +932,6 @@ string ASFormatter::nextLine()
 					// move ending comments to this formattedLine
 					if (isBeforeAnyLineEndComment(blockEnd))
 					{
-			                        LABEL("=== LL::a")
 						size_t commentStart = currentLine.find_first_not_of(" \t", blockEnd + 1);
 						assert(commentStart != string::npos);
 						assert((currentLine.compare(commentStart, 2, "//") == 0)
@@ -962,6 +975,7 @@ string ASFormatter::nextLine()
 
 		if (passedColon)
 		{
+			LABEL("=== LL::f")
 			passedColon = false;
 			if (parenStack->back() == 0
 				&& !isBeforeAnyComment()
@@ -977,6 +991,7 @@ string ASFormatter::nextLine()
 		// Check if in template declaration, e.g. foo<bar> or foo<bar,fig>
 		if (!isInTemplate && currentChar == '<')
 		{
+			LABEL("=== LL::g")
 			checkIfTemplateOpener();
 		}
 
@@ -994,6 +1009,7 @@ string ASFormatter::nextLine()
 		// Check for attach return type
 		if ((size_t) charNum >= methodAttachCharNum && methodAttachLineNum == 0)
 		{
+			LABEL("=== LL::h")
 			if ((size_t) charNum == methodAttachCharNum)
 			{
 				int pa = pointerAlignment;
@@ -2103,7 +2119,6 @@ string ASFormatter::nextLine()
 	LABEL("==Aa::b");
         DISPLAY(currentLine.c_str(), LTBLUE(" CL "))
         DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
-        DISPLAY(readyFormattedLine.c_str(), LTBLUE(" RFL "))
 	string beautifiedLine;
 	size_t readyFormattedLineLength = trim(readyFormattedLine).length();
 	bool isInNamespace = isBraceType(braceTypeStack->back(), NAMESPACE_TYPE);
@@ -4336,6 +4351,7 @@ void ASFormatter::adjustComments()
 		if (nextNum != string::npos
 			&& currentLine.compare(nextNum, 2, "//") != 0)
 			RETURN();
+		LABEL("==B::z");
 	}
 
 	size_t len = formattedLine.length();
@@ -4345,7 +4361,7 @@ void ASFormatter::adjustComments()
 	// if spaces were removed, need to add spaces before the comment
 	if (spacePadNum < 0)
 	{
-		LABEL("==B::c");
+		LABEL("==G::a");
 		int adjust = -spacePadNum;	  // make the number positive
 		formattedLine.append(adjust, ' ');
 	}
@@ -6359,6 +6375,7 @@ void ASFormatter::formatCommentOpener()
 	}
 
 	// appendSequence will write the previous line
+        LABEL("===X::a")
 	appendSequence(AS_OPEN_COMMENT);
 	goForward(1);
 

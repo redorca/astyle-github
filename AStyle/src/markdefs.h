@@ -15,7 +15,12 @@ extern int depth;
 #define YELLOW(a)       "\033[1;30;43m" # a
 #define GREEN(a)        "\033[1;37;42m" # a
 #define BLUE(a)         "\033[1;37;44m" # a
-#define LTBLUE(a)       "\033[1;30;46m" # a
+#define LTBLUE(a)       "\033[0;30;46m" # a
+#define DISPLAY(a, b)                                                   \
+                {                                                       \
+                        printf(" ::   %s%s%s\n", b, a, RESET());        \
+                }
+
 #if defined(DBG)
 
 /* #define CONTINUE    {  SHOW_LINE(&currentLine[0]); continue; } */
@@ -28,11 +33,6 @@ extern int depth;
 #define LABEL(a)                                                                                                \
                 {                                                                                               \
                         printf(" ::%d ==== %s%s %s\n", FOO(STEP), &depth_indent[DEPTH], a, __FUNCTION__);       \
-                }
-
-#define DISPLAY(a, b)                                                                           \
-                {                                                                               \
-                        printf(" ::   %s%s%s\n", b, a, RESET());        \
                 }
 
 #define MARK_EXIT()                             \
@@ -57,7 +57,6 @@ extern int depth;
 #define SHOW_LINE(a)
 #define SHOW_DEPTH(XXX)
 #define LABEL(a)
-#define DISPLAY(a, b)
 #define MARK_EXIT()
 #define MARK_ENTRY()
 #define RETURN(args ...)   return args
