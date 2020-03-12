@@ -4296,6 +4296,7 @@ string ASFormatter::peekNextText(const string& firstLine,
 
 		if (nextLine_.compare(firstChar, 2, "/*") == 0)
 		{
+                        LABEL("===WW::a    isInComment_ set true")
 			firstChar += 2;
 			isInComment_ = true;
 		}
@@ -4306,6 +4307,7 @@ string ASFormatter::peekNextText(const string& firstLine,
 			if (firstChar == string::npos)
 				continue;
 			firstChar += 2;
+                        LABEL("===WW::a    isInComment_ set true")
 			isInComment_ = false;
 			firstChar = nextLine_.find_first_not_of(" \t", firstChar);
 			if (firstChar == string::npos)
@@ -6318,6 +6320,10 @@ void ASFormatter::formatCommentOpener()
 	  {
 		LABEL("check for followingHeader");
 		followingHeader = checkForHeaderFollowingComment(currentLine.substr(charNum));
+		if (followingHeader != nullptr)
+                {
+                        printf("followingHeader %s\n", followingHeader->c_str());
+                }
 	  }
 
 	if (spacePadNum != 0 && !isInLineBreak)
@@ -6441,7 +6447,7 @@ void ASFormatter::formatCommentCloser()
 		shouldBreakLineAtNextChar = true;
 	}
 	LABEL("Closing");
-        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
+        DISPLAY(formattedLine.c_str(), LTBLUE(" FL.9 "))
 	MARK_EXIT();
 }
 

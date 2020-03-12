@@ -244,7 +244,7 @@ void ASResource::buildCastOperators(vector<const string*>* castOperators)
 void ASResource::buildHeaders(vector<const string*>* headers, int fileType, bool beautifier)
 {
 	MARK_ENTRY();
-	const size_t elements = 25;
+	const size_t elements = 35;
 	headers->reserve(elements);
 
 	headers->emplace_back(&AS_IF);
@@ -261,6 +261,7 @@ void ASResource::buildHeaders(vector<const string*>* headers, int fileType, bool
 	headers->emplace_back(&AS_QFOREVER);		// QT
 	headers->emplace_back(&AS_FOREACH);		// QT & C#
 	headers->emplace_back(&AS_FOREVER);		// Qt & Boost
+        // headers->emplace_back(&AS_OPEN_COMMENT);
 
 	if (fileType == C_TYPE)
 	{
