@@ -491,7 +491,6 @@ string ASFormatter::nextLine()
 
 	LABEL("==Aa::a");
         DISPLAY(currentLine.c_str(), LTBLUE(" CL "))
-        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
 	while (!isLineReady)
 	{
 	        LABEL("==Z::a");
@@ -605,6 +604,7 @@ string ASFormatter::nextLine()
 		if (isInComment)
 		{
 			LABEL("\t+++ isInComment true");
+                        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
 			formatCommentBody();
 			CONTINUE;
 		}
@@ -627,6 +627,7 @@ string ASFormatter::nextLine()
 		if (isSequenceReached("/*"))
 		{
 			LABEL("\t<<<< sequence reached '/*'")
+                        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
 			formatCommentOpener();
 			testForTimeToSplitFormattedLine();
 			CONTINUE;
@@ -2117,8 +2118,6 @@ string ASFormatter::nextLine()
 	// return a beautified (i.e. correctly indented) line.
 
 	LABEL("==Aa::b");
-        DISPLAY(currentLine.c_str(), LTBLUE(" CL "))
-        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
 	string beautifiedLine;
 	size_t readyFormattedLineLength = trim(readyFormattedLine).length();
 	bool isInNamespace = isBraceType(braceTypeStack->back(), NAMESPACE_TYPE);
@@ -2170,7 +2169,6 @@ string ASFormatter::nextLine()
 		isInPreprocessorBeautify = isInPreprocessor;	// used by ASEnhancer
 		isInBeautifySQL = isInExecSQL;					// used by ASEnhancer
 	}
-        DISPLAY(beautifiedLine.c_str(), LTBLUE(" BL "))
 
 	prependEmptyLine = false;
 	assert(computeChecksumOut(beautifiedLine));
@@ -3080,7 +3078,10 @@ void ASFormatter::initNewLine()
 	// don't trim these
 	if (isInQuoteContinuation
 		|| (isInPreprocessor && !getPreprocDefineIndent()))
+	{
+		LABEL("===RR::a");
 		RETURN();
+	}
 
 	// SQL continuation lines must be adjusted so the leading spaces
 	// is equivalent to the opening EXEC SQL
@@ -3111,14 +3112,14 @@ void ASFormatter::initNewLine()
 	// is equivalent to the opening comment
 	if (isInComment)
 	{
-		LABEL("==C::a");
+		LABEL("==R::b");
 		if (noTrimCommentContinuation)
 	        {
-		        LABEL("==CC::a");
+		        LABEL("==RR::a");
 			leadingSpaces = tabIncrementIn = 0;
 	        }
 		trimContinuationLine();
-		LABEL("==C::z");
+		LABEL("==R::z");
 		RETURN();
 	}
 
@@ -3187,6 +3188,7 @@ void ASFormatter::initNewLine()
 	// do not trim indented preprocessor define (except for comment continuation lines)
 	if (isInPreprocessor)
 	{
+		LABEL("===RR::c");
 		if (!doesLineStartComment)
 			leadingSpaces = 0;
 		charNum = 0;
@@ -6270,6 +6272,7 @@ void ASFormatter::formatCommentBody()
 		if (isSequenceReached("*/"))
 		{
 			LABEL("\t<<<< sequence reached '*/'")
+                        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
 			formatCommentCloser();
 			break;
 		}
@@ -6438,6 +6441,7 @@ void ASFormatter::formatCommentCloser()
 		shouldBreakLineAtNextChar = true;
 	}
 	LABEL("Closing");
+        DISPLAY(formattedLine.c_str(), LTBLUE(" FL "))
 	MARK_EXIT();
 }
 
@@ -8770,6 +8774,7 @@ void ASFormatter::stripCommentPrefix()
 
 	if (isInCommentStartLine)
 	{
+                LABEL("===SS::a")
 		// comment opener must begin the line
 		if (formattedLine.compare(firstChar, 2, "/*") != 0)
 			RETURN();
@@ -8797,9 +8802,11 @@ void ASFormatter::stripCommentPrefix()
 		}
 		RETURN();
 	}
+        LABEL("===S::a")
 	// comment body including the closer
 	if (formattedLine[firstChar] == '*')
 	{
+                LABEL("===SS::b")
 		if (formattedLine.compare(firstChar, 2, "*/") == 0)
 		{
 			// line starts with an end comment
@@ -8845,6 +8852,7 @@ void ASFormatter::stripCommentPrefix()
 	}
 	else
 	{
+                LABEL("===SS::c")
 		// first char not a '*'
 		// first char must be at least one indent
 		if (formattedLine.substr(0, firstChar).find('\t') == string::npos)

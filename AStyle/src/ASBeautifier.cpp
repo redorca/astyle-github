@@ -497,7 +497,6 @@ string ASBeautifier::beautify(const string& originalLine)
 	}
 
         LABEL("==A::a")
-        DISPLAY(originalLine.c_str(), YELLOW(" OL ")) // handle and remove white spaces around the line:
 	// If not in comment, first find out size of white space before line,
 	// so that possible comments starting in the line continue in
 	// relation to the preliminary white-space.
@@ -614,7 +613,6 @@ string ASBeautifier::beautify(const string& originalLine)
 		else
                 {
                         LABEL("==AAaa::z")
-                        DISPLAY(line.c_str(), YELLOW(" li "))
 			RETURN(line);
 		}
 	}
@@ -830,10 +828,7 @@ string ASBeautifier::beautify(const string& originalLine)
 
         LABEL("==A::d")
 	string indentedLine = preLineWS(indentCount, spaceIndentCount) + line;
-        DISPLAY(line.c_str(), YELLOW(" li "))
-        DISPLAY(indentedLine.c_str(), YELLOW(" il "))
 	indentedLine = getIndentedLineReturn(indentedLine, originalLine);
-        DISPLAY(indentedLine.c_str(), YELLOW(" il+ "))
         LABEL("==A::e")
 
 	prevFinalLineSpaceIndentCount = spaceIndentCount;
